@@ -1,0 +1,42 @@
+﻿## .NET build
+bin/
+obj/
+[Ll]og/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## ASP.NET Core secrets
+**/appsettings.Development.json
+**/appsettings.Local.json
+secrets.json
+
+## VS Code
+.vscode/
+
+## Rider & JetBrains
+.idea/
+*.sln.iml
+
+## Other files
+*.db
+*.sqlite
+*.mdf
+*.ldf
+
+## Publish output
+publish/
+out/
+
+## Npm/Node
+node_modules/
+
+## Mac/Linux files
+.DS_Store
+*.swp
+!.gitkeep
+
+## Paket
+.paket/
+paket-files/

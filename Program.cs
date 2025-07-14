@@ -36,4 +36,7 @@ app.MapControllerRoute(
         defaults: new { area = "User" })
     .WithStaticAssets();
 
+// Initialize the database with seed data
+var context = app.Services.CreateScope().ServiceProvider.GetRequiredService<DataContext>();
+SeedData.Seeding(context);
 app.Run();

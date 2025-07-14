@@ -8,17 +8,18 @@
 
     <ItemGroup>
       <Folder Include="Areas\Admin\Controllers\" />
-      <Folder Include="Areas\Admin\Models\" />
-      <Folder Include="Areas\Admin\Views\" />
-      <Folder Include="Areas\User\Models\" />
       <Folder Include="Interface\" />
       <Folder Include="Repository\" />
       <Folder Include="wwwroot\css\Admin\" />
     </ItemGroup>
 
     <ItemGroup>
+      <AdditionalFiles Include="Areas\User\Views\Brand\Index.cshtml" />
+      <AdditionalFiles Include="Areas\User\Views\Category\Index.cshtml" />
       <AdditionalFiles Include="Areas\User\Views\Home\Index.cshtml" />
       <AdditionalFiles Include="Areas\User\Views\Home\Privacy.cshtml" />
+      <AdditionalFiles Include="Areas\User\Views\Product\Detail.cshtml" />
+      <AdditionalFiles Include="Areas\User\Views\Product\Index.cshtml" />
       <AdditionalFiles Include="Areas\User\Views\Shared\Error.cshtml" />
       <AdditionalFiles Include="Areas\User\Views\Shared\_Layout.cshtml" />
       <AdditionalFiles Include="Areas\User\Views\Shared\_ValidationScriptsPartial.cshtml" />
@@ -28,6 +29,19 @@
       <_ContentIncludedByDefault Remove="Views\Shared\Error.cshtml" />
       <_ContentIncludedByDefault Remove="Views\Shared\_Layout.cshtml" />
       <_ContentIncludedByDefault Remove="Views\Shared\_ValidationScriptsPartial.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Brand\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Category\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Product\Detail.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Product\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Shared\Error.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Shared\_Footer.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Shared\_Header.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Shared\_Layout.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Shared\_Navbar.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Shared\_Sildebar.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Shared\_ValidationScriptsPartial.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\_ViewImports.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\_ViewStart.cshtml" />
     </ItemGroup>
 
     <ItemGroup>

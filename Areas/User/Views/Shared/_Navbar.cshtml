@@ -1,0 +1,26 @@
+﻿<nav class = "navbar navbar-expand-lg bg-light mb-4">
+    <div class = "container">
+        <button class = "navbar-toggler" type = "button" data-bs-toggle = "collapse" data-bs-target = "#mainNavbar">
+            <span class = "navbar-toggler-icon"></span>
+        </button>
+        <div class = "collapse navbar-collapse" id = "mainNavbar">
+            <ul class = "navbar-nav me-auto mb-2 mb-lg-0">
+                <li class = "nav-item"><a class = "nav-link" asp-controller = "Home" asp-action = "Index">Trang chủ</a>
+                </li>
+                <li class = "nav-item">
+                    <a class = "nav-link" asp-area = "Admin" asp-controller = "Product" asp-action = "">Sản phẩm</a>
+                </li>
+                <li class = "nav-item">
+                    <a class = "nav-link" asp-area = "Admin" asp-controller = "Category" asp-action = "Index">Danh
+                        mục</a></li>
+                <li class = "nav-item">
+                    <a class = "nav-link" asp-area = "User" asp-controller = "Cart" asp-action = "Index">Giỏ hàng</a>
+                </li>
+            </ul>
+            <form class = "d-flex" asp-controller = "Product" asp-action = "Search">
+                <input name = "keyword" class = "form-control me-2" type = "search" placeholder = "Tìm Laptop, PC..."/>
+                <button class = "btn btn-outline-success" type = "submit">Tìm</button>
+            </form>
+        </div>
+    </div>
+</nav>

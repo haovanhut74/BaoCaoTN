@@ -11,6 +11,7 @@
       <Folder Include="Interface\" />
       <Folder Include="Repository\" />
       <Folder Include="wwwroot\css\Admin\" />
+      <Folder Include="wwwroot\img\avatar\" />
     </ItemGroup>
 
     <ItemGroup>

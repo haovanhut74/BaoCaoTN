@@ -3,22 +3,13 @@
         <div class = "card-header bg-primary text-white">
             <i class = "fas fa-list"></i> Danh mục
         </div>
-        <div class = "list-group list-group-flush">
-            <a asp-controller = "Category" asp-action = "Index" asp-route-name = "laptop" class = "list-group-item list-group-item-action">Laptop</a>
-            <a asp-controller = "Category" asp-action = "Index" asp-route-name = "pc-gaming" class = "list-group-item list-group-item-action">PC
-                Gaming</a>
-            <a asp-controller = "Category" asp-action = "Index" asp-route-name = "workstation" class = "list-group-item list-group-item-action">Workstation</a>
-        </div>
+        @await Component.InvokeAsync("Category") <!-- Điều này sẽ gọi Component Danh mục -->
+       
     </div>
     <div class = "card shadow-sm">
         <div class = "card-header bg-success text-white">
             <i class = "fas fa-tags"></i> Thương hiệu
         </div>
-        <div class = "list-group list-group-flush">
-            <a class = "list-group-item list-group-item-action">Dell</a>
-            <a class = "list-group-item list-group-item-action">HP</a>
-            <a class = "list-group-item list-group-item-action">ASUS</a>
-            <a class = "list-group-item list-group-item-action">MSI</a>
-        </div>
+        @await Component.InvokeAsync("Brand") <!-- Điều này sẽ gọi Component Thương hiệu -->
     </div>
 </aside>

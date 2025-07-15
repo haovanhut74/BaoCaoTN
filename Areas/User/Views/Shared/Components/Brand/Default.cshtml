@@ -1,10 +1,17 @@
 ﻿@model IEnumerable<MyWebApp.Models.Brand>
 @{
-    ViewData["Title"] = "Thương hiệu";
+    var selectedIds = ViewBag.SelectedBrandIds as List<Guid> ?? new();
 }
-@foreach (var item in Model)
+
+@foreach (var brand in Model)
 {
-    <div class = "list-group list-group-flush">
-        <a class = "list-group-item list-group-item-action">@item.Name</a>
+    <div class="form-check">
+        <input class="form-check-input"
+               type="checkbox"
+               name="selectedBrandIds"
+               value="@brand.Id"
+               id="brand_@brand.Id"
+               @(selectedIds.Contains(brand.Id) ? "checked" : "") />
+        <label class="form-check-label" for="brand_@brand.Id">@brand.Name</label>
     </div>
 }

@@ -7,9 +7,11 @@ namespace MyWebApp.Component.Views;
 public class BrandViewComponent : BaseViewComponent
 {
     public BrandViewComponent(DataContext context) : base(context) { }
-    public async Task<IViewComponentResult> InvokeAsync()
+
+    public async Task<IViewComponentResult> InvokeAsync(List<Guid> selectedBrandIds)
     {
-        var brands = await _context.Brands.ToListAsync(); // truy vấn danh sách các thương hiệu từ cơ sở dữ liệu
-        return View(brands); // trả về view với danh sách các thương hiệu
+        var brands = await _context.Brands.ToListAsync();
+        ViewBag.SelectedBrandIds = selectedBrandIds;
+        return View(brands);
     }
 }

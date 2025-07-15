@@ -1,6 +1,38 @@
-﻿
-
+﻿@model MyWebApp.ViewModels.ProductFilterViewModel
 @{
-    Layout = null;
+    ViewData["Title"] = "Danh sách sản phẩm";
 }
-<h1>Barnd</h1>
+
+<form method = "get" asp-action = "Index">
+    <div class = "row">
+        <div class = "col-md-9">
+            <h2 class = "mb-4 text-primary fw-bold">Danh sách sản phẩm</h2>
+
+            <div class = "row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+                @foreach (var item in Model.Products)
+                {
+                    <div class = "col">
+                        <div class = "card h-100 shadow-sm border-0 product-card">
+                            <img src = "~/img/product/@item.Image" class = "card-img-top img-fluid" alt = "@item.Name" style = "height: 220px; object-fit: cover;"/>
+                            <div class = "card-body d-flex flex-column">
+                                <h5 class = "card-title text-dark fw-semibold">@item.Name</h5>
+                                <p class = "card-text text-secondary mb-1">
+                                    <i class = "fa fa-tag me-1"></i> @item.Category.Name</p>
+                                <p class = "card-text text-secondary mb-1">
+                                    <i class = "fa fa-copyright me-1"></i> @item.Brand.Name</p>
+                                <p class = "card-text text-muted small mb-3"><i class = "fa fa-calendar me-1"></i> Đăng
+                                    bán: @item.CreatedAt.ToString("dd/MM/yyyy")</p>
+                                <div class = "mt-auto">
+                                    <p class = "fw-bold text-danger fs-5">@item.Price.ToString("N0") ₫</p>
+                                    <a asp-action = "Detail" asp-route-id = "@item.Id" class = "btn btn-outline-primary w-100 mt-2">
+                                        <i class = "fa fa-eye me-1"></i> Xem chi tiết
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</form>

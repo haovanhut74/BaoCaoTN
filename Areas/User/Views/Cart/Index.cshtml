@@ -37,19 +37,33 @@
                         </td>
                         <td class = "text-start">@item.ProductName</td>
                         <td>@item.Price.ToString("N0") ₫</td>
-                        <td style = "width: 150px;">
+                        <td style = "width: 180px;">
                             <div class = "input-group justify-content-center">
-                                <a asp-controller="Cart" asp-action = "Decrease" asp-route-id = "@item.Id" class = "btn btn-outline-secondary">-</a>
-                                <input type = "text" class = "form-control text-center" name="quantity" value = "@item.Quantity" readonly style = "max-width: 50px;"/>
-                                <a asp-controller="Cart" asp-action = "Increase" asp-route-id = "@item.Id" class = "btn btn-outline-secondary">+</a>
+                                <form asp-controller = "Cart" asp-action = "Decrease" method = "post" asp-route-id = "@item.Id" class = "me-1">
+                                    <button type = "submit" class = "btn btn-outline-secondary">-</button>
+                                </form>
+
+                                <input type = "text" class = "form-control text-center" readonly value = "@item.Quantity" style = "max-width: 50px;"/>
+
+                                <form asp-controller = "Cart" asp-action = "Increase" method = "post" asp-route-id = "@item.Id" class = "ms-1">
+                                    <button type = "submit" class = "btn btn-outline-secondary">+</button>
+                                </form>
                             </div>
+
+                            @if (TempData["ErrorProductId"]?.ToString() == item.Id.ToString())
+                            {
+                                <div class = "text-danger small mt-1">@TempData["Error"]</div>
+                            }
                         </td>
-                        <td class = "fw-bold text-danger">@Model.CartItems.Where(x => x.Id == item.Id).Sum(x => x.Quantity * x.Price).ToString("N0")₫
+                        <td class = "fw-bold text-danger">
+                            @Model.CartItems.Where(x => x.Id == item.Id).Sum(x => x.Quantity * x.Price).ToString("N0")₫
                         </td>
                         <td>
-                            <a asp-controller="Cart" asp-action = "Remove" asp-route-id = "@item.Id" class = "btn btn-danger btn-sm">
-                                <i class = "fa fa-trash"></i> Xóa
-                            </a>
+                            <form asp-controller = "Cart" asp-action = "Remove" method = "post" asp-route-id = "@item.Id">
+                                <button type = "submit" class = "btn btn-danger btn-sm">
+                                    <i class = "fa fa-trash"></i> Xóa
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 }
@@ -74,3 +88,11 @@
         </div>
     }
 </div>
+
+@if (TempData["GlobalError"] != null)
+{
+    <div class = "alert alert-warning alert-dismissible fade show text-center mt-4" role = "alert">
+        <i class = "fa fa-exclamation-triangle me-2"></i> @TempData["GlobalError"]
+        <button type = "button" class = "btn-close" data-bs-dismiss = "alert" aria-label = "Close"></button>
+    </div>
+}

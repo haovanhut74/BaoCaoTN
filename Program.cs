@@ -11,8 +11,18 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Thời gian hết hạn phiên
+    options.Cookie.HttpOnly = true; // Bảo vệ cookie khỏi truy cập từ JavaScript
+    options.Cookie.IsEssential = true; // Cookie cần thiết cho phiên làm việc
+});
 var app = builder.Build();
+
 app.UseSession(); // Enable session support
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -38,5 +48,7 @@ app.MapControllerRoute(
 
 // Initialize the database with seed data
 var context = app.Services.CreateScope().ServiceProvider.GetRequiredService<DataContext>();
+
 SeedData.Seeding(context);
+
 app.Run();

@@ -43,6 +43,7 @@ public class CartController : BaseController
 
         // Lưu giỏ hàng vào session
         HttpContext.Session.SetJson("Cart", cartItems);
+        TempData["Success"] = $"Đã thêm sản phẩm {product?.Name} vào giỏ hàng!";
         return RedirectToAction("Index", "Cart", new { area = "User" });
     }
 
@@ -88,10 +89,12 @@ public class CartController : BaseController
             }
             else
             {
+                TempData["Success"] = "Đã xóa sản phẩm khỏi giỏ hàng!";
                 cartItems.Remove(item);
             }
 
             if (cartItems.Count == 0)
+                
                 HttpContext.Session.Remove("Cart");
             else
                 HttpContext.Session.SetJson("Cart", cartItems);
@@ -111,6 +114,7 @@ public class CartController : BaseController
         else
             HttpContext.Session.SetJson("Cart", cartItems);
 
+        TempData["Success"] = "Đã xóa sản phẩm khỏi giỏ hàng!";
         return RedirectToAction("Index", "Cart", new { area = "User" });
     }
 }

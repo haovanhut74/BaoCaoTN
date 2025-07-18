@@ -16,7 +16,6 @@ builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30); // Thời gian hết hạn phiên
-    options.Cookie.HttpOnly = true; // Bảo vệ cookie khỏi truy cập từ JavaScript
     options.Cookie.IsEssential = true; // Cookie cần thiết cho phiên làm việc
 });
 var app = builder.Build();

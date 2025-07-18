@@ -1,0 +1,30 @@
+﻿@{
+    var success = TempData["success"]?.ToString();
+    var error = TempData["error"]?.ToString();
+}
+
+<div id="toast-message" style="position: fixed; top: 20px; left: 20px; z-index: 1055;">
+    @if (!string.IsNullOrEmpty(success))
+    {
+        <div class="toast align-items-center text-white bg-success border-0 show mb-2 shadow" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fa fa-check-circle me-2"></i> @success
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="toast align-items-center text-white bg-danger border-0 show shadow" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fa fa-exclamation-triangle me-2"></i> @error
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+</div>

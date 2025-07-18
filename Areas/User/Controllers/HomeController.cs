@@ -39,7 +39,7 @@ public class HomeController : Controller
         var vm = new ProductFilterViewModel
         {
             Products = products,
-            Categories = categories,
+            Categories = categories, 
             Brands = brands,
             SelectedCategoryIds = selectedCategoryIds ?? new List<Guid>(),
             SelectedBrandIds = selectedBrandIds ?? new List<Guid>()

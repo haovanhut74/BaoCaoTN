@@ -1,4 +1,6 @@
-﻿namespace MyWebApp.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace MyWebApp.Models;
 
 public class CartItem
 {

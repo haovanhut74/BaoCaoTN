@@ -22,11 +22,19 @@
                                 <i class = "fa fa-copyright me-1"></i> @item.Brand.Name</p>
                             <p class = "card-text text-muted small mb-3"><i class = "fa fa-calendar me-1"></i> Đăng
                                 bán: @item.CreatedAt.ToString("dd/MM/yyyy")</p>
-                            <div class = "mt-auto">
-                                <p class = "fw-bold text-danger fs-5">@item.Price.ToString("N0") ₫</p>
-                                <a asp-controller = "Product" asp-action = "Detail" asp-route-id = "@item.Id" class = "btn btn-outline-primary w-100 mt-2">
-                                    <i class = "fa fa-eye me-1"></i> Xem chi tiết
-                                </a>
+                            <div class="mt-auto">
+                                <p class="fw-bold text-danger fs-5">@item.Price.ToString("N0") ₫</p>
+
+                                <div class="d-grid gap-2">
+                                    <a asp-controller="Product" asp-action="Detail" asp-route-id="@item.Id" class="btn btn-outline-primary">
+                                        <i class="fa fa-eye me-1"></i> Xem chi tiết
+                                    </a>
+                                    <form asp-controller="Cart" asp-action="Add" asp-route-id="@item.Id" method="post" class="d-grid">
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fa fa-cart-plus me-1"></i> Thêm vào giỏ hàng
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>

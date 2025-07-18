@@ -4,7 +4,7 @@ namespace MyWebApp.Extensions;
 
 public static class Session
 {
-    public static void SetJon(this ISession session, string key, object value)
+    public static void SetJson(this ISession session, string key, object value)
     {
         session.SetString(key, JsonConvert.SerializeObject(value));
     }

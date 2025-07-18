@@ -42,8 +42,8 @@
                         <td class = "text-start">@product.Name</td>
                         <td>@product.Price.ToString("N0") ₫</td>
                         <td>@product.Quantity</td>
-                        <td>@product.Category.Name</td>
-                        <td>@product.Brand.Name</td>
+                        <td>@product.Category?.Name</td>
+                        <td>@product.Brand?.Name</td>
                         <td style = "width: 160px;">
                             <a asp-area = "Admin" asp-action = "Edit" asp-controller = "Product" asp-route-id = "@product.Id" class = "btn btn-sm btn-warning me-1">
                                 <i class = "fa fa-edit"></i> Sửa

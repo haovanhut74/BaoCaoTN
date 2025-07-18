@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Areas\Admin\Controllers\" />
       <Folder Include="Interface\" />
       <Folder Include="Repository\" />
       <Folder Include="wwwroot\css\Admin\" />
@@ -15,6 +14,13 @@
     </ItemGroup>
 
     <ItemGroup>
+      <AdditionalFiles Include="Areas\Admin\Views\Shared\Components\Brand\Default.cshtml" />
+      <AdditionalFiles Include="Areas\Admin\Views\Shared\Components\Category\Default.cshtml" />
+      <AdditionalFiles Include="Areas\Admin\Views\Shared\_Footer.cshtml" />
+      <AdditionalFiles Include="Areas\Admin\Views\Shared\_Header.cshtml" />
+      <AdditionalFiles Include="Areas\Admin\Views\Shared\_Navbar.cshtml" />
+      <AdditionalFiles Include="Areas\Admin\Views\Shared\_Notification.cshtml" />
+      <AdditionalFiles Include="Areas\Admin\Views\Shared\_Sildebar.cshtml" />
       <AdditionalFiles Include="Areas\User\Views\Brand\Index.cshtml" />
       <AdditionalFiles Include="Areas\User\Views\Category\Index.cshtml" />
       <AdditionalFiles Include="Areas\User\Views\Home\Index.cshtml" />

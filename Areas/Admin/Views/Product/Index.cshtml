@@ -1,0 +1,61 @@
+﻿@model IEnumerable<MyWebApp.Models.Product>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class = "container mt-4">
+    <h2 class = "mb-4 text-primary"><i class = "fa fa-boxes me-2"></i>Quản lý sản phẩm</h2>
+
+    <div class = "mb-3 text-end">
+        <a  asp-area="Admin" asp-action = "Create" asp-controller = "Product" class = "btn btn-success">
+            <i class = "fa fa-plus"></i> Thêm sản phẩm
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class = "alert alert-info text-center">Chưa có sản phẩm nào được thêm.</div>
+    }
+    else
+    {
+        <div class = "table-responsive shadow-sm rounded">
+            <table class = "table table-bordered table-hover align-middle text-center">
+                <thead class = "table-dark">
+                <tr>
+                    <th>Hình ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Số lượng</th>
+                    <th>Danh mục</th>
+                    <th>Thương hiệu</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var product in Model)
+                {
+                    <tr>
+                        <td style = "width: 100px;">
+                            <img src = "~/img/product/@product.Image" alt = "@product.Name" class = "img-thumbnail" style = "height: 60px;"/>
+                        </td>
+                        <td class = "text-start">@product.Name</td>
+                        <td>@product.Price.ToString("N0") ₫</td>
+                        <td>@product.Quantity</td>
+                        <td>@product.Category.Name</td>
+                        <td>@product.Brand.Name</td>
+                        <td style = "width: 160px;">
+                            <a  asp-area="Admin" asp-action = "Edit" asp-controller="Product" asp-route-id = "@product.Id" class = "btn btn-sm btn-warning me-1">
+                                <i class = "fa fa-edit"></i> Sửa
+                            </a>
+                            <a  asp-area="Admin" asp-action = "Delete" asp-controller="Product" asp-route-id = "@product.Id" class = "btn btn-sm btn-danger" onclick = "return confirm('Xoá sản phẩm này?');">
+                                <i class = "fa fa-trash"></i> Xoá
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

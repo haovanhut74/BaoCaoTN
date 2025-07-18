@@ -7,7 +7,7 @@
 <div class = "container my-5">
     <h2 class = "mb-4 text-primary"><i class = "fa fa-shopping-cart me-2"></i>Giỏ hàng của bạn</h2>
 
-    @if (Model.CartItems == null || !Model.CartItems.Any())
+    @if (!Model.CartItems.Any())
     {
         <div class = "alert alert-info text-center">
             Giỏ hàng của bạn đang trống. <a asp-action = "Index" asp-controller = "Home" class = "alert-link">Mua sắm

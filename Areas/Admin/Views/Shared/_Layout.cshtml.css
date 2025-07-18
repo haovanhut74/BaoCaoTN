@@ -1,0 +1,27 @@
+﻿body {
+  background: #f7f9fc;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+}
+
+.navbar .nav-link {
+  color: #1b6ec2;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.navbar .nav-link:hover {
+  color: #e67e22;
+}
+
+.card {
+  border-radius: 12px;
+}
+
+.card-header {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+footer {
+  border-radius: 1rem 1rem 0 0;
+}

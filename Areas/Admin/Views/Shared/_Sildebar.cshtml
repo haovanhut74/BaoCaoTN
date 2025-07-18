@@ -1,0 +1,28 @@
+﻿@using MyWebApp.ViewModels
+
+@if (Model is ProductFilterViewModel filterModel)
+{
+    <aside class = "col-lg-3 mb-4">
+        <form method = "get" asp-action = "Index" asp-controller = "Category">
+            <div class = "card mb-4 shadow-sm">
+                <div class = "card-header bg-primary text-white">
+                    <i class = "fas fa-list"></i> Danh mục
+                </div>
+                <div class = "card-body">
+                    @await Component.InvokeAsync("Category", new { selectedCategoryIds = filterModel.SelectedCategoryIds })
+                </div>
+            </div>
+
+            <div class = "card mb-4 shadow-sm">
+                <div class = "card-header bg-success text-white">
+                    <i class = "fas fa-tags"></i> Thương hiệu
+                </div>
+                <div class = "card-body">
+                    @await Component.InvokeAsync("Brand", new { selectedBrandIds = filterModel.SelectedBrandIds })
+                </div>
+            </div>
+
+            <button type = "submit" class = "btn btn-primary w-100">Lọc sản phẩm</button>
+        </form>
+    </aside>
+}

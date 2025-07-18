@@ -12,7 +12,7 @@ builder.Services.AddDbContext<DataContext>(options =>
     ));
 
 var app = builder.Build();
-
+app.UseSession(); // Enable session support
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

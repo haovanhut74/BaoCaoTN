@@ -42,7 +42,6 @@ public class Product
     public Brand? Brand { get; set; }
 
     [NotMapped]
-    [Required(ErrorMessage = "Hình ảnh sản phẩm là bắt buộc")]
     [FileExtension(ErrorMessage = "Chỉ nhận tệp ảnh có đuôi jpg, png, jpeg")]
     public IFormFile? ImageFile { get; set; }
 }

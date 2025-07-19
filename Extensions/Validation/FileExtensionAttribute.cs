@@ -4,8 +4,14 @@ namespace MyWebApp.Extensions.Validation;
 
 public class FileExtensionAttribute : ValidationAttribute
 {
-    protected override ValidationResult? IsValid(object value, ValidationContext validationContext)
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
+        // Cho phép null (nghĩa là không upload ảnh), dùng cho trường hợp Edit
+        if (value == null)
+        {
+            return ValidationResult.Success;
+        }
+
         if (value is not IFormFile file)
         {
             return new ValidationResult("Invalid file.");
@@ -13,7 +19,7 @@ public class FileExtensionAttribute : ValidationAttribute
 
         if (file.Length == 0)
         {
-            return new ValidationResult("File cannot be empty.");
+            return new ValidationResult("File không được trống");
         }
 
         if (file.Length > 5 * 1024 * 1024) // 5 MB limit

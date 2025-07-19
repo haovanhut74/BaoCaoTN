@@ -44,4 +44,6 @@ public class Product
     [NotMapped]
     [FileExtension(ErrorMessage = "Chỉ nhận tệp ảnh có đuôi jpg, png, jpeg")]
     public IFormFile? ImageFile { get; set; }
+    [NotMapped]
+    public string? ImageUrl { get; set; }
 }

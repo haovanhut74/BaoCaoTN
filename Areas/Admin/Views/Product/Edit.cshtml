@@ -60,8 +60,17 @@
                         </label>
                         <input asp-for = "ImageFile" type = "file" class = "form-control" accept = "image/*"/>
                         <span asp-validation-for = "ImageFile" class = "text-danger"></span>
+                        <!-- Ngay dưới input type="file" -->
+                        <div class = "col-md-6">
+                            <label class = "form-label">Hoặc nhập link ảnh</label>
+                            <input asp-for = "ImageUrl" class = "form-control" placeholder = "https://example.com/image.jpg"/>
+                            <span asp-validation-for = "ImageUrl" class = "text-danger"></span>
+                            <small class = "text-secondary">Hệ thống sẽ ưu tiên dùng file upload nếu có.</small>
+                        </div>
+
                         <small class = "text-secondary">Nếu không chọn ảnh mới thì sẽ giữ ảnh cũ.</small>
                     </div>
+
 
                     <div class = "col-md-6 d-flex align-items-end">
                         <img
@@ -91,7 +100,6 @@
     <script src = "https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 
     <script>
-        // Preview hình ảnh
         function readURL(input) {
             if (input.files && input.files[0]) {
                 let reader = new FileReader();
@@ -103,10 +111,20 @@
             }
         }
 
+        // Nếu chọn file thì preview
         $('#ImageFile').change(function () {
             readURL(this);
+        });
+
+        // Nếu nhập link thì preview
+        $('#ImageUrl').on('input', function () {
+            const url = $(this).val().trim();
+            if (url.length > 5 && url.startsWith("http")) {
+                $('#imgpreview').attr('src', url);
+            }
         });
 
         CKEDITOR.replace('Description');
     </script>
 }
+

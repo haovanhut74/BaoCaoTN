@@ -40,20 +40,55 @@ public class ProductController : BaseController
         ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
         ViewBag.Brands = new SelectList(_context.Brands, "Id", "Name", product.BrandId);
 
+        // if (product.ImageFile != null)
+        // {
+        //     string uploadDir = Path.Combine(_env.WebRootPath, "img/product");
+        //     string imgName = Guid.NewGuid().ToString() + "_" + product.ImageFile.FileName;
+        //     string filePath = Path.Combine(uploadDir, imgName);
+        //
+        //     FileStream fs = new FileStream(filePath, FileMode.Create);
+        //     await product.ImageFile.CopyToAsync(fs);
+        //     fs.Close();
+        //     product.Image = imgName;
+        // }
+        // else
+        // {
+        //     ModelState.AddModelError("ImageFile", "Yêu cầu nhập hình ảnh");
+        // }
         if (product.ImageFile != null)
         {
+            // Upload ảnh từ file như cũ
             string uploadDir = Path.Combine(_env.WebRootPath, "img/product");
             string imgName = Guid.NewGuid().ToString() + "_" + product.ImageFile.FileName;
             string filePath = Path.Combine(uploadDir, imgName);
 
-            FileStream fs = new FileStream(filePath, FileMode.Create);
+            using FileStream fs = new(filePath, FileMode.Create);
             await product.ImageFile.CopyToAsync(fs);
-            fs.Close();
             product.Image = imgName;
+        }
+        else if (!string.IsNullOrEmpty(product.ImageUrl))
+        {
+            // Tải ảnh từ URL
+            try
+            {
+                using var httpClient = new HttpClient();
+                var imageBytes = await httpClient.GetByteArrayAsync(product.ImageUrl);
+
+                string ext = Path.GetExtension(product.ImageUrl).Split('?')[0]; // tránh query string
+                string imgName = Guid.NewGuid().ToString() + ext;
+                string filePath = Path.Combine(_env.WebRootPath, "img/product", imgName);
+
+                await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
+                product.Image = imgName;
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("ImageUrl", "Không thể tải ảnh từ liên kết.");
+            }
         }
         else
         {
-            ModelState.AddModelError("ImageFile", "Yêu cầu nhập hình ảnh");
+            ModelState.AddModelError("ImageFile", "Vui lòng tải ảnh hoặc nhập link ảnh.");
         }
 
         product.Slug = product.Name.Replace(" ", "-").ToLower();
@@ -108,47 +143,79 @@ public class ProductController : BaseController
         ViewBag.Brands = new SelectList(_context.Brands, "Id", "Name", product.BrandId);
 
         var oldProduct = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
-
-        if (product.ImageFile != null && oldProduct != null)
+        if (oldProduct == null)
         {
-            // Xoá ảnh cũ (nếu có)
+            return NotFound();
+        }
+
+        string uploadDir = Path.Combine(_env.WebRootPath, "img/product");
+
+        // Trường hợp có file upload
+        if (product.ImageFile != null && product.ImageFile.Length > 0)
+        {
+            // Xóa ảnh cũ nếu có
             if (!string.IsNullOrEmpty(oldProduct.Image))
             {
-                string uploadDir = Path.Combine(_env.WebRootPath, "img/product");
-                string oldImgName = oldProduct.Image.Replace("img/product/", "").Replace("img/product", "");
-                string oldFilePath = Path.Combine(uploadDir, oldImgName);
-                if (System.IO.File.Exists(oldFilePath))
-                {
-                    System.IO.File.Delete(oldFilePath);
-                }
+                string oldPath = Path.Combine(uploadDir, oldProduct.Image);
+                if (System.IO.File.Exists(oldPath))
+                    System.IO.File.Delete(oldPath);
             }
 
             // Lưu ảnh mới
-            string uploadDirNew = Path.Combine(_env.WebRootPath, "img/product");
-            string newImgName = Guid.NewGuid().ToString() + "_" + product.ImageFile.FileName;
-            string newFilePath = Path.Combine(uploadDirNew, newImgName);
-
-            await using (FileStream fs = new FileStream(newFilePath, FileMode.Create))
-            {
-                await product.ImageFile.CopyToAsync(fs);
-            }
-
+            string newImgName = Guid.NewGuid() + Path.GetExtension(product.ImageFile.FileName);
+            string newFilePath = Path.Combine(uploadDir, newImgName);
+            using var fs = new FileStream(newFilePath, FileMode.Create);
+            await product.ImageFile.CopyToAsync(fs);
             product.Image = newImgName;
         }
-        else if (oldProduct != null)
+        // Trường hợp có link ảnh và không upload file
+        else if (!string.IsNullOrEmpty(product.ImageUrl))
         {
-            // Nếu không up ảnh mới, giữ nguyên ảnh cũ
+            try
+            {
+                using var httpClient = new HttpClient();
+                var imgBytes = await httpClient.GetByteArrayAsync(product.ImageUrl);
+
+                string ext = Path.GetExtension(product.ImageUrl).ToLowerInvariant();
+                if (!new[] { ".jpg", ".jpeg", ".png", ".gif" }.Contains(ext))
+                {
+                    ModelState.AddModelError("ImageUrl", "Định dạng ảnh không hợp lệ.");
+                    return View(product);
+                }
+
+                // Xóa ảnh cũ
+                if (!string.IsNullOrEmpty(oldProduct.Image))
+                {
+                    string oldPath = Path.Combine(uploadDir, oldProduct.Image);
+                    if (System.IO.File.Exists(oldPath))
+                        System.IO.File.Delete(oldPath);
+                }
+
+                string newImgName = Guid.NewGuid() + ext;
+                string savePath = Path.Combine(uploadDir, newImgName);
+                await System.IO.File.WriteAllBytesAsync(savePath, imgBytes);
+
+                product.Image = newImgName;
+            }
+            catch
+            {
+                ModelState.AddModelError("ImageUrl", "Không thể tải ảnh từ đường dẫn.");
+                return View(product);
+            }
+        }
+        else
+        {
+            // Không có file, không có link -> giữ nguyên ảnh cũ
             product.Image = oldProduct.Image;
         }
 
+        // Slug kiểm tra trùng
         product.Slug = product.Name.Replace(" ", "-").ToLower();
-
-        var slug = await _context.Products
-            .Where(p => p.Slug == product.Slug && p.Id != id)
-            .FirstOrDefaultAsync();
-        if (slug != null)
+        var slugExists = await _context.Products
+            .AnyAsync(p => p.Slug == product.Slug && p.Id != id);
+        if (slugExists)
         {
-            ModelState.AddModelError("", "Sản phẩm đã có trong Data");
+            ModelState.AddModelError("", "Sản phẩm đã tồn tại.");
             return View(product);
         }
 
@@ -157,17 +224,14 @@ public class ProductController : BaseController
             try
             {
                 _context.Update(product);
-                TempData["message"] = "Cập nhật thành công";
                 await _context.SaveChangesAsync();
+                TempData["message"] = "Cập nhật sản phẩm thành công";
                 return RedirectToAction("Index");
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Products.Any(e => e.Id == id))
-                {
+                if (!_context.Products.Any(p => p.Id == id))
                     return NotFound();
-                }
-
                 throw;
             }
         }

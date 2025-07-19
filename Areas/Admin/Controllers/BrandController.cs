@@ -123,4 +123,21 @@ public class BrandController : BaseController
         string errorMessage = string.Join("\n", errors);
         return BadRequest(errorMessage);
     }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var brand = await _context.Brands.FindAsync(id);
+        if (brand != null)
+        {
+            _context.Brands.Remove(brand);
+            TempData["message"] = "Xóa thành công";
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
+
+        TempData["error"] = "Danh mục không tồn tại";
+        return NotFound();
+    }
 }

@@ -1,0 +1,46 @@
+﻿@model MyWebApp.Models.Category
+
+@{
+    ViewData["Title"] = "Chỉnh sửa danh mục";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class = "container mt-5">
+    <div class = "card shadow-lg border-0">
+        <div class = "card-header bg-warning text-dark">
+            <h4 class = "mb-0"><i class = "fa fa-edit me-2"></i>Chỉnh sửa danh mục</h4>
+        </div>
+
+        <div class = "card-body">
+            <form asp-area = "Admin" asp-action = "Edit" asp-controller = "Category" method = "post">
+                <input type = "hidden" asp-for = "Id"/>
+                <div asp-validation-summary = "ModelOnly" class = "text-danger mb-3"></div>
+
+                <div class = "mb-3">
+                    <label asp-for = "Name" class = "form-label">Tên danh mục</label>
+                    <input asp-for = "Name" class = "form-control" placeholder = "Nhập tên danh mục"/>
+                    <span asp-validation-for = "Name" class = "text-danger"></span>
+                </div>
+
+                <div class = "mb-3">
+                    <label asp-for = "Description" class = "form-label">Mô tả</label>
+                    <textarea asp-for = "Description" class = "form-control" rows = "4" placeholder = "Nhập mô tả (nếu có)"></textarea>
+                    <span asp-validation-for = "Description" class = "text-danger"></span>
+                </div>
+
+                <div class = "text-end">
+                    <a asp-action = "Index" class = "btn btn-outline-secondary me-2">
+                        <i class = "fa fa-arrow-left"></i> Quay lại
+                    </a>
+                    <button type = "submit" class = "btn btn-primary">
+                        <i class = "fa fa-save"></i> Cập nhật
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

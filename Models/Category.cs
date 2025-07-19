@@ -12,6 +12,6 @@ public class Category
     [Required(ErrorMessage = "Mô tả không được để trống")]
     public string Description { get; set; }
 
-    public string Slug { get; set; }
+    public string? Slug { get; set; }
     public int status { get; set; } // 1: Hiện, 0: Ẩn
 }

@@ -1,0 +1,67 @@
+﻿@model IEnumerable<MyWebApp.Models.Brand>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Quản lý thương hiệu";
+    uint STT = 1;
+}
+
+<div class = "container mt-4">
+    <h2 class = "mb-4 text-primary">
+        <i class = "fa fa-industry me-2"></i>Quản lý thương hiệu
+    </h2>
+
+    <div class = "mb-3 text-end">
+        <a asp-area = "Admin" asp-controller = "Brand" asp-action = "Create" class = "btn btn-success">
+            <i class = "fa fa-plus"></i> Thêm thương hiệu
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class = "alert alert-info text-center">Chưa có thương hiệu nào được thêm.</div>
+    }
+    else
+    {
+        <div class = "table-responsive shadow-sm rounded">
+            <table class = "table table-bordered table-hover align-middle text-center">
+                <thead class = "table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Tên thương hiệu</th>
+                    <th>Mô tả</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var brand in Model)
+                {
+                    <tr>
+                        <td>@STT</td>
+                        <td class = "text-start">@brand.Name</td>
+                        <td>@brand.Description</td>
+                        <td style = "width: 160px;">
+                            <a
+                                asp-area = "Admin" asp-controller = "Brand" asp-action = "Edit" asp-route-id = "@brand.Id"
+                                class = "btn btn-sm btn-warning me-1"
+                            >
+                                <i class = "fa fa-edit"></i> Sửa
+                            </a>
+                            <form
+                                asp-area = "Admin" asp-controller = "Brand" asp-action = "Delete" asp-route-id = "@brand.Id"
+                                method = "post" class = "d-inline"
+                                onsubmit = "return confirm('Bạn có chắc chắn muốn xoá thương hiệu này không?');"
+                            >
+                                <button type = "submit" class = "btn btn-sm btn-danger">
+                                    <i class = "fa fa-trash"></i> Xoá
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    STT++;
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

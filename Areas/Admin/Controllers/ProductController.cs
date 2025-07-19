@@ -239,4 +239,30 @@ public class ProductController : BaseController
         TempData["error"] = "Cập nhật thất bại";
         return View(product);
     }
+    
+    [HttpGet]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product != null)
+        {
+            // Xoá file ảnh (nếu có)
+            if (!string.IsNullOrEmpty(product.Image))
+            {
+                string uploadDir = Path.Combine(_env.WebRootPath, "img/product");
+                string imgName = product.Image.Replace("img/product/", "").Replace("img/product", "");
+                string filePath = Path.Combine(uploadDir, imgName);
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
+
+        return NotFound();
+    }
 }

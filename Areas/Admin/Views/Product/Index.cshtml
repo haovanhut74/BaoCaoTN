@@ -2,6 +2,7 @@
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    uint STT = 1;
 }
 
 <div class = "container mt-4">
@@ -23,6 +24,7 @@
             <table class = "table table-bordered table-hover align-middle text-center">
                 <thead class = "table-dark">
                 <tr>
+                    <th>#</th>
                     <th>Hình ảnh</th>
                     <th>Tên sản phẩm</th>
                     <th>Giá</th>
@@ -36,6 +38,7 @@
                 @foreach (var product in Model)
                 {
                     <tr>
+                        <td class = "text-center">@STT</td>
                         <td style = "width: 100px;">
                             <img src = "~/img/product/@product.Image" alt = "@product.Name" class = "img-thumbnail" style = "height: 60px;"/>
                         </td>
@@ -48,11 +51,12 @@
                             <a asp-area = "Admin" asp-action = "Edit" asp-controller = "Product" asp-route-id = "@product.Id" class = "btn btn-sm btn-warning me-1">
                                 <i class = "fa fa-edit"></i> Sửa
                             </a>
-                            <a asp-area = "Admin" asp-action = "Delete" asp-controller = "Product" asp-route-id = "@product.Id" class = "btn btn-sm btn-danger" onclick = "return confirm('Xoá sản phẩm này?');">
+                            <a asp-area = "Admin" asp-action = "Delete" asp-controller = "Product" asp-route-id = "@product.Id" class = "btn btn-sm btn-danger" onclick = "return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
                                 <i class = "fa fa-trash"></i> Xoá
                             </a>
                         </td>
                     </tr>
+                    STT++;
                 }
                 </tbody>
             </table>

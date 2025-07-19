@@ -1,0 +1,45 @@
+﻿@model MyWebApp.Models.Brand
+
+@{
+    ViewData["Title"] = "Thêm thương hiệu";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0"><i class="fa fa-plus-circle me-2"></i>Thêm thương hiệu mới</h4>
+        </div>
+
+        <div class="card-body">
+            <form asp-area="Admin" asp-controller="Brand" asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">Tên thương hiệu</label>
+                    <input asp-for="Name" class="form-control" placeholder="Nhập tên thương hiệu" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label">Mô tả</label>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Nhập mô tả (nếu có)"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="text-end">
+                    <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                        <i class="fa fa-arrow-left"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa fa-save"></i> Thêm thương hiệu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

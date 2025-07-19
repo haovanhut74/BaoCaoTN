@@ -40,21 +40,6 @@ public class ProductController : BaseController
         ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
         ViewBag.Brands = new SelectList(_context.Brands, "Id", "Name", product.BrandId);
 
-        // if (product.ImageFile != null)
-        // {
-        //     string uploadDir = Path.Combine(_env.WebRootPath, "img/product");
-        //     string imgName = Guid.NewGuid().ToString() + "_" + product.ImageFile.FileName;
-        //     string filePath = Path.Combine(uploadDir, imgName);
-        //
-        //     FileStream fs = new FileStream(filePath, FileMode.Create);
-        //     await product.ImageFile.CopyToAsync(fs);
-        //     fs.Close();
-        //     product.Image = imgName;
-        // }
-        // else
-        // {
-        //     ModelState.AddModelError("ImageFile", "Yêu cầu nhập hình ảnh");
-        // }
         if (product.ImageFile != null)
         {
             // Upload ảnh từ file như cũ
@@ -239,7 +224,7 @@ public class ProductController : BaseController
         TempData["error"] = "Cập nhật thất bại";
         return View(product);
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> Delete(Guid id)
     {

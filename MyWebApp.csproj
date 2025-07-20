@@ -20,8 +20,6 @@
       <AdditionalFiles Include="Areas\Admin\Views\Shared\_Navbar.cshtml" />
       <AdditionalFiles Include="Areas\Admin\Views\Shared\_Notification.cshtml" />
       <AdditionalFiles Include="Areas\Admin\Views\Shared\_Sildebar.cshtml" />
-      <AdditionalFiles Include="Areas\User\Views\Brand\Index.cshtml" />
-      <AdditionalFiles Include="Areas\User\Views\Category\Index.cshtml" />
       <AdditionalFiles Include="Areas\User\Views\Home\Index.cshtml" />
       <AdditionalFiles Include="Areas\User\Views\Home\Privacy.cshtml" />
       <AdditionalFiles Include="Areas\User\Views\Product\Detail.cshtml" />
@@ -48,6 +46,8 @@
       <_ContentIncludedByDefault Remove="Areas\Admin\Views\Shared\_ValidationScriptsPartial.cshtml" />
       <_ContentIncludedByDefault Remove="Areas\Admin\Views\_ViewImports.cshtml" />
       <_ContentIncludedByDefault Remove="Areas\Admin\Views\_ViewStart.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\User\Views\Category\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\User\Views\Brand\Index.cshtml" />
     </ItemGroup>
 
     <ItemGroup>

@@ -40,6 +40,12 @@ app.MapControllerRoute(
 );
 
 app.MapControllerRoute(
+    name: "category",
+    pattern: "/category/{Slug?}",
+    defaults: new { controller = "Category", action = "Index" }
+);
+
+app.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}", // Mặc định vào area "user"
         defaults: new { area = "User" })

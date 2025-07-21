@@ -9,7 +9,7 @@
                     <i class = "fas fa-list"></i> Danh mục
                 </div>
                 <div class = "card-body">
-                    @await Component.InvokeAsync("Category", new { selectedCategoryIds = filterModel.SelectedCategoryIds })
+                    @await Component.InvokeAsync("Category", new { selectedSlugCategories = filterModel.SelectedSlugCategories })
                 </div>
             </div>
 
@@ -18,7 +18,7 @@
                     <i class = "fas fa-tags"></i> Thương hiệu
                 </div>
                 <div class = "card-body">
-                    @await Component.InvokeAsync("Brand", new { selectedBrandIds = filterModel.SelectedBrandIds })
+                    @await Component.InvokeAsync("Brand", new { selectedSlugBrands = filterModel.SelectedSlugBrands })
                 </div>
             </div>
 

@@ -18,8 +18,8 @@ public class HomeController : Controller
         _logger = logger;
         _context = context;
     }
-    
-    public async Task<IActionResult> Index(List<Guid> selectedCategoryIds, List<Guid> selectedBrandIds)
+
+    public async Task<IActionResult> Index(List<string> selectedSlugBrands, List<string> selectedSlugCategories)
     {
         var categories = await _context.Categories.ToListAsync();
         var brands = await _context.Brands.ToListAsync();
@@ -28,21 +28,21 @@ public class HomeController : Controller
             .Include(p => p.Category)
             .Include(p => p.Brand);
 
-        if (selectedCategoryIds?.Any() == true)
-            productsQuery = productsQuery.Where(p => selectedCategoryIds.Contains(p.CategoryId));
+        if (selectedSlugCategories is { Count: > 0 })
+            productsQuery = productsQuery.Where(p => selectedSlugCategories.Contains(p.Category.Slug));
 
-        if (selectedBrandIds?.Any() == true)
-            productsQuery = productsQuery.Where(p => selectedBrandIds.Contains(p.BrandId));
+        if (selectedSlugBrands is { Count: > 0 })
+            productsQuery = productsQuery.Where(p => selectedSlugBrands.Contains(p.Brand.Slug));
 
         var products = await productsQuery.OrderByDescending(p => p.Id).ToListAsync();
 
         var vm = new ProductFilterViewModel
         {
             Products = products,
-            Categories = categories, 
+            Categories = categories,
             Brands = brands,
-            SelectedCategoryIds = selectedCategoryIds ?? new List<Guid>(),
-            SelectedBrandIds = selectedBrandIds ?? new List<Guid>()
+            SelectedSlugCategories = selectedSlugCategories.Count > 0 ? selectedSlugCategories : [],
+            SelectedSlugBrands = selectedSlugBrands.Count > 0 ? selectedSlugBrands : []
         };
 
         return View(vm);

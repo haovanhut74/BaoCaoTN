@@ -9,4 +9,5 @@ namespace MyWebApp.Areas.User.Controllers;
 public class BrandController : BaseController
 {
     public BrandController(DataContext context) : base(context) { }
+
 }

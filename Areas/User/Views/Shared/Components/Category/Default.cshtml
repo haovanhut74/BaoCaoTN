@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<MyWebApp.Models.Category>
 @{
-    var selectedIds = ViewBag.SelectedCategoryIds as List<Guid> ?? new();
+    var selectedIds = ViewBag.SelectedSlugCategories as List<string> ?? new();
 }
 
 @foreach (var category in Model)
@@ -8,10 +8,12 @@
     <div class="form-check">
         <input class="form-check-input"
                type="checkbox"
-               name="selectedCategoryIds"
-               value="@category.Id"
-               id="category_@category.Id"
-               @(selectedIds.Contains(category.Id) ? "checked" : "") />
-        <label class="form-check-label" for="category_@category.Id">@category.Name</label>
+               name="SelectedSlugCategories"
+               value="@category.Slug"
+               id="category_@category.Slug"
+               @(selectedIds.Contains(category.Slug) ? "checked" : "") />
+        <label class="form-check-label" for="category_@category.Slug">@category.Name</label>
     </div>
 }
+
+

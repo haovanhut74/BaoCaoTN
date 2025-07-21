@@ -43,7 +43,7 @@ public class CartController : BaseController
 
         // Lưu giỏ hàng vào session
         HttpContext.Session.SetJson("Cart", cartItems);
-        TempData["Success"] = $"Đã thêm sản phẩm {product?.Name} vào giỏ hàng!";
+        TempData["Success"] = $"Đã thêm sản phẩ {product?.Name} vào giỏ hàng!";
         return Redirect(Request.Headers.Referer.ToString());
     }
 

@@ -11,7 +11,9 @@ public class ProductController : BaseController
 {
     public ProductController(DataContext context) : base(context) { }
 
-    public async Task<IActionResult> Index(List<Guid> selectedCategoryIds, List<Guid> selectedBrandIds)
+
+    [Route("User/Product/{categorySlug?}/{brandSlug?}")]
+    public async Task<IActionResult> Index(List<string> selectedSlugBrands, List<string> selectedSlugCategories)
     {
         var categories = await _context.Categories.ToListAsync();
         var brands = await _context.Brands.ToListAsync();
@@ -20,11 +22,11 @@ public class ProductController : BaseController
             .Include(p => p.Category)
             .Include(p => p.Brand);
 
-        if (selectedCategoryIds != null && selectedCategoryIds.Count > 0)
-            productsQuery = productsQuery.Where(p => selectedCategoryIds.Contains(p.CategoryId));
+        if (selectedSlugCategories is { Count: > 0 })
+            productsQuery = productsQuery.Where(p => selectedSlugCategories.Contains(p.Category.Slug));
 
-        if (selectedBrandIds != null && selectedBrandIds.Count > 0)
-            productsQuery = productsQuery.Where(p => selectedBrandIds.Contains(p.BrandId));
+        if (selectedSlugBrands is { Count: > 0 })
+            productsQuery = productsQuery.Where(p => selectedSlugBrands.Contains(p.Brand.Slug));
 
         var products = await productsQuery.OrderByDescending(p => p.Id).ToListAsync();
 
@@ -33,30 +35,27 @@ public class ProductController : BaseController
             Products = products,
             Categories = categories,
             Brands = brands,
-            SelectedCategoryIds = selectedCategoryIds ?? new List<Guid>(),
-            SelectedBrandIds = selectedBrandIds ?? new List<Guid>()
+            SelectedSlugCategories = selectedSlugCategories.Count > 0 ? selectedSlugCategories : new List<string>(),
+            SelectedSlugBrands = selectedSlugBrands.Count > 0 ? selectedSlugBrands : new List<string>()
         };
 
         return View(vm);
     }
 
-    public async Task<IActionResult> Detail(Guid id)
-    {
-        if (id == Guid.Empty)
-        {
-            return RedirectToAction("Index");
-        }
 
+    [Route("User/Product/{categorySlug}/{brandSlug}/{productSlug}")]
+    public async Task<IActionResult> Detail(string categorySlug, string brandSlug, string productSlug)
+    {
         var product = await _context.Products
             .Include(p => p.Category)
             .Include(p => p.Brand)
-            .FirstOrDefaultAsync(p => p.Id == id);
+            .FirstOrDefaultAsync(p =>
+                p.Slug == productSlug &&
+                p.Category.Slug == categorySlug &&
+                p.Brand.Slug == brandSlug);
 
         if (product == null)
-        {
-            // Có thể trả về view "NotFound" hoặc redirect
-            return NotFound(); // hoặc RedirectToAction("Index")
-        }
+            return NotFound();
 
         return View(product);
     }

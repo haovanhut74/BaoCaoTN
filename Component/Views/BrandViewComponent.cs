@@ -8,10 +8,11 @@ public class BrandViewComponent : BaseViewComponent
 {
     public BrandViewComponent(DataContext context) : base(context) { }
 
-    public async Task<IViewComponentResult> InvokeAsync(List<Guid> selectedBrandIds)
+    public async Task<IViewComponentResult> InvokeAsync(List<string> selectedSlugBrands)
     {
         var brands = await _context.Brands.ToListAsync();
-        ViewBag.SelectedBrandIds = selectedBrandIds;
+        ViewBag.SelectedSlugBrands = selectedSlugBrands;
         return View(brands);
     }
+
 }

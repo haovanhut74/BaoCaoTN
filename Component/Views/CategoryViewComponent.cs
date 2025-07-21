@@ -8,15 +8,11 @@ public class CategoryViewComponent : BaseViewComponent
 {
     public CategoryViewComponent(DataContext context) : base(context) { }
     
-    // public async Task<IViewComponentResult> InvokeAsync()
-    // {
-    //     var categories = await _context.Categories.ToListAsync(); // truy vấn danh sách các danh mục từ cơ sở dữ liệu
-    //     return View(categories); // trả về view với danh sách các danh mục
-    // }
-    public async Task<IViewComponentResult> InvokeAsync(List<Guid> selectedCategoryIds)
+    public async Task<IViewComponentResult> InvokeAsync(List<string> selectedSlugCategories)
     {
         var categories = await _context.Categories.ToListAsync();
-        ViewBag.SelectedCategoryIds = selectedCategoryIds;
+        ViewBag.SelectedSlugCategories = selectedSlugCategories;
         return View(categories);
     }
+
 }

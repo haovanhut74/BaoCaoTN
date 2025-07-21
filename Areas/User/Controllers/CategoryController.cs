@@ -10,6 +10,5 @@ namespace MyWebApp.Areas.User.Controllers;
 public class CategoryController : BaseController
 {
     public CategoryController(DataContext context) : base(context) { }
- 
-
+   
 }

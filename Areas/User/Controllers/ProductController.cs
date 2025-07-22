@@ -12,7 +12,6 @@ public class ProductController : BaseController
     public ProductController(DataContext context) : base(context) { }
 
 
-    [Route("User/Product/{categorySlug?}/{brandSlug?}")]
     public async Task<IActionResult> Index(List<string> selectedSlugBrands, List<string> selectedSlugCategories)
     {
         var categories = await _context.Categories.ToListAsync();
@@ -43,7 +42,7 @@ public class ProductController : BaseController
     }
 
 
-    [Route("User/Product/{categorySlug}/{brandSlug}/{productSlug}")]
+    [Route("{categorySlug}/{brandSlug}/{productSlug}")]
     public async Task<IActionResult> Detail(string categorySlug, string brandSlug, string productSlug)
     {
         var product = await _context.Products

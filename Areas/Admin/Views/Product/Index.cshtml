@@ -40,8 +40,8 @@
                     <tr>
                         <td class = "text-center">@STT</td>
                         <td style = "width: 100px;">
-                            <img src = "~/img/product/@product.Image" alt = "@product.Name" class = "img-thumbnail" style = "height: 60px;"/>
-                        </td>
+                            <img src="~/img/product/@product.Image" alt="@product.Name" class="img-thumbnail" style="height: 60px;" 
+                                 onerror="this.onerror=null;this.src='/img/no-image.png';" />                        </td>
                         <td class = "text-start">@product.Name</td>
                         <td>@product.Price.ToString("N0") ₫</td>
                         <td>@product.Quantity</td>

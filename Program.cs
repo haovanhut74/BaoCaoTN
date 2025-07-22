@@ -19,7 +19,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true; // Cookie cần thiết cho phiên làm việc
 });
 var app = builder.Build();
-
+app.UseStatusCodePagesWithReExecute("/Home/Error", "?statuscode={0}");
 app.UseSession(); // Enable session support
 
 // Configure the HTTP request pipeline.

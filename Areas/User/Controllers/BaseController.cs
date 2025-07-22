@@ -4,6 +4,7 @@ using MyWebApp.Data;
 namespace MyWebApp.Areas.User.Controllers;
 
 [Area("User")]
+[Route("User/[controller]/[action]")]
 public abstract class BaseController : Controller
 {
     protected readonly DataContext _context;

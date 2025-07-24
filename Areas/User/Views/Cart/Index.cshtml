@@ -82,9 +82,19 @@
             <a asp-action = "Index" asp-controller = "Home" class = "btn btn-outline-secondary">
                 <i class = "fa fa-arrow-left me-1"></i> Tiếp tục mua sắm
             </a>
-            <a asp-action = "Checkout" class = "btn btn-success px-4">
-                <i class = "fa fa-credit-card me-1"></i> Thanh toán
-            </a>
+            @if (User.Identity?.IsAuthenticated ?? false)
+            {
+                <a asp-controller = "Checkout" asp-action = "Checkout" class = "btn btn-success px-4">
+                    <i class = "fa fa-credit-card me-1"></i> Thanh toán
+                </a>
+            }
+            else
+            {
+                <a asp-area = "User" asp-controller = "Account" asp-action = "Login" class = "btn btn-primary px-4">
+                    <i class = "fa fa-sign-in me-1"></i> Đăng nhập để thanh toán
+                </a>
+            }
+
         </div>
     }
 </div>

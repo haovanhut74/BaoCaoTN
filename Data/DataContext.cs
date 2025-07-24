@@ -1,13 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using MyWebApp.Models;
 
 namespace MyWebApp.Data;
 
-public class DataContext : DbContext
+public class DataContext : IdentityDbContext<ApplicationUser>
 {
     public DataContext(DbContextOptions<DataContext> options) : base(options) { }
     
     // dùng entity framework để quản lý các bảng trong cơ sở dữ liệu
-    public DbSet<Models.Product> Products { get; set; }
-    public DbSet<Models.Brand> Brands { get; set; }
-    public DbSet<Models.Category> Categories { get; set; }
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Brand> Brands { get; set; }
+    public DbSet<Category> Categories { get; set; }
 }

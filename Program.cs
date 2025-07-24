@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
+using MyWebApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,36 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30); // Thời gian hết hạn phiên
     options.Cookie.IsEssential = true; // Cookie cần thiết cho phiên làm việc
 });
+
+builder.Services
+    .AddIdentity<ApplicationUser, IdentityRole>(
+        //Yêu cầu xác thực tài khoản đã được xác nhận
+        options => options.SignIn.RequireConfirmedAccount = false)
+    .AddEntityFrameworkStores<DataContext>();
+builder.Services.AddRazorPages();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    // Password settings.
+    options.Password.RequireDigit = true; // Bắt buộc có số
+    options.Password.RequireLowercase = true; // Bắt buộc có chữ thường
+    options.Password.RequireUppercase = true; // Bắt buộc có chữ hoa
+    options.Password.RequireNonAlphanumeric = true; // Bắt buộc có ký tự đặc biệt
+    options.Password.RequiredLength = 6; // Độ dài tối thiểu là 6
+    options.Password.RequiredUniqueChars = 1; // Số lượng ký tự khác nhau tối thiểu
+
+    // Lockout settings.
+    //options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5); // Khóa tài khoản 5 phút
+    //options.Lockout.MaxFailedAccessAttempts = 5; // Sau 5 lần đăng nhập sai sẽ bị khóa
+    //options.Lockout.AllowedForNewUsers = true; // Áp dụng cho cả tài khoản mới
+
+    // User settings.
+    options.User.AllowedUserNameCharacters =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+    options.User.RequireUniqueEmail = true; // Không bắt buộc Email phải duy nhất
+});
+
+
 var app = builder.Build();
 app.UseStatusCodePagesWithReExecute("/Home/Error", "?statuscode={0}");
 app.UseSession(); // Enable session support
@@ -30,6 +62,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

@@ -1,0 +1,68 @@
+﻿
+.login-bg {
+    background: linear-gradient(to right, #4facfe, #00f2fe);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.login-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.login-icon {
+    font-size: 2.5rem;
+    color: #007bff;
+    display: block;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.login-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #007bff;
+}
+
+.input-group-text {
+    background-color: #f0f0f0;
+}
+
+.form-check-label {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-link {
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(-20px);}
+    to {opacity: 1; transform: translateY(0);}
+}

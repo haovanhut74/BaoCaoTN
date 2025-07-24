@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyWebApp.Data;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
 [Area("Admin")]
+[Authorize]
 [Route("Admin/[controller]/[action]")]
 public abstract class BaseController : Controller
 {

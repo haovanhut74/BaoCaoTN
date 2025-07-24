@@ -38,6 +38,7 @@ public class AccountController : Controller
             if (result.Succeeded)
             {
                 await _signInManager.SignInAsync(user, isPersistent: false);
+                TempData["Success"] = "Đăng ký thành công! Bạn đã được đăng nhập.";
                 return RedirectToAction("Index", "Home");
             }
 
@@ -76,6 +77,8 @@ public class AccountController : Controller
 
                 if (result.Succeeded)
                 {
+                    // Đăng nhập thành công
+                    TempData["Success"] = "Đăng nhập thành công!";
                     return RedirectToAction("Index", "Home");
                 }
             }
@@ -84,5 +87,13 @@ public class AccountController : Controller
         }
 
         return View(userModel);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Logout()
+    {
+        await _signInManager.SignOutAsync();
+        TempData["Success"] = "Đăng xuất thành công!";
+        return RedirectToAction("Index", "Home");
     }
 }

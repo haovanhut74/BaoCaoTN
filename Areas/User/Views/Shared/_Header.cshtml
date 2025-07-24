@@ -5,9 +5,19 @@
             <h4 class = "m-0 text-primary">E-Tech Store</h4>
         </a>
         <div class = "d-flex gap-3">
-            <a class = "btn btn-outline-secondary"><i class = "fas fa-heart"></i> Yêu thích</a>
-            <a class = "btn btn-outline-primary"><i class = "fas fa-shopping-cart"></i> Giỏ hàng</a>
-            <a asp-area="User" asp-controller="Account" asp-action="Login" class = "btn btn-primary">Đăng nhập</a>
+            @if (User.Identity?.IsAuthenticated ?? false)
+            {
+                <a class = "btn btn-success">@User.Identity.Name</a>
+                <form asp-area = "User" asp-controller = "Account" asp-action = "Logout" method = "post" class = "d-inline">
+                    <button type = "submit" class = "btn btn-outline-warning">Đăng xuất</button>
+                </form>
+            }
+            else
+            {
+                <a asp-area = "User" asp-controller = "Account" asp-action = "Login" class = "btn btn-primary">Đăng
+                    nhập</a>
+            }
+
         </div>
     </div>
 </header>

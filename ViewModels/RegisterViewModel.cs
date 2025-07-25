@@ -14,4 +14,7 @@ public class RegisterViewModel
     [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
     [DataType(DataType.Password)]
     public string Password { get; set; }
+    
+    [Required(ErrorMessage = "Quyền (Role) là bắt buộc")]
+    public string Role { get; set; } = "Customer";
 }

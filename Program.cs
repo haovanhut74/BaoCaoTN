@@ -79,8 +79,10 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 // Initialize the database with seed data
-// var context = app.Services.CreateScope().ServiceProvider.GetRequiredService<DataContext>();
-//
-// SeedData.Seeding(context);
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await SeedData.SeedingAsync(services);
+}
 
 app.Run();

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MyWebApp.Models.ApplicationUser>
+﻿@model IEnumerable<MyWebApp.ViewModels.UserWithRoleViewModel>
 
 @{
     ViewData["Title"] = "Quản lý người dùng";
@@ -6,15 +6,23 @@
 
 <h2 class = "text-primary mb-4">Quản lý người dùng</h2>
 
+<div class = "d-flex justify-content-between align-items-center mb-3">
+    <a class = "btn btn-primary" asp-controller = "User" asp-action = "AddUser">
+        <i class = "bi bi-person-plus"></i> Thêm người dùng
+    </a>
+    <span class = "text-muted fst-italic">Tổng số: @Model.Count() người dùng</span>
+</div>
+
 <table class = "table table-hover table-bordered shadow-sm rounded">
     <thead class = "table-dark">
     <tr>
         <th>#</th>
         <th>Tên đăng nhập</th>
         <th>Email</th>
-        <th>Số điện thoại</th>
+        <th>Điện thoại</th>
         <th>Ngày tạo</th>
         <th>Trạng thái</th>
+        <th>Quyền</th>
         <th>Hành động</th>
     </tr>
     </thead>
@@ -22,7 +30,7 @@
     @if (!Model.Any())
     {
         <tr>
-            <td colspan = "7" class = "text-center text-muted">Không có người dùng nào.</td>
+            <td colspan = "8" class = "text-center text-muted">Không có người dùng nào.</td>
         </tr>
     }
     else
@@ -37,7 +45,7 @@
                 <td>@user.PhoneNumber</td>
                 <td>@user.CreatedDate.ToString("dd/MM/yyyy")</td>
                 <td>
-                    @if (user.LockoutEnabled && user.LockoutEnd > DateTimeOffset.Now)
+                    @if (user.IsLocked)
                     {
                         <span class = "badge bg-danger">Bị khóa</span>
                     }
@@ -47,12 +55,17 @@
                     }
                 </td>
                 <td>
+                    <span class = "badge bg-info text-dark">@user.Role</span>
+                </td>
+                <td>
                     <a class = "btn btn-sm btn-info" asp-action = "Detail" asp-route-id = "@user.Id">Chi tiết</a>
                     <a class = "btn btn-sm btn-warning" asp-action = "Lock" asp-route-id = "@user.Id">Khóa</a>
                     <a
                         class = "btn btn-sm btn-danger" asp-action = "Delete" asp-route-id = "@user.Id"
                         onclick = "return confirm('Bạn có chắc muốn xóa người dùng này?')"
-                    >Xóa</a>
+                    >
+                        Xóa
+                    </a>
                 </td>
             </tr>
         }

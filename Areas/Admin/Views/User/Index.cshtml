@@ -60,8 +60,9 @@
                 <td>
                     <a class = "btn btn-sm btn-info" asp-action = "Detail" asp-route-id = "@user.Id">Chi tiết</a>
                     <a class = "btn btn-sm btn-warning" asp-action = "Lock" asp-route-id = "@user.Id">Khóa</a>
+                    <a class = "btn btn-sm btn-warning" asp-action = "Edit" asp-route-id = "@user.Id">Sửa</a>
                     <a
-                        class = "btn btn-sm btn-danger" asp-action = "Delete" asp-route-id = "@user.Id"
+                        class = "btn btn-sm btn-danger" asp-controller="User" asp-action = "Delete" asp-route-id = "@user.Id"
                         onclick = "return confirm('Bạn có chắc muốn xóa người dùng này?')"
                     >
                         Xóa

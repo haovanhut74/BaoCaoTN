@@ -78,11 +78,11 @@ app.MapControllerRoute(
         defaults: new { area = "User" })
     .WithStaticAssets();
 
-// Initialize the database with seed data
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    await SeedData.SeedingAsync(services);
-}
+// // Initialize the database with seed data
+// using (var scope = app.Services.CreateScope())
+// {
+//     var services = scope.ServiceProvider;
+//     await SeedData.SeedingAsync(services);
+// }
 
 app.Run();

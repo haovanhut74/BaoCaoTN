@@ -69,7 +69,7 @@ public class UserController : BaseController
         {
             UserName = model.UserName,
             Email = model.Email,
-            CreatedDate = DateTime.Now
+            CreatedDate = DateTime.Now,
         };
 
         var result = await _userManager.CreateAsync(user, model.Password);
@@ -105,7 +105,9 @@ public class UserController : BaseController
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
             Role = currentRole ?? "",
-            Id = user.Id
+            Id = user.Id,
+            MainAddress = user.MainAddress,
+            SubAddress = user.SubAddress,
         };
 
         var roles = await _roleManager.Roles.ToListAsync();
@@ -129,7 +131,8 @@ public class UserController : BaseController
 
         user.Email = model.Email;
         user.PhoneNumber = model.PhoneNumber;
-
+        user.MainAddress = model.MainAddress;
+        user.SubAddress = model.SubAddress;
         var currentRoles = await _userManager.GetRolesAsync(user);
         await _userManager.RemoveFromRolesAsync(user, currentRoles);
         await _userManager.AddToRoleAsync(user, model.Role);

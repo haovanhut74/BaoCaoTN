@@ -25,6 +25,16 @@
         <input asp-for="PhoneNumber" class="form-control" />
         <span asp-validation-for="PhoneNumber" class="text-danger"></span>
     </div>
+    <div class="mb-3">
+        <label asp-for="MainAddress" class="form-label">Địa chỉ giao hàng ưu tiên</label>
+        <input asp-for="MainAddress" class="form-control" />
+        <span asp-validation-for="MainAddress" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="SubAddress" class="form-label">Địa chỉ giao hàng phụ</label>
+        <input asp-for="SubAddress" class="form-control" />
+        <span asp-validation-for="SubAddress" class="text-danger"></span>
+    </div>
 
     <div class="mb-3">
         <label asp-for="Role" class="form-label">Quyền</label>

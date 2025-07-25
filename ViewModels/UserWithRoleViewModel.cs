@@ -9,4 +9,6 @@ public class UserWithRoleViewModel
     public DateTime CreatedDate { get; set; }
     public string Role { get; set; }
     public bool IsLocked { get; set; }
+    public string MainAddress { get; set; }
+    public string SubAddress { get; set; } 
 }

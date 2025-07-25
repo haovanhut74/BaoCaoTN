@@ -4,7 +4,7 @@ namespace MyWebApp.Models;
 
 public class CartItem
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } // product ID
     public string ProductName { get; set; }
     public decimal Price { get; set; }
     public int Quantity { get; set; }

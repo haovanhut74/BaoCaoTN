@@ -1,0 +1,55 @@
+﻿@model IEnumerable<MyWebApp.Models.Order>
+
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+}
+
+<h2 class = "text-center text-primary mb-4">Quản lý đơn hàng</h2>
+
+<div class = "table-responsive">
+    <table class = "table table-bordered table-hover shadow-sm rounded">
+        <thead class = "table-primary text-center">
+        <tr>
+            <th>Mã đơn</th>
+            <th>Người đặt</th>
+            <th>Ngày đặt</th>
+            <th>Trạng thái</th>
+            <th>Số sản phẩm</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody class = "align-middle text-center">
+        @foreach (var order in Model)
+        {
+            string statusLabel = order.Status switch
+            {
+                1 => "Chờ xác nhận",
+                2 => "Đã xác nhận",
+                3 => "Đã giao",
+                _ => "Đã hủy"
+            };
+
+            string badgeClass = order.Status switch
+            {
+                1 => "badge bg-warning text-dark",
+                2 => "badge bg-primary",
+                3 => "badge bg-success",
+                _ => "badge bg-danger"
+            };
+
+            <tr>
+                <td>@order.OrderCode</td>
+                <td>@order.UserName</td>
+                <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                <td><span class = "@badgeClass">@statusLabel</span></td>
+                <td>@(order.OrderDetails?.Count() ?? 0)</td>
+                <td>
+                    <a class = "btn btn-sm btn-outline-info" asp-action = "Detail" asp-route-id = "@order.OrderId">
+                        <i class = "bi bi-eye"></i> Xem
+                    </a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

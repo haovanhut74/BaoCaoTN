@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
 using MyWebApp.Models;
 using MyWebApp.ViewModels;
-using X.PagedList;
-using X.PagedList.EntityFramework;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 

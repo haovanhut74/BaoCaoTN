@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
 using MyWebApp.Models;
+using MyWebApp.ViewModels;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
@@ -10,10 +11,19 @@ public class CategoryController : BaseController
 {
     public CategoryController(DataContext context) : base(context) { }
 
-    public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
+    public async Task<IActionResult> Index(int page = 1)
     {
-        var categories = await _context.Categories.OrderByDescending(c => c.Id).ToListAsync();
-        return View(categories);
+        int pageSize = 10; // Số sản phẩm hiển thị trên mỗi trang
+
+        var totalItems = await _context.Categories.CountAsync();
+        var categories = await _context.Categories.OrderByDescending(c => c.Id).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        var viewModel = new ListViewModel
+        {
+            Categories = categories,
+            CurrentPage = page,
+            TotalPages = (int)Math.Ceiling((double)totalItems / pageSize)
+        };
+        return View(viewModel);
     }
 
     [HttpGet]

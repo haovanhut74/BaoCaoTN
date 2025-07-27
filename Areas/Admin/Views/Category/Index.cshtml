@@ -60,24 +60,24 @@
                 }
                 </tbody>
             </table>
-            @if (Model.TotalPages > 1)
-            {
-                <nav aria-label = "Page navigation" class = "mt-4">
-                    <ul class = "pagination justify-content-center">
-                        @for (int i = 1; i <= Model.TotalPages; i++)
-                        {
-                            <li class = "page-item @(i == Model.CurrentPage ? "active" : "")">
-
-                                @{
-                                    var i1 = i;
-                                }
-                                <a class = "page-link" asp-action = "Index" asp-route-page = "@i1">@i1</a>
-                            </li>
-                        }
-                    </ul>
-                </nav>
-            }
         </div>
+    }
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label = "Page navigation" class = "mt-4">
+            <ul class = "pagination justify-content-center">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class = "page-item @(i == Model.CurrentPage ? "active" : "")">
+
+                        @{
+                            var i1 = i;
+                        }
+                        <a class = "page-link" asp-action = "Index" asp-route-page = "@i1">@i1</a>
+                    </li>
+                }
+            </ul>
+        </nav>
     }
 </div>
 

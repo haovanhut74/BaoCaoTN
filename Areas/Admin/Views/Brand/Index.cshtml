@@ -1,8 +1,8 @@
-﻿@model IEnumerable<MyWebApp.Models.Brand>
+﻿@model MyWebApp.ViewModels.ListViewModel
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-    uint STT = 1;
+    uint STT = (uint)((Model.CurrentPage - 1) * 10 + 1); // Bắt đầu theo page
 }
 
 <div class = "container mt-4">
@@ -16,7 +16,7 @@
         </a>
     </div>
 
-    @if (!Model.Any())
+    @if (!Model.Brands.Any())
     {
         <div class = "alert alert-info text-center">Chưa có thương hiệu nào được thêm.</div>
     }
@@ -33,7 +33,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var brand in Model)
+                @foreach (var brand in Model.Brands)
                 {
                     <tr>
                         <td>@STT</td>
@@ -62,5 +62,22 @@
                 </tbody>
             </table>
         </div>
+    }
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label = "Page navigation" class = "mt-4">
+            <ul class = "pagination justify-content-center">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class = "page-item @(i == Model.CurrentPage ? "active" : "")">
+
+                        @{
+                            var i1 = i;
+                        }
+                        <a class = "page-link" asp-action = "Index" asp-route-page = "@i1">@i1</a>
+                    </li>
+                }
+            </ul>
+        </nav>
     }
 </div>

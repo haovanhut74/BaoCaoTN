@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
 using MyWebApp.Models;
+using MyWebApp.ViewModels;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
@@ -9,10 +10,20 @@ public class BrandController : BaseController
 {
     public BrandController(DataContext context) : base(context) { }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1)
     {
-        var brands = await _context.Brands.OrderByDescending(b => b.Id).ToListAsync();
-        return View(brands);
+        int pageSize = 10; // Số sản phẩm hiển thị trên mỗi trang
+
+        var totalItems = await _context.Brands.CountAsync();
+        var brands = await _context.Brands.OrderByDescending(b => b.Id).Skip((page - 1) * pageSize)
+            .Take(pageSize).ToListAsync();
+        var viewModel = new ListViewModel
+        {
+            Brands = brands,
+            CurrentPage = page,
+            TotalPages = (int)Math.Ceiling((double)totalItems / pageSize)
+        };
+        return View(viewModel);
     }
 
     [HttpGet]
@@ -123,7 +134,7 @@ public class BrandController : BaseController
         string errorMessage = string.Join("\n", errors);
         return BadRequest(errorMessage);
     }
-    
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id)

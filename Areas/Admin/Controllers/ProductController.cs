@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
 using MyWebApp.Models;
+using MyWebApp.ViewModels;
+using X.PagedList;
+using X.PagedList.EntityFramework;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
@@ -17,12 +20,30 @@ public class ProductController : BaseController
         _env = env;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1)
     {
-        var products = await _context.Products.OrderByDescending(p => p.Id).Include(p => p.Category)
-            .Include(p => p.Brand).ToListAsync();
-        return View(products);
+        int pageSize = 10; // Số sản phẩm hiển thị trên mỗi trang
+
+        var totalItems = await _context.Products.CountAsync();
+
+        var products = await _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
+            .OrderByDescending(p => p.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var viewModel = new ListViewModel
+        {
+            Products = products,
+            CurrentPage = page,
+            TotalPages = (int)Math.Ceiling((double)totalItems / pageSize)
+        };
+
+        return View(viewModel);
     }
+
 
     [HttpGet]
     public IActionResult Create()

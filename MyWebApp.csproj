@@ -61,6 +61,9 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+      <PackageReference Include="X.PagedList.EntityFramework" Version="10.5.7" />
+      <PackageReference Include="X.PagedList.Mvc" Version="8.0.7" />
+      <PackageReference Include="X.PagedList.Mvc.Core" Version="10.5.7" />
     </ItemGroup>
 
 </Project>

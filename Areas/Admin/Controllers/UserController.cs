@@ -9,11 +9,16 @@ using MyWebApp.ViewModels;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
+// Controller quản lý người dùng trong khu vực Admin
 public class UserController : BaseController
 {
+    // Inject UserManager để thao tác với người dùng
     private readonly UserManager<ApplicationUser> _userManager;
+
+    // Inject RoleManager để thao tác với vai trò
     private readonly RoleManager<IdentityRole> _roleManager;
 
+    // Constructor nhận DataContext, UserManager, RoleManager
     public UserController(DataContext context, UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> RoleManager) : base(context)
     {
@@ -21,17 +26,20 @@ public class UserController : BaseController
         _roleManager = RoleManager;
     }
 
+    // Trang danh sách người dùng
     public async Task<IActionResult> Index()
     {
+        // Lấy tất cả người dùng và sắp xếp theo Id giảm dần
         var users = await _userManager.Users
             .OrderByDescending(u => u.Id)
             .ToListAsync();
 
         var userWithRoles = new List<UserWithRoleViewModel>();
 
+        // Duyệt từng người dùng để lấy thêm vai trò
         foreach (var user in users)
         {
-            var roles = await _userManager.GetRolesAsync(user);
+            var roles = await _userManager.GetRolesAsync(user); // Lấy danh sách vai trò của user
             userWithRoles.Add(new UserWithRoleViewModel
             {
                 Id = user.Id,
@@ -39,32 +47,37 @@ public class UserController : BaseController
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 CreatedDate = user.CreatedDate,
-                IsLocked = user.LockoutEnabled && user.LockoutEnd > DateTimeOffset.Now,
-                Role = roles.FirstOrDefault() ?? "Chưa có"
+                IsLocked = user.LockoutEnabled && user.LockoutEnd > DateTimeOffset.Now, // Kiểm tra có bị khóa không
+                Role = roles.FirstOrDefault() ?? "Chưa có" // Lấy vai trò đầu tiên hoặc mặc định
             });
         }
 
-        return View(userWithRoles);
+        return View(userWithRoles); // Trả về view danh sách người dùng
     }
 
+    // Hiển thị form thêm người dùng
     [HttpGet]
     public async Task<IActionResult> AddUser()
     {
+        // Gửi danh sách roles để chọn trong form
         var roles = await _roleManager.Roles.ToListAsync();
         ViewBag.Roles = new SelectList(roles, "Name", "Name");
         return View();
     }
 
+    // Xử lý khi submit form thêm người dùng
     [HttpPost]
     public async Task<IActionResult> AddUser(RegisterViewModel model)
     {
         if (!ModelState.IsValid)
         {
+            // Nếu dữ liệu không hợp lệ, load lại form với roles
             var roles = await _roleManager.Roles.ToListAsync();
             ViewBag.Roles = new SelectList(roles, "Name", "Name");
             return View(model);
         }
 
+        // Tạo người dùng mới
         var user = new ApplicationUser
         {
             UserName = model.UserName,
@@ -72,33 +85,41 @@ public class UserController : BaseController
             CreatedDate = DateTime.Now,
         };
 
+        // Tạo tài khoản người dùng với mật khẩu
         var result = await _userManager.CreateAsync(user, model.Password);
         if (result.Succeeded)
         {
+            // Thêm người dùng vào vai trò đã chọn
             await _userManager.AddToRoleAsync(user, model.Role);
             TempData["Success"] = "Tạo người dùng thành công.";
             return RedirectToAction("Index");
         }
 
+        // Nếu có lỗi khi tạo, hiển thị lỗi
         foreach (var error in result.Errors)
         {
             ModelState.AddModelError("", error.Description);
         }
 
+        // Load lại danh sách vai trò khi có lỗi
         var rolesList = await _roleManager.Roles.ToListAsync();
         ViewBag.Roles = new SelectList(rolesList, "Name", "Name");
         return View(model);
     }
 
+    // Hiển thị form chỉnh sửa người dùng
     [HttpGet]
     public async Task<IActionResult> Edit(string id)
     {
+        // Tìm người dùng theo id
         var user = await _userManager.FindByIdAsync(id);
         if (user == null) return NotFound();
 
+        // Lấy vai trò hiện tại của người dùng
         var userRoles = await _userManager.GetRolesAsync(user);
         var currentRole = userRoles.FirstOrDefault();
 
+        // Đổ dữ liệu người dùng vào model
         var model = new UserWithRoleViewModel
         {
             UserName = user.UserName,
@@ -110,33 +131,43 @@ public class UserController : BaseController
             SubAddress = user.SubAddress,
         };
 
+        // Gửi danh sách roles vào view
         var roles = await _roleManager.Roles.ToListAsync();
         ViewBag.Roles = new SelectList(roles, "Name", "Name", currentRole);
 
         return View(model);
     }
 
+    // Xử lý khi submit form chỉnh sửa người dùng
     [HttpPost]
     public async Task<IActionResult> Edit(UserWithRoleViewModel model)
     {
         if (!ModelState.IsValid)
         {
+            // Nếu dữ liệu không hợp lệ, load lại roles và hiển thị lại form
             var roles = await _roleManager.Roles.ToListAsync();
             ViewBag.Roles = new SelectList(roles, "Name", "Name", model.Role);
             return View(model);
         }
 
+        // Tìm người dùng cần sửa
         var user = await _userManager.FindByIdAsync(model.Id);
         if (user == null) return NotFound();
 
+        // Cập nhật thông tin cơ bản
         user.Email = model.Email;
         user.PhoneNumber = model.PhoneNumber;
         user.MainAddress = model.MainAddress;
         user.SubAddress = model.SubAddress;
+
+        // Xóa tất cả vai trò hiện tại
         var currentRoles = await _userManager.GetRolesAsync(user);
         await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+        // Thêm vai trò mới
         await _userManager.AddToRoleAsync(user, model.Role);
 
+        // Cập nhật người dùng vào database
         var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)
         {
@@ -144,25 +175,29 @@ public class UserController : BaseController
             return RedirectToAction("Index");
         }
 
+        // Hiển thị lỗi nếu update không thành công
         foreach (var error in result.Errors)
         {
             ModelState.AddModelError("", error.Description);
         }
 
+        // Load lại danh sách vai trò
         var rolesList = await _roleManager.Roles.ToListAsync();
         ViewBag.Roles = new SelectList(rolesList, "Name", "Name", model.Role);
         return View(model);
     }
 
-
+    // Xóa người dùng theo id
     [HttpGet]
     public async Task<IActionResult> Delete(Guid id)
     {
         if (id == Guid.Empty) return NotFound();
 
+        // Tìm người dùng theo id
         var user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null) return NotFound();
 
+        // Thực hiện xóa
         var result = await _userManager.DeleteAsync(user);
         if (result.Succeeded)
         {

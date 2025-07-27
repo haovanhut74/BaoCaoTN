@@ -1,60 +1,66 @@
-﻿@model IEnumerable<MyWebApp.Models.Category>
+﻿@using MyWebApp.Models
+@model IEnumerable<MyWebApp.Models.Category>
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     uint STT = 1;
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4 text-primary"><i class="fa fa-tags me-2"></i>Quản lý danh mục</h2>
+<div class = "container mt-4">
+    <h2 class = "mb-4 text-primary"><i class = "fa fa-tags me-2"></i>Quản lý danh mục</h2>
 
-    <div class="mb-3 text-end">
-        <a asp-area="Admin" asp-controller="Category" asp-action="Create" class="btn btn-success">
-            <i class="fa fa-plus"></i> Thêm danh mục
+    <div class = "mb-3 text-end">
+        <a asp-area = "Admin" asp-controller = "Category" asp-action = "Create" class = "btn btn-success">
+            <i class = "fa fa-plus"></i> Thêm danh mục
         </a>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info text-center">Chưa có danh mục nào được thêm.</div>
+        <div class = "alert alert-info text-center">Chưa có danh mục nào được thêm.</div>
     }
     else
     {
-        <div class="table-responsive shadow-sm rounded">
-            <table class="table table-bordered table-hover align-middle text-center">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Tên danh mục</th>
-                        <th>Mô tả</th>
-                        <th>Thao tác</th>
-                    </tr>
+        <div class = "table-responsive shadow-sm rounded">
+            <table class = "table table-bordered table-hover align-middle text-center">
+                <thead class = "table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Tên danh mục</th>
+                    <th>Mô tả</th>
+                    <th>Thao tác</th>
+                </tr>
                 </thead>
                 <tbody>
-                    @foreach (var category in Model)
-                    {
-                        <tr>
-                            <td>@STT</td>
-                            <td class="text-start">@category.Name</td>
-                            <td>@category.Description</td>
-                            <td style="width: 160px;">
-                                <a asp-area="Admin" asp-action="Edit" asp-controller="Category" asp-route-id="@category.Id"
-                                   class="btn btn-sm btn-warning me-1">
-                                    <i class="fa fa-edit"></i> Sửa
-                                </a>
-                                <form asp-area="Admin" asp-action="Delete" asp-controller="Category" asp-route-id="@category.Id"
-                                      method="post" class="d-inline"
-                                      onsubmit="return confirm('Bạn có chắc chắn muốn xoá danh mục này không?');">
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        <i class="fa fa-trash"></i> Xoá
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        STT++;
-                    }
+                @foreach (var category in Model)
+                {
+                    <tr>
+                        <td>@STT</td>
+                        <td class = "text-start">@category.Name</td>
+                        <td>@category.Description</td>
+                        <td style = "width: 160px;">
+                            <a
+                                asp-area = "Admin" asp-action = "Edit" asp-controller = "Category" asp-route-id = "@category.Id"
+                                class = "btn btn-sm btn-warning me-1"
+                            >
+                                <i class = "fa fa-edit"></i> Sửa
+                            </a>
+                            <form
+                                asp-area = "Admin" asp-action = "Delete" asp-controller = "Category" asp-route-id = "@category.Id"
+                                method = "post" class = "d-inline"
+                                onsubmit = "return confirm('Bạn có chắc chắn muốn xoá danh mục này không?');"
+                            >
+                                <button type = "submit" class = "btn btn-sm btn-danger">
+                                    <i class = "fa fa-trash"></i> Xoá
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    STT++;
+                }
                 </tbody>
             </table>
         </div>
     }
 </div>
+

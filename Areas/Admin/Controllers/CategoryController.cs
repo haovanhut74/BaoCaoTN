@@ -10,7 +10,7 @@ public class CategoryController : BaseController
 {
     public CategoryController(DataContext context) : base(context) { }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
     {
         var categories = await _context.Categories.OrderByDescending(c => c.Id).ToListAsync();
         return View(categories);

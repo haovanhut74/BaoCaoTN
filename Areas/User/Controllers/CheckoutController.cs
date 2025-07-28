@@ -2,13 +2,19 @@
 using Microsoft.AspNetCore.Mvc;
 using MyWebApp.Data;
 using MyWebApp.Extensions;
+using MyWebApp.Interface.Service;
 using MyWebApp.Models;
 
 namespace MyWebApp.Areas.User.Controllers;
 
 public class CheckoutController : BaseController
 {
-    public CheckoutController(DataContext context) : base(context) { }
+    private readonly IEmailSender _emailSender;
+
+    public CheckoutController(DataContext context, IEmailSender emailSender) : base(context)
+    {
+        _emailSender = emailSender;
+    }
 
     public async Task<IActionResult> Checkout()
     {
@@ -56,7 +62,14 @@ public class CheckoutController : BaseController
         }
 
         await _context.SaveChangesAsync();
-
+        var receiver = "haovanhut74@gmail.com"; // Thay thế bằng email người nhận
+        var subject = "Xác nhận đơn hàng";
+        var message = $"Chào {userName},<br/>" +
+                      $"Cảm ơn bạn đã đặt hàng tại cửa hàng của chúng tôi.<br/>" +
+                      $"Mã đơn hàng của bạn là: <strong>{orderCode}</strong>.<br/>" +
+                      $"Chúng tôi sẽ xử lý đơn hàng của bạn trong thời gian sớm nhất.<br/>" +
+                      $"Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email này hoặc số điện thoại hỗ trợ.<br/>";
+        await _emailSender.SendEmailAsync(receiver, subject, message);
         TempData["Success"] = $"Đặt hàng thành công! Mã đơn hàng của bạn là: {orderCode}";
         HttpContext.Session.Remove("Cart");
 

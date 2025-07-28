@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
+using MyWebApp.Interface.Service;
 using MyWebApp.Models;
+using MyWebApp.Repository.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +14,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")
     ));
-
+builder.Services.AddTransient<IEmailSender, EmailSeneder>(); // Thêm dịch vụ gửi email
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>

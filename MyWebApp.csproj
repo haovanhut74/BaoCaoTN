@@ -7,8 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Interface\" />
-      <Folder Include="Repository\" />
       <Folder Include="wwwroot\img\avatar\" />
     </ItemGroup>
 

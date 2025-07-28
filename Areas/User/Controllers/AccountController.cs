@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MyWebApp.Interface.Service;
 using MyWebApp.Models;
 using MyWebApp.ViewModels;
 
@@ -11,12 +12,16 @@ public class AccountController : Controller
 {
     private UserManager<ApplicationUser> _userManager;
     private SignInManager<ApplicationUser> _signInManager;
+    private readonly IEmailSender _emailSender;
 
-    public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+    public AccountController(IEmailSender emailSender, UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _emailSender = emailSender;
     }
+
 
     [HttpGet]
     public IActionResult Register()
@@ -79,6 +84,11 @@ public class AccountController : Controller
                 {
                     // Đăng nhập thành công
                     TempData["Success"] = "Đăng nhập thành công!";
+                    var receiver = "haovanhut74@gmail.com";
+                    var subject = "Thông báo đăng nhập thành công";
+                    var message =
+                        $"Chào {user.UserName}, bạn đã đăng nhập thành công vào hệ thống vào lúc {DateTime.Now}.";
+                    await _emailSender.SendEmailAsync(receiver, subject, message);
                     return RedirectToAction("Index", "Home");
                 }
             }

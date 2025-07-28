@@ -50,7 +50,9 @@ public class ProductController : BaseController
             .Include(p => p.Brand)
             .FirstOrDefaultAsync(p =>
                 p.Slug == productSlug &&
+                p.Category != null &&
                 p.Category.Slug == categorySlug &&
+                p.Brand != null &&
                 p.Brand.Slug == brandSlug);
 
         if (product == null)

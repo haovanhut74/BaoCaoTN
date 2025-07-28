@@ -60,4 +60,22 @@ public class ProductController : BaseController
 
         return View(product);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> FilterPartial(List<string> selectedSlugBrands, List<string> selectedSlugCategories)
+    {
+        IQueryable<Product> productsQuery = _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Brand);
+
+        if (selectedSlugCategories?.Count > 0)
+            productsQuery = productsQuery.Where(p => selectedSlugCategories.Contains(p.Category.Slug));
+
+        if (selectedSlugBrands?.Count > 0)
+            productsQuery = productsQuery.Where(p => selectedSlugBrands.Contains(p.Brand.Slug));
+
+        var products = await productsQuery.OrderByDescending(p => p.Id).ToListAsync();
+
+        return PartialView("_ProductListPartial", products);
+    }
 }

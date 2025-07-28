@@ -1,0 +1,17 @@
+﻿@model MyWebApp.ViewModels.RoleViewModel
+<div class="container mt-4">
+    <h2 class="text-primary mb-3">Tạo quyền mới</h2>
+
+    <form asp-action="Create" method="post">
+        <div class="form-group">
+            <label for="roleName">Tên quyền</label>
+            <input type="text" class="form-control" id="roleName" name="roleName" placeholder="Nhập tên quyền..." />
+            @* <span asp-validation-for="roleName" class="text-danger"></span> *@
+        </div>
+
+        <button type="submit" class="btn btn-success mt-2">Tạo</button>
+        <a asp-action="Index" class="btn btn-secondary mt-2">Quay lại</a>
+    </form>
+
+    <div asp-validation-summary="All" class="text-danger mt-2"></div>
+</div>

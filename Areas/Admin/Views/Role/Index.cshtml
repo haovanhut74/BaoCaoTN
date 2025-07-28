@@ -1,0 +1,31 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<IdentityRole>
+
+<div class = "container mt-4">
+    <h2 class = "mb-3 text-primary">Danh sách quyền</h2>
+
+    <a class = "btn btn-success mb-3" asp-action = "Create">Tạo quyền mới</a>
+
+    <table class = "table table-bordered table-striped">
+        <thead class = "thead-dark">
+        <tr>
+            <th>Tên quyền</th>
+            <th>Id</th>
+            <th>Thao tác</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var role in Model)
+        {
+            <tr>
+                <td>@role.Name</td>
+                <td>@role.Id</td>
+                <td>
+                    <a class = "btn btn-sm btn-warning" asp-action = "Edit" asp-route-id = "@role.Id">Sửa</a>
+                    <a class = "btn btn-sm btn-danger" asp-action = "Delete" asp-route-id = "@role.Id">Xóa</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

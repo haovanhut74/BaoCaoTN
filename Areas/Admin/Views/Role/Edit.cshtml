@@ -1,0 +1,24 @@
+﻿@model MyWebApp.ViewModels.RoleViewModel
+
+@{
+    ViewData["Title"] = "Chỉnh sửa quyền";
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary mb-3">Chỉnh sửa quyền</h2>
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="form-group">
+            <label asp-for="RoleName"></label>
+            <input asp-for="RoleName" class="form-control" />
+            <span asp-validation-for="RoleName" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-warning mt-2">Cập nhật</button>
+        <a asp-action="Index" class="btn btn-secondary mt-2">Quay lại</a>
+    </form>
+
+    <div asp-validation-summary="All" class="text-danger mt-2"></div>
+</div>

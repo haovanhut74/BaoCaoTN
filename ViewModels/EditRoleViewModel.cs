@@ -2,7 +2,7 @@
 
 namespace MyWebApp.ViewModels;
 
-public class RoleViewModel
+public class EditRoleViewModel
 {
     [Required]
     public string Id { get; set; }

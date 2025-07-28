@@ -1,31 +1,125 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @model IEnumerable<IdentityRole>
 
+
+@{
+    ViewData["Title"] = "Danh sách quyền";
+}
 <div class = "container mt-4">
-    <h2 class = "mb-3 text-primary">Danh sách quyền</h2>
+    <div class = "d-flex justify-content-between align-items-center mb-3">
+        <h2 class = "text-primary">📋 Danh sách quyền</h2>
+        <a asp-action = "Create" class = "btn btn-success">
+            <i class = "bi bi-plus-circle"></i> Tạo quyền mới
+        </a>
+    </div>
 
-    <a class = "btn btn-success mb-3" asp-action = "Create">Tạo quyền mới</a>
+    <div id = "alert-area"></div>
 
-    <table class = "table table-bordered table-striped">
-        <thead class = "thead-dark">
+    <table class = "table table-striped table-hover table-bordered shadow-sm" id = "role-table">
+        <thead class = "table-dark">
         <tr>
-            <th>Tên quyền</th>
-            <th>Id</th>
-            <th>Thao tác</th>
+            <th style = "width: 70%">Tên quyền</th>
+            <th style = "width: 30%">Hành động</th>
         </tr>
         </thead>
         <tbody>
         @foreach (var role in Model)
         {
-            <tr>
+            <tr id = "role-@role.Id">
                 <td>@role.Name</td>
-                <td>@role.Id</td>
                 <td>
-                    <a class = "btn btn-sm btn-warning" asp-action = "Edit" asp-route-id = "@role.Id">Sửa</a>
-                    <a class = "btn btn-sm btn-danger" asp-action = "Delete" asp-route-id = "@role.Id">Xóa</a>
+                    <a asp-action = "Edit" asp-route-id = "@role.Id" class = "btn btn-sm btn-warning me-2">
+                        <i class = "bi bi-pencil-square"></i> Sửa
+                    </a>
+                    <button
+                        class = "btn btn-sm btn-danger btn-delete"
+                        data-id = "@role.Id" data-name = "@role.Name"
+                    >
+                        <i class = "bi bi-trash"></i> Xóa
+                    </button>
                 </td>
             </tr>
         }
         </tbody>
     </table>
 </div>
+
+<!-- Modal xác nhận xóa -->
+<div class = "modal fade" id = "confirmDeleteModal" tabindex = "-1" aria-labelledby = "deleteModalLabel" aria-hidden = "true">
+    <div class = "modal-dialog modal-dialog-centered">
+        <div class = "modal-content">
+            <div class = "modal-header bg-danger text-white">
+                <h5 class = "modal-title" id = "deleteModalLabel">Xác nhận xóa</h5>
+                <button type = "button" class = "btn-close text-white" data-bs-dismiss = "modal" aria-label = "Đóng"></button>
+            </div>
+            <div class = "modal-body">
+                Bạn có chắc chắn muốn xóa quyền <strong id = "role-to-delete-name"></strong> không?
+            </div>
+            <div class = "modal-footer">
+                <button type = "button" class = "btn btn-secondary" data-bs-dismiss = "modal">Hủy</button>
+                <button id = "confirm-delete-btn" class = "btn btn-danger">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        let selectedId = "";
+        let selectedName = "";
+
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', function () {
+                selectedId = this.dataset.id;
+                selectedName = this.dataset.name;
+                document.getElementById('role-to-delete-name').innerText = selectedName;
+                const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+                modal.show();
+            });
+        });
+
+        document.getElementById('confirm-delete-btn').addEventListener('click', function () {
+            fetch('/Admin/Role/DeleteAjax', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({id: selectedId})
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('confirmDeleteModal'));
+                    modal.hide();
+
+                    const alertBox = document.getElementById('alert-area');
+                    if (data.success) {
+                        document.getElementById(`role-${selectedId}`).remove();
+                        showAlert(data.message, 'success');
+                    } else {
+                        showAlert(data.message, 'danger');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showAlert("Có lỗi xảy ra khi xóa.", 'danger');
+                });
+        });
+
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alert-area');
+            alertBox.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show shadow-sm" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>`;
+            setTimeout(() => {
+                alertBox.innerHTML = '';
+            }, 4000);
+        }
+    </script>
+}

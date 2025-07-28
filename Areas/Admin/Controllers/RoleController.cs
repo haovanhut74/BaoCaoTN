@@ -21,6 +21,7 @@ public class RoleController : BaseController
         return View(roles);
     }
 
+    [HttpGet]
     public IActionResult Create()
     {
         return View();
@@ -28,7 +29,7 @@ public class RoleController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(RoleViewModel model)
+    public async Task<IActionResult> Create(CreateRoleViewModel model)
     {
         if (!ModelState.IsValid)
             return View(model);
@@ -65,7 +66,7 @@ public class RoleController : BaseController
             return NotFound();
         }
 
-        var model = new RoleViewModel
+        var model = new EditRoleViewModel
         {
             Id = role.Id,
             RoleName = role.Name
@@ -74,10 +75,10 @@ public class RoleController : BaseController
         return View(model);
     }
 
-// POST: Admin/Role/Edit
+    // POST: Admin/Role/Edit
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(RoleViewModel model)
+    public async Task<IActionResult> Edit(EditRoleViewModel model)
     {
         if (!ModelState.IsValid)
             return View(model);
@@ -112,4 +113,30 @@ public class RoleController : BaseController
 
         return View(model);
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteAjax([FromBody] DeleteRequest request)
+    {
+        if (request == null || string.IsNullOrEmpty(request.Id))
+        {
+            return Json(new { success = false, message = "ID không hợp lệ." });
+        }
+
+        var role = await _roleManager.FindByIdAsync(request.Id);
+        if (role == null)
+        {
+            return Json(new { success = false, message = "Không tìm thấy quyền." });
+        }
+
+        var result = await _roleManager.DeleteAsync(role);
+        if (result.Succeeded)
+        {
+            return Json(new { success = true, message = "Xóa quyền thành công!" });
+        }
+
+        var errorMessage = string.Join("; ", result.Errors.Select(e => e.Description));
+        return Json(new { success = false, message = errorMessage });
+    }
+
 }

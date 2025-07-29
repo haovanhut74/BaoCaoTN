@@ -1,0 +1,158 @@
+﻿@model List<MyWebApp.Models.Product>
+
+@{
+    ViewData["Title"] = "Kết quả tìm kiếm";
+    ViewData["col-12"] = true;
+    Layout = "~/Areas/User/Views/Shared/_Layout.cshtml";
+    var searchTerm = ViewBag.SearchTerm as string ?? "";
+}
+
+<div class = "row mb-4">
+    <div class = "col-md-12">
+        <h2 class = "text-primary fw-bold">
+            🔍 Kết quả tìm kiếm
+        </h2>
+
+        @if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            <p class = "mb-3">
+                Đã tìm thấy <strong>@Model.Count</strong> sản phẩm cho từ khóa:
+                <span class = "text-danger fw-semibold">"@searchTerm"</span>
+            </p>
+        }
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class = "alert alert-warning shadow-sm">
+                <i class = "fa fa-info-circle me-2"></i> Không tìm thấy sản phẩm nào phù hợp với từ khóa.
+            </div>
+        }
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class = "row row-cols-1 row-cols-md-4 g-4">
+        @foreach (var item in Model)
+        {
+            <div class = "col">
+                <div class = "card h-100 shadow-sm border-0 product-card">
+                    <a
+                        asp-area = "User"
+                        asp-controller = "Product"
+                        asp-action = "Detail"
+                        asp-route-categorySlug = "@item.Category?.Slug"
+                        asp-route-brandSlug = "@item.Brand?.Slug"
+                        asp-route-productSlug = "@item.Slug"
+                    >
+                        <img
+                            src = "~/img/product/@item.Image"
+                            class = "card-img-top img-fluid"
+                            alt = "@item.Name"
+                            style = "height: 220px; object-fit: cover;"
+                        />
+                    </a>
+
+                    <div class = "card-body d-flex flex-column">
+                        <h5 class = "card-title text-dark fw-semibold mb-2">
+                            @item.Name
+                        </h5>
+
+                        <p class = "card-text text-muted mb-1">
+                            <i class = "fa fa-tags me-1"></i> @item.Category?.Name ?? "Chưa rõ"
+                        </p>
+
+                        <p class = "card-text text-muted mb-1">
+                            <i class = "fa fa-industry me-1"></i> @item.Brand?.Name ?? "Không xác định"
+                        </p>
+
+                        <p class = "card-text text-muted small mb-3">
+                            <i class = "fa fa-calendar-alt me-1"></i> Đăng ngày: @item.CreatedAt.ToString("dd/MM/yyyy")
+                        </p>
+
+                        <div class = "mt-auto">
+                            <p class = "fw-bold text-danger fs-5 mb-2">
+                                @item.Price.ToString("N0") ₫
+                            </p>
+
+                            <a
+                                asp-area = "User"
+                                asp-controller = "Product"
+                                asp-action = "Detail"
+                                asp-route-categorySlug = "@item.Category?.Slug"
+                                asp-route-brandSlug = "@item.Brand?.Slug"
+                                asp-route-productSlug = "@item.Slug"
+                                class = "btn btn-outline-primary w-100"
+                            >
+                                <i class = "fa fa-eye me-1"></i> Xem chi tiết
+                            </a>
+
+                            <button
+                                type = "button"
+                                class = "btn btn-success w-100 mt-2 btn-add-to-cart"
+                                data-id = "@item.Id"
+                            >
+                                <i class = "fa fa-cart-plus me-1"></i> Thêm vào giỏ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Thêm sản phẩm vào giỏ
+            $(document).on('click', '.btn-add-to-cart', function () {
+                const productId = $(this).data('id');
+                const token = $('input[name="__RequestVerificationToken"]').val();
+
+                $.ajax({
+                    url: '@Url.Action("Add", "Cart", new { area = "User" })',
+                    type: 'POST',
+                    data: {
+                        id: productId,
+                        __RequestVerificationToken: token
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            showToast("🛒 Đã thêm vào giỏ hàng!", "success");
+
+                            if (response.cartCount !== undefined) {
+                                $("#cartCount").text(response.cartCount);
+                            }
+                        } else {
+                            showToast("❌ Thêm không thành công!", "danger");
+                        }
+                    },
+                    error: function () {
+                        showToast("❌ Có lỗi xảy ra!", "danger");
+                    }
+                });
+            });
+
+            function showToast(message, type) {
+                const toastContainer = document.getElementById("toast-container");
+
+                const toast = document.createElement("div");
+                toast.className = `toast align-items-center text-white bg-${type} border-0 show`;
+                toast.setAttribute("role", "alert");
+                toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body">${message}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                                data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                `;
+                toastContainer.appendChild(toast);
+
+                setTimeout(() => toast.remove(), 3000);
+            }
+        });
+    </script>
+}

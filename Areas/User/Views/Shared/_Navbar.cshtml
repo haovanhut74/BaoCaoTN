@@ -17,8 +17,8 @@
                     <a class = "nav-link" asp-area = "User" asp-controller = "Cart" asp-action = "Index">Giỏ hàng</a>
                 </li>
             </ul>
-            <form class = "d-flex" asp-controller = "Product" asp-action = "Search">
-                <input name = "keyword" class = "form-control me-2" type = "search" placeholder = "Tìm Laptop, PC..."/>
+            <form asp-area="User" class = "d-flex" asp-controller = "Product" asp-action = "Search" method = "post">
+                <input name = "searchTerm" class = "form-control me-2" type = "search" placeholder = "Tìm Laptop, PC..."/>
                 <button class = "btn btn-outline-success" type = "submit">Tìm</button>
             </form>
         </div>

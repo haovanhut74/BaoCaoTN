@@ -78,4 +78,16 @@ public class ProductController : BaseController
 
         return PartialView("_ProductListPartial", products);
     }
+
+    [HttpPost]
+    public async Task<IActionResult> Search(string searchTerm)
+    {
+        var products = await _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
+            .Where(p => p.Name.Contains(searchTerm) || p.Description.Contains(searchTerm))
+            .ToListAsync();
+        ViewBag.SearchTerm = searchTerm;
+        return View(products);
+    }
 }

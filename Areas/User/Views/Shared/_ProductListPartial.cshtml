@@ -43,11 +43,13 @@
                             >
                                 <i class = "fa fa-eye me-1"></i> Xem chi tiết
                             </a>
-                            <form asp-controller = "Cart" asp-action = "Add" asp-route-id = "@item.Id" method = "post" class = "d-grid">
-                                <button type = "submit" class = "btn btn-success mt-2">
-                                    <i class = "fa fa-cart-plus me-1"></i> Thêm vào giỏ hàng
-                                </button>
-                            </form>
+                            <button
+                                type = "button"
+                                class = "btn btn-success mt-2 btn-add-to-cart"
+                                data-id = "@item.Id"
+                            >
+                                <i class = "fa fa-cart-plus me-1"></i> Thêm vào giỏ hàng
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -55,3 +57,6 @@
         }
     }
 </div>
+@section Scripts {
+    
+}

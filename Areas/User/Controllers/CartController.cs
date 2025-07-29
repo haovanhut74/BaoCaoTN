@@ -23,29 +23,34 @@ public class CartController : BaseController
         return View(cartViewModel);
     }
 
+    // ✅ AJAX-friendly thêm giỏ hàng
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Add(Guid Id)
     {
-        Product product = await _context.Products.FindAsync(Id);
-        List<CartItem> cartItems = HttpContext.Session.GetJson<List<CartItem>>("Cart") ?? new List<CartItem>();
-        // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-        CartItem existingItem = cartItems.Where(c => c.Id == product.Id).FirstOrDefault();
+        var product = await _context.Products.FindAsync(Id);
+        var cartItems = HttpContext.Session.GetJson<List<CartItem>>("Cart") ?? new List<CartItem>();
+
+        var existingItem = cartItems.FirstOrDefault(c => c.Id == Id);
         if (existingItem != null)
         {
-            // Nếu sản phẩm đã có, tăng số lượng
             existingItem.Quantity++;
         }
-        else
+        else if (product != null)
         {
-            // Nếu sản phẩm chưa có, thêm mới vào giỏ hàng
-            if (product != null) cartItems.Add(new CartItem(product));
+            cartItems.Add(new CartItem(product));
         }
 
-        // Lưu giỏ hàng vào session
         HttpContext.Session.SetJson("Cart", cartItems);
-        TempData["Success"] = $"Đã thêm sản phẩ {product?.Name} vào giỏ hàng!";
-        return Redirect(Request.Headers.Referer.ToString());
+
+        return Json(new
+        {
+            success = true,
+            message = $"Đã thêm sản phẩm \"{product?.Name}\" vào giỏ hàng!",
+            cartCount = cartItems.Count
+        });
     }
+
 
     [HttpPost]
     public async Task<IActionResult> Increase(Guid id)
@@ -94,7 +99,7 @@ public class CartController : BaseController
             }
 
             if (cartItems.Count == 0)
-                
+
                 HttpContext.Session.Remove("Cart");
             else
                 HttpContext.Session.SetJson("Cart", cartItems);

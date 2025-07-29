@@ -4,6 +4,10 @@
     ViewData["Title"] = "Danh sách sản phẩm";
 }
 
+<!-- AntiForgery hidden form -->
+<form id = "antiForgeryForm" style = "display:none;">
+    @Html.AntiForgeryToken()
+</form>
 
 <form method = "get" asp-action = "Index">
     <div class = "row">
@@ -16,11 +20,15 @@
     </div>
 </form>
 
+<!-- Toast Container -->
+<div id = "toast-container" style = "position: fixed; top: 1rem; right: 1rem; z-index: 1055;"></div>
+
 @section Scripts {
     <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script>
         $(document).ready(function () {
-            // Bắt sự kiện khi checkbox thay đổi
+            // Bắt sự kiện checkbox lọc thay đổi
             $('#filterForm input[type="checkbox"]').on('change', function () {
                 let form = $('#filterForm');
                 let url = '@Url.Action("FilterPartial", "Product", new { area = "User" })';
@@ -33,11 +41,58 @@
                         $('#product-list-container').html(html);
                     },
                     error: function () {
-                        alert("Đã xảy ra lỗi khi lọc sản phẩm!");
+                        showToast("⚠️ Lọc sản phẩm thất bại!", "danger");
+                    }
+                });
+            });
+
+            // Thêm sản phẩm vào giỏ
+            $(document).on('click', '.btn-add-to-cart', function () {
+                const productId = $(this).data('id');
+                const token = $('input[name="__RequestVerificationToken"]').val();
+
+                $.ajax({
+                    url: '@Url.Action("Add", "Cart", new { area = "User" })',
+                    type: 'POST',
+                    data: {
+                        id: productId,
+                        __RequestVerificationToken: token
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            showToast("🛒 Đã thêm vào giỏ hàng!", "success");
+
+                            if (response.cartCount !== undefined) {
+                                $("#cartCount").text(response.cartCount);
+                            }
+                        } else {
+                            showToast("❌ Thêm không thành công!", "danger");
+                        }
+                    },
+                    error: function () {
+                        showToast("❌ Có lỗi xảy ra!", "danger");
                     }
                 });
             });
         });
+
+        // Hiển thị toast
+        function showToast(message, type) {
+            const toastContainer = document.getElementById("toast-container");
+
+            const toast = document.createElement("div");
+            toast.className = `toast align-items-center text-white bg-${type} border-0 show`;
+            toast.setAttribute("role", "alert");
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            toastContainer.appendChild(toast);
+
+            setTimeout(() => toast.remove(), 3000);
+        }
     </script>
 }
-

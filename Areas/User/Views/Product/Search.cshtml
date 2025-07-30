@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Kết quả tìm kiếm";
     ViewData["col-12"] = true;
+    ViewData["HideLayoutPart"] = true;
     Layout = "~/Areas/User/Views/Shared/_Layout.cshtml";
     var searchTerm = ViewBag.SearchTerm as string ?? "";
 }

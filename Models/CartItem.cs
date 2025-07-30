@@ -1,23 +1,32 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyWebApp.Models;
 
 public class CartItem
 {
-    public Guid Id { get; set; } // product ID
-    public string ProductName { get; set; }
-    public decimal Price { get; set; }
-    public int Quantity { get; set; }
-    public decimal TotalPrice => Price * Quantity;
-    public string ImageUrl { get; set; }
-    public CartItem() { }
+    [Key]
+    public Guid Id { get; set; }
 
-    public CartItem(Product product)
-    {
-        ProductName = product.Name;
-        Id = product.Id;
-        Price = product.Price;
-        Quantity = 1; // Default quantity for a new cart item
-        ImageUrl = product.Image;
-    }
+    [Required]
+    public Guid CartId { get; set; }
+
+    [ForeignKey("CartId")]
+    public Cart Cart { get; set; }
+
+    [Required]
+    public Guid ProductId { get; set; }
+
+    [ForeignKey("ProductId")]
+    public Product Product { get; set; }
+
+    [Range(1, int.MaxValue)]
+    public int Quantity { get; set; }
+
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal Price { get; set; }
+
+    [NotMapped]
+    public decimal TotalPrice => Price * Quantity;
+    
 }

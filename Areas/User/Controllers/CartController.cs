@@ -1,90 +1,143 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
-using MyWebApp.Extensions;
 using MyWebApp.Models;
 using MyWebApp.ViewModels;
+using System.Security.Claims;
 
 namespace MyWebApp.Areas.User.Controllers;
 
 [Area("User")]
+[Authorize]
 public class CartController : BaseController
 {
     public CartController(DataContext context) : base(context) { }
 
-    public IActionResult Index()
+    private string GetUserId()
     {
-        // Lấy giỏ hàng từ session, nếu không có thì khởi tạo giỏ hàng mới
-        List<CartItem> cartItems = HttpContext.Session.GetJson<List<CartItem>>("Cart") ?? new List<CartItem>();
-        CartItemViewModel cartViewModel = new CartItemViewModel
+        return User.FindFirstValue(ClaimTypes.NameIdentifier);
+    }
+
+    private async Task<Cart> GetOrCreateCartAsync()
+    {
+        string userId = GetUserId();
+        var cart = await _context.Carts
+            .Include(c => c.CartItems)
+            .ThenInclude(ci => ci.Product)
+            .FirstOrDefaultAsync(c => c.UserId == userId);
+
+        if (cart == null)
         {
-            CartItems = cartItems,
-            TotalPrice = cartItems.Sum(item => item.Price * item.Quantity)
+            cart = new Cart
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                CartItems = new List<CartItem>()
+            };
+            _context.Carts.Add(cart);
+            await _context.SaveChangesAsync();
+        }
+
+        return cart;
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        var cart = await GetOrCreateCartAsync();
+
+        var cartViewModel = new CartItemViewModel
+        {
+            CartItems = cart.CartItems.Select(ci => new CartItemDisplayViewModel
+            {
+                CartItemId = ci.Id, // <-- ID của CartItem dùng để tăng/giảm/xóa
+                ProductId = ci.ProductId,
+                ProductName = ci.Product.Name,
+                ImageUrl = ci.Product.Image,
+                Quantity = ci.Quantity,
+                Price = ci.Price
+            }).ToList(),
+
+            TotalPrice = cart.CartItems.Sum(ci => ci.Price * ci.Quantity)
         };
+
         return View(cartViewModel);
     }
 
-    // ✅ AJAX-friendly thêm giỏ hàng
+
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Add(Guid Id)
+    public async Task<IActionResult> Add(Guid id)
     {
-        var product = await _context.Products.FindAsync(Id);
-        var cartItems = HttpContext.Session.GetJson<List<CartItem>>("Cart") ?? new List<CartItem>();
+        var product = await _context.Products.FindAsync(id);
+        if (product == null)
+        {
+            return Json(new { success = false, message = "Sản phẩm không tồn tại!" });
+        }
 
-        var existingItem = cartItems.FirstOrDefault(c => c.Id == Id);
+        var cart = await GetOrCreateCartAsync();
+        var existingItem = await _context.CartItems
+            .FirstOrDefaultAsync(ci => ci.CartId == cart.Id && ci.ProductId == id);
+
         if (existingItem != null)
         {
             existingItem.Quantity++;
         }
-        else if (product != null)
+        else
         {
-            cartItems.Add(new CartItem(product));
+            var newItem = new CartItem
+            {
+                Id = Guid.NewGuid(),
+                CartId = cart.Id,
+                ProductId = id,
+                Quantity = 1,
+                Price = product.Price
+            };
+            _context.CartItems.Add(newItem);
         }
 
-        HttpContext.Session.SetJson("Cart", cartItems);
+        await _context.SaveChangesAsync();
+
 
         return Json(new
         {
             success = true,
-            message = $"Đã thêm sản phẩm \"{product?.Name}\" vào giỏ hàng!",
-            cartCount = cartItems.Count
+            message = $"Đã thêm sản phẩm \"{product.Name}\" vào giỏ hàng!",
+            cartCount = cart.CartItems.Sum(ci => ci.Quantity)
         });
     }
 
-
     [HttpPost]
-    public async Task<IActionResult> Increase(Guid id)
+    public async Task<IActionResult> Increase(Guid id) // id là CartItemId
     {
-        var cartItems = HttpContext.Session.GetJson<List<CartItem>>("Cart") ?? new List<CartItem>();
-        var item = cartItems.FirstOrDefault(c => c.Id == id);
-
+        var cart = await GetOrCreateCartAsync();
+        var item = cart.CartItems.FirstOrDefault(ci => ci.Id == id); // tìm theo CartItem.Id
         if (item != null)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            var product = await _context.Products.FindAsync(item.ProductId);
+            if (product != null)
             {
-                TempData["GlobalError"] = "Sản phẩm không tồn tại!";
-            }
-            else if (item.Quantity < product.Quantity)
-            {
-                item.Quantity++;
-                HttpContext.Session.SetJson("Cart", cartItems);
-            }
-            else
-            {
-                TempData["Error"] = $"Sản phẩm {product.Name} chỉ còn {product.Quantity} cái!";
-                TempData["ErrorProductId"] = item.Id;
+                if (item.Quantity < product.Quantity)
+                {
+                    item.Quantity++;
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    TempData["Error"] = $"Sản phẩm {product.Name} chỉ còn {product.Quantity} cái!";
+                    TempData["ErrorProductId"] = id;
+                }
             }
         }
 
-        return RedirectToAction("Index", "Cart", new { area = "User" });
+        return RedirectToAction("Index");
     }
 
     [HttpPost]
-    public IActionResult Decrease(Guid id)
+    public async Task<IActionResult> Decrease(Guid id) // id là CartItemId
     {
-        var cartItems = HttpContext.Session.GetJson<List<CartItem>>("Cart") ?? new List<CartItem>();
-        var item = cartItems.FirstOrDefault(c => c.Id == id);
+        var cart = await GetOrCreateCartAsync();
+        var item = cart.CartItems.FirstOrDefault(ci => ci.Id == id); // tìm theo CartItem.Id
 
         if (item != null)
         {
@@ -94,32 +147,29 @@ public class CartController : BaseController
             }
             else
             {
+                cart.CartItems.Remove(item);
                 TempData["Success"] = "Đã xóa sản phẩm khỏi giỏ hàng!";
-                cartItems.Remove(item);
             }
 
-            if (cartItems.Count == 0)
-
-                HttpContext.Session.Remove("Cart");
-            else
-                HttpContext.Session.SetJson("Cart", cartItems);
+            await _context.SaveChangesAsync();
         }
 
-        return RedirectToAction("Index", "Cart", new { area = "User" });
+        return RedirectToAction("Index");
     }
 
     [HttpPost]
-    public IActionResult Remove(Guid id)
+    public async Task<IActionResult> Remove(Guid id) // id là CartItemId
     {
-        var cartItems = HttpContext.Session.GetJson<List<CartItem>>("Cart") ?? new List<CartItem>();
-        cartItems.RemoveAll(p => p.Id == id);
+        var cart = await GetOrCreateCartAsync();
+        var item = cart.CartItems.FirstOrDefault(ci => ci.Id == id); // tìm theo CartItem.Id
 
-        if (cartItems.Count == 0)
-            HttpContext.Session.Remove("Cart");
-        else
-            HttpContext.Session.SetJson("Cart", cartItems);
+        if (item != null)
+        {
+            cart.CartItems.Remove(item);
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Đã xóa sản phẩm khỏi giỏ hàng!";
+        }
 
-        TempData["Success"] = "Đã xóa sản phẩm khỏi giỏ hàng!";
-        return RedirectToAction("Index", "Cart", new { area = "User" });
+        return RedirectToAction("Index");
     }
 }

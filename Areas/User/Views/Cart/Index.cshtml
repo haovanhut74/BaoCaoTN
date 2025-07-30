@@ -39,27 +39,27 @@
                         <td>@item.Price.ToString("N0") ₫</td>
                         <td style = "width: 180px;">
                             <div class = "input-group justify-content-center">
-                                <form asp-controller = "Cart" asp-action = "Decrease" method = "post" asp-route-id = "@item.Id" class = "me-1">
+                                <form asp-controller = "Cart" asp-action = "Decrease" method = "post" asp-route-id = "@item.CartItemId" class = "me-1">
                                     <button type = "submit" class = "btn btn-outline-secondary">-</button>
                                 </form>
 
                                 <input type = "text" class = "form-control text-center" readonly value = "@item.Quantity" style = "max-width: 50px;"/>
 
-                                <form asp-controller = "Cart" asp-action = "Increase" method = "post" asp-route-id = "@item.Id" class = "ms-1">
+                                <form asp-controller = "Cart" asp-action = "Increase" method = "post" asp-route-id = "@item.CartItemId" class = "ms-1">
                                     <button type = "submit" class = "btn btn-outline-secondary">+</button>
                                 </form>
                             </div>
 
-                            @if (TempData["ErrorProductId"]?.ToString() == item.Id.ToString())
+                            @if (TempData["ErrorProductId"]?.ToString() == item.CartItemId.ToString())
                             {
                                 <div class = "text-danger small mt-1">@TempData["Error"]</div>
                             }
                         </td>
                         <td class = "fw-bold text-danger">
-                            @Model.CartItems.Where(x => x.Id == item.Id).Sum(x => x.Quantity * x.Price).ToString("N0")₫
+                            @Model.CartItems.Where(x => x.CartItemId == item.CartItemId).Sum(x => x.Quantity * x.Price).ToString("N0")₫
                         </td>
                         <td>
-                            <form asp-controller = "Cart" asp-action = "Remove" method = "post" asp-route-id = "@item.Id">
+                            <form asp-controller = "Cart" asp-action = "Remove" method = "post" asp-route-id = "@item.CartItemId">
                                 <button type = "submit" class = "btn btn-danger btn-sm">
                                     <i class = "fa fa-trash"></i> Xóa
                                 </button>

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
+using MyWebApp.Models;
 using MyWebApp.ViewModels;
 
 namespace MyWebApp.Areas.Admin.Controllers;
@@ -139,4 +140,59 @@ public class RoleController : BaseController
         return Json(new { success = false, message = errorMessage });
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Detail(string id)
+    {
+        var role = await _roleManager.FindByIdAsync(id);
+        if (role == null) return NotFound();
+
+        var allPermissions = await _context.Permissions.ToListAsync();
+        var grantedPermissions = await _context.RolePermissions
+            .Where(x => x.RoleId == id)
+            .Select(x => x.PermissionId)
+            .ToListAsync();
+
+        var viewModel = new RolePermissionViewModel
+        {
+            RoleId = role.Id,
+            RoleName = role.Name!,
+            Permissions = allPermissions.Select(p => new PermissionItem
+            {
+                PermissionId = p.Id,
+                PermissionName = p.Name,
+                PermissionCode = p.Code,
+                IsGranted = grantedPermissions.Contains(p.Id)
+            }).ToList()
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Detail(RolePermissionViewModel model)
+    {
+        var role = await _roleManager.FindByIdAsync(model.RoleId);
+        if (role == null) return NotFound();
+
+        // Xóa quyền cũ
+        var oldPermissions = _context.RolePermissions.Where(x => x.RoleId == model.RoleId);
+        _context.RolePermissions.RemoveRange(oldPermissions);
+
+        // Thêm quyền mới
+        var granted = model.Permissions.Where(p => p.IsGranted).ToList();
+        foreach (var p in granted)
+        {
+            _context.RolePermissions.Add(new RolePermission
+            {
+                Id = Guid.NewGuid(),
+                RoleId = model.RoleId,
+                PermissionId = p.PermissionId
+            });
+        }
+
+        await _context.SaveChangesAsync();
+        TempData["Success"] = "Cập nhật quyền hạn thành công!";
+        return RedirectToAction(nameof(Index));
+    }
 }

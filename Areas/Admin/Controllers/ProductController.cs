@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 using MyWebApp.Models;
 using MyWebApp.ViewModels;
@@ -9,6 +10,7 @@ using MyWebApp.ViewModels;
 namespace MyWebApp.Areas.Admin.Controllers;
 
 [Area("Admin")]
+[HasPermission("ManageProducts")]
 public class ProductController : BaseController
 {
     private readonly IWebHostEnvironment _env;
@@ -44,6 +46,7 @@ public class ProductController : BaseController
 
 
     [HttpGet]
+    [HasPermission("CreateProduct")]
     public IActionResult Create()
     {
         ViewBag.Categories = new SelectList(_context.Categories.ToList(), "Id", "Name");
@@ -54,6 +57,7 @@ public class ProductController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("CreateProduct")]
     public async Task<IActionResult> Create(Product product)
     {
         ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
@@ -126,6 +130,7 @@ public class ProductController : BaseController
     }
 
     [HttpGet]
+    [HasPermission("EditProduct")]
     public async Task<IActionResult> Edit(Guid id)
     {
         var product = await _context.Products.FindAsync(id);
@@ -141,6 +146,7 @@ public class ProductController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("EditProduct")]
     public async Task<IActionResult> Edit(Guid id, Product product)
     {
         ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
@@ -245,6 +251,7 @@ public class ProductController : BaseController
     }
 
     [HttpGet]
+    [HasPermission("DeleteProduct")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var product = await _context.Products.FindAsync(id);

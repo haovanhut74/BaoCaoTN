@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 using MyWebApp.Models;
 using MyWebApp.ViewModels;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
+[HasPermission("ManageBrands")]
 public class BrandController : BaseController
 {
     public BrandController(DataContext context) : base(context) { }
@@ -27,6 +29,7 @@ public class BrandController : BaseController
     }
 
     [HttpGet]
+    [HasPermission("CreateBrand")]
     public IActionResult Create()
     {
         return View();
@@ -34,6 +37,7 @@ public class BrandController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("CreateBrand")]
     public async Task<IActionResult> Create(Brand brand)
     {
         // Kiểm tra Name có null hoặc rỗng không
@@ -75,6 +79,7 @@ public class BrandController : BaseController
     }
 
     [HttpGet]
+    [HasPermission("EditBrand")]
     public async Task<IActionResult> Edit(Guid id)
     {
         var brand = await _context.Brands.FindAsync(id);
@@ -88,6 +93,7 @@ public class BrandController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("EditBrand")]
     public async Task<IActionResult> Edit(Guid id, Brand brand)
     {
         // Kiểm tra Name có null hoặc rỗng không
@@ -137,6 +143,7 @@ public class BrandController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("DeleteBrand")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var brand = await _context.Brands.FindAsync(id);

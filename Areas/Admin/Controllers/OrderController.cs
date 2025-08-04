@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
+[HasPermission("ManageOrders")]
 public class OrderController : BaseController
 {
     public OrderController(DataContext context) : base(context) { }
@@ -38,6 +40,7 @@ public class OrderController : BaseController
 
 
     // Chi tiết đơn hàng
+    [HasPermission("ViewOrder")]
     public async Task<IActionResult> Detail(Guid id)
     {
         var order = await _context.Orders

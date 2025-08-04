@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 using MyWebApp.Models;
 using MyWebApp.ViewModels;
@@ -7,6 +8,7 @@ using MyWebApp.ViewModels;
 namespace MyWebApp.Areas.Admin.Controllers;
 
 [Area("Admin")]
+[HasPermission("ManageCategories")]
 public class CategoryController : BaseController
 {
     public CategoryController(DataContext context) : base(context) { }
@@ -27,6 +29,7 @@ public class CategoryController : BaseController
     }
 
     [HttpGet]
+    [HasPermission("CreateCategory")]
     public IActionResult Create()
     {
         return View();
@@ -35,6 +38,7 @@ public class CategoryController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("CreateCategory")]
     public async Task<IActionResult> Create(Category category)
     {
         // Kiểm tra Name có null hoặc rỗng không
@@ -76,6 +80,7 @@ public class CategoryController : BaseController
     }
 
     [HttpGet]
+    [HasPermission("EditCategory")]
     public async Task<IActionResult> Edit(Guid id)
     {
         var category = await _context.Categories.FindAsync(id);
@@ -89,6 +94,7 @@ public class CategoryController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("EditCategory")]
     public async Task<IActionResult> Edit(Guid id, Category category)
     {
         // Kiểm tra Name có null hoặc rỗng không
@@ -137,6 +143,7 @@ public class CategoryController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("DeleteCategory")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var category = await _context.Categories.FindAsync(id);

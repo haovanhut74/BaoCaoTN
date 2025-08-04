@@ -23,34 +23,58 @@ public class SeedData
             }
         }
 
-        // Seed permissions
-        if (!await context.Permissions.AnyAsync())
+        // Seed permissions từng cái theo Code
+        var predefinedPermissions = new List<Permission>
         {
-            var permissions = new List<Permission>
-            {
-                new() { Id = Guid.NewGuid(), Code = "ViewDashboard", Name = "Xem bảng điều khiển" },
-                new() { Id = Guid.NewGuid(), Code = "EditUser", Name = "Sửa người dùng" },
-                new() { Id = Guid.NewGuid(), Code = "DeleteUser", Name = "Xóa người dùng" },
-                new() { Id = Guid.NewGuid(), Code = "CreateUser", Name = "Tạo người dùng mới" },
-                new() { Id = Guid.NewGuid(), Code = "ManageRoles", Name = "Quản lý quyền" },
-                new() { Id = Guid.NewGuid(), Code = "DeleteRole", Name = "Xóa quyền" },
-                new() { Id = Guid.NewGuid(), Code = "AssignRoles", Name = "Phân quyền cho người dùng" },
-                new() { Id = Guid.NewGuid(), Code = "ManageOrders", Name = "Quản lý đơn hàng" },
-                new() { Id = Guid.NewGuid(), Code = "CreateOrder", Name = "Tạo đơn hàng" },
-                new() { Id = Guid.NewGuid(), Code = "DeleteOrder", Name = "Xóa đơn hàng" },
-                new() { Id = Guid.NewGuid(), Code = "ViewReports", Name = "Xem báo cáo" },
-                new() { Id = Guid.NewGuid(), Code = "ManageProducts", Name = "Quản lý sản phẩm" },
-                new() { Id = Guid.NewGuid(), Code = "CreateProduct", Name = "Tạo sản phẩm mới" },
-                new() { Id = Guid.NewGuid(), Code = "DeleteProduct", Name = "Xóa sản phẩm" },
-                new() { Id = Guid.NewGuid(), Code = "EditProduct", Name = "Chỉnh sửa sản phẩm" },
-                new() { Id = Guid.NewGuid(), Code = "ManageCategories", Name = "Quản lý danh mục" },
-                new() { Id = Guid.NewGuid(), Code = "ManageSettings", Name = "Quản lý cài đặt hệ thống" },
-                new() { Id = Guid.NewGuid(), Code = "AccessAPI", Name = "Truy cập API" },
-            };
+            new() { Code = "ViewDashboard", Name = "Xem bảng điều khiển" },
+            
+            new() { Code = "ManageUsers", Name = "Quản lý User" },
+            new() { Code = "EditUser", Name = "Sửa người dùng" },
+            new() { Code = "DeleteUser", Name = "Xóa người dùng" },
+            new() { Code = "CreateUser", Name = "Tạo người dùng mới" },
+            
+            new() { Code = "ManageRoles", Name = "Quản lý quyền" },
+            new() { Code = "CreateRole", Name = "Tạo nquyền mới" },
+            new() { Code = "EditRole", Name = "Sửa quyền" },
+            new() { Code = "DeleteRole", Name = "Xóa quyền" },
+            new() { Code = "AssignRoles", Name = "Phân quyền cho người dùng" },
+            
+            new() { Code = "ManageOrders", Name = "Quản lý đơn hàng" },
+            new() { Code = "ViewOrder", Name = "Xem đơn hàng" },
+            new() { Code = "DeleteOrder", Name = "Xóa đơn hàng" },
+            
+            new() { Code = "ViewReports", Name = "Xem báo cáo" },
+            
+            new() { Code = "ManageProducts", Name = "Quản lý sản phẩm" },
+            new() { Code = "CreateProduct", Name = "Tạo sản phẩm mới" },
+            new() { Code = "DeleteProduct", Name = "Xóa sản phẩm" },
+            new() { Code = "EditProduct", Name = "Chỉnh sửa sản phẩm" },
+            
+            new() { Code = "ManageCategories", Name = "Quản lý danh mục" },
+            new() { Code = "CreateCategory", Name = "Tạo danh mục mới" },
+            new() { Code = "DeleteCategory", Name = "Xóa danh mục" },
+            new() { Code = "EditCategory", Name = "Chỉnh sửa danh mục" },
+            
+            new() { Code = "ManageBrands", Name = "Quản lý thương hiệu" },
+            new() { Code = "CreateBrand", Name = "Tạo thương hiệu mới" },
+            new() { Code = "DeleteBrand", Name = "Xóa thương hiệu" },
+            new() { Code = "EditBrand", Name = "Chỉnh sửa thương hiệu" },
+            
+            new() { Code = "ManageSettings", Name = "Quản lý cài đặt hệ thống" },
+            new() { Code = "AccessAPI", Name = "Truy cập API" },
+        };
 
-            context.Permissions.AddRange(permissions);
-            await context.SaveChangesAsync();
+        foreach (var permission in predefinedPermissions)
+        {
+            var exists = await context.Permissions.AnyAsync(p => p.Code == permission.Code);
+            if (!exists)
+            {
+                permission.Id = Guid.NewGuid(); // Đảm bảo mỗi lần unique
+                context.Permissions.Add(permission);
+            }
         }
+
+        await context.SaveChangesAsync();
 
         // Optional: Seed RolePermissions (gán quyền mặc định cho role)
         // Ví dụ: Gán tất cả quyền cho Admin

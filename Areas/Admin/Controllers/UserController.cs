@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 using MyWebApp.Models;
 using MyWebApp.ViewModels;
@@ -10,6 +11,7 @@ using MyWebApp.ViewModels;
 namespace MyWebApp.Areas.Admin.Controllers;
 
 // Controller quản lý người dùng trong khu vực Admin
+[HasPermission("ManageUsers")]
 public class UserController : BaseController
 {
     // Inject UserManager để thao tác với người dùng
@@ -27,36 +29,41 @@ public class UserController : BaseController
     }
 
     // Trang danh sách người dùng
+    [HasPermission("ManageUsers")]
     public async Task<IActionResult> Index()
     {
         // Lấy tất cả người dùng và sắp xếp theo Id giảm dần
-        var users = await _userManager.Users
-            .OrderByDescending(u => u.Id)
+        var users = await _userManager.Users.OrderByDescending(u => u.Id).ToListAsync();
+        var userIds = users.Select(u => u.Id).ToList();
+
+        var userRoles = await _context.UserRoles
+            .Where(ur => userIds.Contains(ur.UserId))
             .ToListAsync();
 
-        var userWithRoles = new List<UserWithRoleViewModel>();
+        var roles = await _roleManager.Roles.ToListAsync();
 
-        // Duyệt từng người dùng để lấy thêm vai trò
-        foreach (var user in users)
+        var userWithRoles = users.Select(user =>
         {
-            var roles = await _userManager.GetRolesAsync(user); // Lấy danh sách vai trò của user
-            userWithRoles.Add(new UserWithRoleViewModel
+            var roleId = userRoles.FirstOrDefault(ur => ur.UserId == user.Id)?.RoleId;
+            var roleName = roles.FirstOrDefault(r => r.Id == roleId)?.Name ?? "Chưa có";
+            return new UserWithRoleViewModel
             {
                 Id = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 CreatedDate = user.CreatedDate,
-                IsLocked = user.LockoutEnabled && user.LockoutEnd > DateTimeOffset.Now, // Kiểm tra có bị khóa không
-                Role = roles.FirstOrDefault() ?? "Chưa có" // Lấy vai trò đầu tiên hoặc mặc định
-            });
-        }
+                IsLocked = user.LockoutEnabled && user.LockoutEnd > DateTimeOffset.Now,
+                Role = roleName
+            };
+        }).ToList();
 
         return View(userWithRoles); // Trả về view danh sách người dùng
     }
 
     // Hiển thị form thêm người dùng
     [HttpGet]
+    [HasPermission("AddUser")]
     public async Task<IActionResult> AddUser()
     {
         // Gửi danh sách roles để chọn trong form
@@ -67,6 +74,7 @@ public class UserController : BaseController
 
     // Xử lý khi submit form thêm người dùng
     [HttpPost]
+    [HasPermission("AddUser")]
     public async Task<IActionResult> AddUser(RegisterViewModel model)
     {
         if (!ModelState.IsValid)
@@ -109,6 +117,7 @@ public class UserController : BaseController
 
     // Hiển thị form chỉnh sửa người dùng
     [HttpGet]
+    [HasPermission("EditUser")]
     public async Task<IActionResult> Edit(string id)
     {
         // Tìm người dùng theo id
@@ -140,6 +149,7 @@ public class UserController : BaseController
 
     // Xử lý khi submit form chỉnh sửa người dùng
     [HttpPost]
+    [HasPermission("EditUser")]
     public async Task<IActionResult> Edit(UserWithRoleViewModel model)
     {
         if (!ModelState.IsValid)
@@ -189,6 +199,7 @@ public class UserController : BaseController
 
     // Xóa người dùng theo id
     [HttpGet]
+    [HasPermission("DeleteUser")]
     public async Task<IActionResult> Delete(Guid id)
     {
         if (id == Guid.Empty) return NotFound();

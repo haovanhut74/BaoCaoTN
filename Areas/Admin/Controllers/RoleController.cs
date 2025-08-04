@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 using MyWebApp.Models;
 using MyWebApp.ViewModels;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
+[HasPermission("ManageRoles")]
 public class RoleController : BaseController
 {
     private readonly RoleManager<IdentityRole> _roleManager;
@@ -23,6 +25,7 @@ public class RoleController : BaseController
     }
 
     [HttpGet]
+    [HasPermission("CreateRole")]
     public IActionResult Create()
     {
         return View();
@@ -30,6 +33,7 @@ public class RoleController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("CreateRole")]
     public async Task<IActionResult> Create(CreateRoleViewModel model)
     {
         if (!ModelState.IsValid)
@@ -59,6 +63,7 @@ public class RoleController : BaseController
 
 
     // GET: Admin/Role/Edit/{id}
+    [HasPermission("EditRole")]
     public async Task<IActionResult> Edit(string id)
     {
         var role = await _roleManager.FindByIdAsync(id);
@@ -79,6 +84,7 @@ public class RoleController : BaseController
     // POST: Admin/Role/Edit
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("EditRole")]
     public async Task<IActionResult> Edit(EditRoleViewModel model)
     {
         if (!ModelState.IsValid)
@@ -117,6 +123,7 @@ public class RoleController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("DeleteRole")]
     public async Task<IActionResult> DeleteAjax([FromBody] DeleteRequest request)
     {
         if (request == null || string.IsNullOrEmpty(request.Id))
@@ -141,6 +148,7 @@ public class RoleController : BaseController
     }
 
     [HttpGet]
+    [HasPermission("AssignRoles")]
     public async Task<IActionResult> Detail(string id)
     {
         var role = await _roleManager.FindByIdAsync(id);
@@ -170,6 +178,7 @@ public class RoleController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("AssignRoles")]
     public async Task<IActionResult> Detail(RolePermissionViewModel model)
     {
         var role = await _roleManager.FindByIdAsync(model.RoleId);

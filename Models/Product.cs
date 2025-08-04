@@ -8,8 +8,7 @@ namespace MyWebApp.Models;
 
 public class Product
 {
-    [Key]
-    public Guid Id { get; set; }
+    [Key] public Guid Id { get; set; }
 
     [Required(ErrorMessage = "Tên sản phẩm không được để trống")]
     public string Name { get; set; }
@@ -40,10 +39,11 @@ public class Product
 
     public Category? Category { get; set; }
     public Brand? Brand { get; set; }
+    public List<Comment> Comments { get; set; } = new();
 
     [NotMapped]
     [FileExtension(ErrorMessage = "Chỉ nhận tệp ảnh có đuôi jpg, png, jpeg")]
     public IFormFile? ImageFile { get; set; }
-    [NotMapped]
-    public string? ImageUrl { get; set; }
+
+    [NotMapped] public string? ImageUrl { get; set; }
 }

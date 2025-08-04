@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
 using MyWebApp.Models;
@@ -48,6 +49,8 @@ public class ProductController : BaseController
         var product = await _context.Products
             .Include(p => p.Category)
             .Include(p => p.Brand)
+            .Include(p => p.Comments) // thêm dòng này
+            .ThenInclude(c => c.User) // nếu muốn hiển thị tên người dùng
             .FirstOrDefaultAsync(p =>
                 p.Slug == productSlug &&
                 p.Category != null &&
@@ -60,6 +63,7 @@ public class ProductController : BaseController
 
         return View(product);
     }
+
 
     [HttpGet]
     public async Task<IActionResult> FilterPartial(List<string> selectedSlugBrands, List<string> selectedSlugCategories)
@@ -89,5 +93,43 @@ public class ProductController : BaseController
             .ToListAsync();
         ViewBag.SearchTerm = searchTerm;
         return View(products);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddComment(Guid ProductId, int Rating, string Content)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+            return Unauthorized();
+
+        var comment = new Comment
+        {
+            ProductId = ProductId,
+            Rating = Rating,
+            Content = Content,
+            UserId = userId,
+            CreatedAt = DateTime.Now
+        };
+
+
+        _context.Comments.Add(comment);
+        await _context.SaveChangesAsync();
+
+        // Redirect về trang chi tiết sản phẩm
+        var product = await _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
+            .FirstOrDefaultAsync(p => p.Id == ProductId);
+
+        if (product == null)
+            return NotFound();
+
+        return RedirectToAction(nameof(Detail), new
+        {
+            categorySlug = product.Category.Slug,
+            brandSlug = product.Brand.Slug,
+            productSlug = product.Slug
+        });
     }
 }

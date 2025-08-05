@@ -49,9 +49,9 @@
                         <div class = "card-body d-flex flex-column">
                             <h5 class = "card-title text-dark fw-semibold">@item.Name</h5>
                             <p class = "card-text text-secondary mb-1">
-                                <i class = "fa fa-tag me-1"></i> @item.Category.Name</p>
+                                <i class = "fa fa-tag me-1"></i> @item.Category?.Name</p>
                             <p class = "card-text text-secondary mb-1">
-                                <i class = "fa fa-copyright me-1"></i> @item.Brand.Name</p>
+                                <i class = "fa fa-copyright me-1"></i> @item.Brand?.Name</p>
                             <p class = "card-text text-muted small mb-3"><i class = "fa fa-calendar me-1"></i> Đăng
                                 bán: @item.CreatedAt.ToString("dd/MM/yyyy")</p>
                             <div class = "mt-auto">
@@ -62,8 +62,8 @@
                                         asp-area = "User"
                                         asp-controller = "Product"
                                         asp-action = "Detail"
-                                        asp-route-categorySlug = "@item.Category.Slug"
-                                        asp-route-brandSlug = "@item.Brand.Slug"
+                                        asp-route-categorySlug = "@item.Category?.Slug"
+                                        asp-route-brandSlug = "@item.Brand?.Slug"
                                         asp-route-productSlug = "@item.Slug" class = "btn btn-outline-primary"
                                     >
                                         <i class = "fa fa-eye me-1"></i> Xem chi tiết

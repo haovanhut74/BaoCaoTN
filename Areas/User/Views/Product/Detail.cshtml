@@ -132,41 +132,16 @@
             <div class = "comments-list">
                 @if (Model.Comments != null && Model.Comments.Any())
                 {
-                    @foreach (var comment in Model.Comments.OrderByDescending(c => c.CreatedAt))
+                    @foreach (var comment in Model.Comments.Where(c => c.ParentCommentId == null).OrderByDescending(c => c.CreatedAt))
                     {
-                        <div class = "card mb-3 border-0 shadow-sm">
-                            <div class = "card-body">
-                                <div class = "d-flex justify-content-between mb-2">
-                                    <strong class = "text-dark">
-                                        👤 @comment.User?.UserName
-                                    </strong>
-                                    <small class = "text-muted">@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
-                                </div>
-
-                                <!-- Rating sao -->
-                                <div class = "mb-2 text-warning">
-                                    @for (int i = 1; i <= 5; i++)
-                                    {
-                                        if (i <= comment.Rating)
-                                        {
-                                            <i class = "fa fa-star"></i>
-                                        }
-                                        else
-                                        {
-                                            <i class = "fa fa-star text-secondary"></i>
-                                        }
-                                    }
-                                </div>
-
-                                <p class = "text-secondary mb-0">@comment.Content</p>
-                            </div>
-                        </div>
+                        @await Html.PartialAsync("_CommentPartial", comment)
                     }
                 }
                 else
                 {
                     <div class = "alert alert-info">Chưa có bình luận nào.</div>
                 }
+
             </div>
 
         </div>
@@ -178,7 +153,13 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const addToCartBtn = document.querySelector(".btn-add-to-cart");
-
+            document.querySelectorAll(".reply-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const id = btn.dataset.id;
+                    const form = document.getElementById(`reply-form-${id}`);
+                    if (form) form.classList.toggle("d-none");
+                });
+            });
             addToCartBtn?.addEventListener("click", function (e) {
                 e.preventDefault();
 
@@ -219,8 +200,7 @@
                 <div class="toast-body">${message}</div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto"
                         data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        `;
+            </div>`;
                 toastContainer.appendChild(toast);
 
                 setTimeout(() => toast.remove(), 3000);

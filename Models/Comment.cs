@@ -17,4 +17,8 @@ public class Comment
     public Guid ProductId { get; set; }
 
     public Product Product { get; set; }
+    
+    public Guid? ParentCommentId { get; set; }
+    public Comment ParentComment { get; set; }
+    public ICollection<Comment> Replies { get; set; } = new List<Comment>();
 }

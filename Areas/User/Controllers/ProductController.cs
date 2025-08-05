@@ -97,7 +97,7 @@ public class ProductController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddComment(Guid ProductId, int Rating, string Content)
+    public async Task<IActionResult> AddComment(Guid ProductId, int Rating, string Content, Guid? ParentCommentId)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
@@ -109,14 +109,13 @@ public class ProductController : BaseController
             Rating = Rating,
             Content = Content,
             UserId = userId,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.Now,
+            ParentCommentId = ParentCommentId // ✅ Gán phản hồi nếu có
         };
-
 
         _context.Comments.Add(comment);
         await _context.SaveChangesAsync();
 
-        // Redirect về trang chi tiết sản phẩm
         var product = await _context.Products
             .Include(p => p.Category)
             .Include(p => p.Brand)

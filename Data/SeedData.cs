@@ -98,5 +98,6 @@ public class SeedData
                 await context.SaveChangesAsync();
             }
         }
+        
     }
 }

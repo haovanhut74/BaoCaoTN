@@ -49,8 +49,6 @@ public class ProductController : BaseController
         var product = await _context.Products
             .Include(p => p.Category)
             .Include(p => p.Brand)
-            .Include(p => p.Comments) // thêm dòng này
-            .ThenInclude(c => c.User) // nếu muốn hiển thị tên người dùng
             .FirstOrDefaultAsync(p =>
                 p.Slug == productSlug &&
                 p.Category != null &&
@@ -60,6 +58,13 @@ public class ProductController : BaseController
 
         if (product == null)
             return NotFound();
+
+        // Lấy riêng các comment đã được duyệt, kèm reply
+        product.Comments = await _context.Comments
+            .Where(c => c.ProductId == product.Id && c.Status == CommentStatus.Approved)
+            .Include(c => c.User)
+            .Include(c => c.Replies)
+            .ToListAsync();
 
         return View(product);
     }

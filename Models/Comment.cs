@@ -21,4 +21,6 @@ public class Comment
     public Guid? ParentCommentId { get; set; }
     public Comment ParentComment { get; set; }
     public ICollection<Comment> Replies { get; set; } = new List<Comment>();
+    public CommentStatus Status { get; set; } = CommentStatus.Approved;
+    public int ReportCount { get; set; } = 0;
 }

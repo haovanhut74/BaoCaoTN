@@ -1,45 +1,50 @@
-﻿@model MyWebApp.Models.Comment
+﻿@using MyWebApp.Models
+@model MyWebApp.Models.Comment
 
-<div class = "card mb-3 border-0 shadow-sm ms-@((Model.ParentCommentId.HasValue ? 5 : 0))">
-    <div class = "card-body">
-        <div class = "d-flex justify-content-between mb-2">
-            <strong class = "text-dark">👤 @Model.User?.UserName</strong>
-            <small class = "text-muted">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
-        </div>
+@if (Model.Status == CommentStatus.Approved)
+{
+    <div class = "card mb-3 border-0 shadow-sm ms-@((Model.ParentCommentId.HasValue ? 5 : 0))">
+        <div class = "card-body">
+            <div class = "d-flex justify-content-between mb-2">
+                <strong class = "text-dark">👤 @Model.User?.UserName</strong>
+                <small class = "text-muted">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+            </div>
 
-        <div class = "mb-2 text-warning">
-            @for (int i = 1; i <= 5; i++)
+            <div class = "mb-2 text-warning">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <i class = "fa fa-star @(i <= Model.Rating ? "" : "text-secondary")"></i>
+                }
+            </div>
+
+            <p class = "text-secondary mb-1">@Model.Content</p>
+
+            @if (User.Identity?.IsAuthenticated ?? false)
             {
-                <i class = "fa fa-star @(i <= Model.Rating ? "" : "text-secondary")"></i>
+                <button class = "btn btn-sm btn-outline-secondary reply-btn" data-id = "@Model.Id">↩ Phản hồi</button>
+                <form method = "post" asp-action = "AddComment" asp-controller = "Product" class = "reply-form mt-2 d-none" id = "reply-form-@Model.Id">
+                    @Html.AntiForgeryToken()
+                    <input type = "hidden" name = "ProductId" value = "@Model.ProductId"/>
+                    <input type = "hidden" name = "ParentCommentId" value = "@Model.Id"/>
+                    <textarea name = "Content" class = "form-control" rows = "2" required placeholder = "Viết phản hồi..."></textarea>
+                    <button type = "submit" class = "btn btn-sm btn-primary mt-1">
+                        <i class = "fa fa-reply me-1"></i> Gửi phản hồi
+                    </button>
+                </form>
+            }
+
+            <!-- Đệ quy hiển thị phản hồi -->
+            @if (Model.Replies != null && Model.Replies.Any())
+            {
+                foreach (var reply in Model.Replies.OrderBy(r => r.CreatedAt))
+                {
+                    @await Html.PartialAsync("_CommentPartial", reply)
+                }
             }
         </div>
-
-        <p class = "text-secondary mb-1">@Model.Content</p>
-
-        @if (User.Identity?.IsAuthenticated ?? false)
-        {
-            <button class = "btn btn-sm btn-outline-secondary reply-btn" data-id = "@Model.Id">↩ Phản hồi</button>
-            <form method = "post" asp-action = "AddComment" asp-controller = "Product" class = "reply-form mt-2 d-none" id = "reply-form-@Model.Id">
-                @Html.AntiForgeryToken()
-                <input type = "hidden" name = "ProductId" value = "@Model.ProductId"/>
-                <input type = "hidden" name = "ParentCommentId" value = "@Model.Id"/>
-                <textarea name = "Content" class = "form-control" rows = "2" required placeholder = "Viết phản hồi..."></textarea>
-                <button type = "submit" class = "btn btn-sm btn-primary mt-1">
-                    <i class = "fa fa-reply me-1"></i> Gửi phản hồi
-                </button>
-            </form>
-        }
-
-        <!-- Đệ quy hiển thị phản hồi -->
-        @if (Model.Replies != null && Model.Replies.Any())
-        {
-            foreach (var reply in Model.Replies.OrderBy(r => r.CreatedAt))
-            {
-                @await Html.PartialAsync("_CommentPartial", reply)
-            }
-        }
     </div>
-</div>
+}
+
 
 @section Scripts {
     <script>

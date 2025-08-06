@@ -1,0 +1,51 @@
+﻿@model List<Comment>
+
+<h2>Quản lý bình luận</h2>
+
+<table class = "table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>Người dùng</th>
+        <th>Sản phẩm</th>
+        <th>Nội dung</th>
+        <th>Ngày tạo</th>
+        <th>Trạng thái</th>
+        <th>Hành động</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var comment in Model)
+    {
+        <tr>
+            <td>@comment.User.UserName</td>
+            <td>@comment.Product.Name</td>
+            <td>@comment.Content</td>
+            <td>@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>@comment.Status</td>
+            <td>
+                @if (comment.Status != CommentStatus.Approved)
+                {
+                    <form asp-controller="Comment" asp-action="Approve" method="post" style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@comment.Id"/>
+                        <button type="submit" class="btn btn-success btn-sm">Duyệt</button>
+                    </form>
+                }
+                @if (comment.Status != CommentStatus.Hidden)
+                {
+                    <form asp-controller="Comment" asp-action="Hide" method="post" style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@comment.Id"/>
+                        <button type="submit" class="btn btn-warning btn-sm">Ẩn</button>
+                    </form>
+                }
+                <form asp-controller = "Comment" asp-action = "Delete" method = "post" style = "display:inline" onsubmit = "return confirm('Xóa bình luận này?');">
+                    @Html.AntiForgeryToken()
+                    <input type = "hidden" name = "id" value = "@comment.Id"/>
+                    <button type = "submit" class = "btn btn-danger btn-sm">Xóa</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

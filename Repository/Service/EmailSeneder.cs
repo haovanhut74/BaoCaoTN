@@ -13,7 +13,7 @@ public class EmailSeneder : IEmailSender
             Port = 587,
             EnableSsl = true,
             UseDefaultCredentials = false,
-            Credentials = new NetworkCredential("haovanhut74@gmail.com", "rieo feyg hctk txce"), // app password
+            Credentials = new NetworkCredential("haovanhut74@gmail.com", "zocy fxlf nbbr svxd"), // app password
         };
 
         return smtpClient.SendMailAsync(

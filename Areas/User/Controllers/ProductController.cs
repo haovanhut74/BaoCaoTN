@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
+using MyWebApp.Extensions.Validation;
 using MyWebApp.Models;
 using MyWebApp.ViewModels;
 
@@ -108,6 +109,37 @@ public class ProductController : BaseController
         if (userId == null)
             return Unauthorized();
 
+        var product = await _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
+            .Include(p => p.Comments) // cần để hiển thị bình luận luôn
+            .ThenInclude(c => c.User)
+            .FirstOrDefaultAsync(p => p.Id == ProductId);
+
+        if (product == null)
+            return NotFound();
+
+        // Kiểm tra lỗi
+        if (CommentFilter.ContainsBannedWord(Content))
+        {
+            ModelState.AddModelError("Content", "Nội dung bình luận chứa từ ngữ không phù hợp.");
+            TempData["error"] = "Nội dung bình luận chứa từ ngữ không phù hợp.";
+        }
+
+        if (CommentFilter.ContainsLink(Content))
+        {
+            ModelState.AddModelError("Content", "Bình luận không được chứa link.");
+            TempData["error"] = "Bình luận không được chứa link.";
+        }
+
+
+        // Nếu có lỗi thì trả lại view với lỗi hiển thị
+        if (!ModelState.IsValid)
+        {
+            // Trả về view cùng model sản phẩm (đã include comment) để giữ lại các comment cũ
+            return View("Detail", product);
+        }
+
         var comment = new Comment
         {
             ProductId = ProductId,
@@ -115,24 +147,17 @@ public class ProductController : BaseController
             Content = Content,
             UserId = userId,
             CreatedAt = DateTime.Now,
-            ParentCommentId = ParentCommentId // ✅ Gán phản hồi nếu có
+            ParentCommentId = ParentCommentId
         };
 
         _context.Comments.Add(comment);
         await _context.SaveChangesAsync();
 
-        var product = await _context.Products
-            .Include(p => p.Category)
-            .Include(p => p.Brand)
-            .FirstOrDefaultAsync(p => p.Id == ProductId);
-
-        if (product == null)
-            return NotFound();
-
+        // Sau khi thêm thành công, redirect để tránh gửi lại form khi refresh
         return RedirectToAction(nameof(Detail), new
         {
-            categorySlug = product.Category.Slug,
-            brandSlug = product.Brand.Slug,
+            categorySlug = product.Category?.Slug,
+            brandSlug = product.Brand?.Slug,
             productSlug = product.Slug
         });
     }

@@ -69,14 +69,51 @@ public class CheckoutController : BaseController
         _context.CartItems.RemoveRange(cart.CartItems);
         _context.Carts.Remove(cart);
         await _context.SaveChangesAsync();
-
-        var receiver = "haovanhut74@gmail.com";
+        var user = await _context.Users.FindAsync(userId);
+        var receiver = user?.Email;
         var subject = "Xác nhận đơn hàng";
-        var message = $"Chào {order.UserName},<br/>" +
-                      $"Cảm ơn bạn đã đặt hàng tại cửa hàng của chúng tôi.<br/>" +
-                      $"Mã đơn hàng của bạn là: <strong>{orderCode}</strong>.<br/>" +
-                      $"Chúng tôi sẽ xử lý đơn hàng của bạn trong thời gian sớm nhất.<br/>" +
-                      $"Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email này hoặc số điện thoại hỗ trợ.<br/>";
+        var message = $"""
+
+                       <!DOCTYPE html>
+                       <html lang="vi">
+                       <head>
+                           <meta charset="UTF-8" />
+                           <title>Xác nhận đơn hàng</title>
+                       </head>
+                       <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 0;">
+                           <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 20px;">
+                               <tr>
+                                   <td style="text-align: center; padding-bottom: 20px;">
+                                       <h2 style="color: #007bff; margin: 0;">Cảm ơn bạn đã đặt hàng!</h2>
+                                   </td>
+                               </tr>
+                               <tr>
+                                   <td style="padding: 10px 0; font-size: 16px; color: #333333;">
+                                       <p>Chào <strong>{order.UserName}</strong>,</p>
+                                       <p>Cảm ơn bạn đã đặt hàng tại cửa hàng của chúng tôi.</p>
+                                       <p>Mã đơn hàng của bạn là: <strong style="color: #28a745; font-size: 18px;">{orderCode}</strong></p>
+                                       <p>Chúng tôi sẽ xử lý đơn hàng của bạn trong thời gian sớm nhất.</p>
+                                       <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email này hoặc số điện thoại hỗ trợ.</p>
+                                   </td>
+                               </tr>
+                               <tr>
+                                   <td style="text-align: center; padding-top: 20px;">
+                                       <a href="https://yourshop.com/orders/{orderCode}" 
+                                          style="background-color: #007bff; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                                          Xem chi tiết đơn hàng
+                                       </a>
+                                   </td>
+                               </tr>
+                               <tr>
+                                   <td style="font-size: 12px; color: #999999; text-align: center; padding-top: 30px;">
+                                       © 2025 Your Shop. Bản quyền thuộc về Your Shop.
+                                   </td>
+                               </tr>
+                           </table>
+                       </body>
+                       </html>
+
+                       """;
 
         await _emailSender.SendEmailAsync(receiver, subject, message);
 

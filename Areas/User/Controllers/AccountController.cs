@@ -42,10 +42,18 @@ public class AccountController : Controller
             var result = await _userManager.CreateAsync(user, userModel.Password);
             if (result.Succeeded)
             {
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                TempData["Success"] = "Đăng ký thành công! Bạn đã được đăng nhập.";
+                // Đăng nhập thành công
+                TempData["Success"] = "Đăng nhập thành công!";
+
+                var receiver = user.Email; // Gửi đến email user vừa đăng nhập
+                var subject = "Thông báo đăng nhập thành công";
+                var message = $"Chào {user.UserName}, bạn đã đăng nhập thành công vào hệ thống vào lúc {DateTime.Now}.";
+
+                await _emailSender.SendEmailAsync(receiver, subject, message);
+
                 return RedirectToAction("Index", "Home");
             }
+
 
             foreach (var error in result.Errors)
             {

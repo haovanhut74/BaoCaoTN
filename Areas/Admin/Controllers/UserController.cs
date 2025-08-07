@@ -30,10 +30,17 @@ public class UserController : BaseController
 
     // Trang danh sách người dùng
     [HasPermission("ManageUsers")]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1)
     {
-        // Lấy tất cả người dùng và sắp xếp theo Id giảm dần
-        var users = await _userManager.Users.OrderByDescending(u => u.Id).ToListAsync();
+        int pageSize = 10;
+        int totalItems = await _context.Users.CountAsync();
+
+        var users = await _userManager.Users
+            .OrderByDescending(u => u.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(); // <-- áp dụng phân trang đúng cách
+
         var userIds = users.Select(u => u.Id).ToList();
 
         var userRoles = await _context.UserRoles
@@ -58,12 +65,20 @@ public class UserController : BaseController
             };
         }).ToList();
 
-        return View(userWithRoles); // Trả về view danh sách người dùng
+        var viewModel = new ListViewModel()
+        {
+            Users = userWithRoles,
+            CurrentPage = page,
+            TotalPages = (int)Math.Ceiling((double)totalItems / pageSize)
+        };
+
+        return View(viewModel);
     }
+
 
     // Hiển thị form thêm người dùng
     [HttpGet]
-    [HasPermission("AddUser")]
+    [HasPermission("CreateUser")]
     public async Task<IActionResult> AddUser()
     {
         // Gửi danh sách roles để chọn trong form
@@ -74,7 +89,7 @@ public class UserController : BaseController
 
     // Xử lý khi submit form thêm người dùng
     [HttpPost]
-    [HasPermission("AddUser")]
+    [HasPermission("CreateUser")]
     public async Task<IActionResult> AddUser(RegisterViewModel model)
     {
         if (!ModelState.IsValid)

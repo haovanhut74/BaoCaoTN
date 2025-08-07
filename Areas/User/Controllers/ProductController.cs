@@ -139,7 +139,11 @@ public class ProductController : BaseController
             // Trả về view cùng model sản phẩm (đã include comment) để giữ lại các comment cũ
             return View("Detail", product);
         }
-
+        // Nếu là phản hồi thì đặt Rating = 0 hoặc không lưu Rating
+        if (ParentCommentId.HasValue)
+        {
+            Rating = 0; // Hoặc không truyền rating từ form cho reply, tùy cách thiết kế
+        }
         var comment = new Comment
         {
             ProductId = ProductId,

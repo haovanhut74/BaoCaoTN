@@ -1,0 +1,30 @@
+﻿@model List<Comment>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">Không có bình luận nào.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Nội dung</th>
+            <th>Ngày</th>
+            <th>Trạng thái</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var comment in Model)
+        {
+            <tr>
+                <td>@comment.Product?.Name</td>
+                <td>@comment.Content</td>
+                <td>@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@comment.Status</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

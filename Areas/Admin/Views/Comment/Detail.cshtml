@@ -1,0 +1,49 @@
+﻿@model List<Comment>
+@{
+    ViewData["Title"] = "Bình luận của người dùng";
+    var user = ViewBag.User as ApplicationUser;
+}
+
+<h2>Bình luận của @(user?.UserName) @(user?.Email)</h2>
+
+<table class = "table table-bordered">
+    <thead>
+    <tr>
+        <th>Sản phẩm</th>
+        <th>Nội dung</th>
+        <th>Ngày</th>
+        <th>Trạng thái</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var comment in Model)
+    {
+        <tr>
+            <td>@comment.Product.Name</td>
+            <td>@comment.Content</td>
+            <td>@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>@comment.Status</td>
+            <td>
+                @if (comment.Status != CommentStatus.Approved)
+                {
+                    <form asp-controller = "Comment" asp-action = "Approve" method = "post" style = "display:inline">
+                        <input type = "hidden" name = "id" value = "@comment.Id"/>
+                        <button type = "submit" class = "btn btn-success btn-sm">Duyệt</button>
+                    </form>
+                }
+                @if (comment.Status != CommentStatus.Hidden)
+                {
+                    <form asp-controller = "Comment" asp-action = "Hide" method = "post" style = "display:inline">
+                        <input type = "hidden" name = "id" value = "@comment.Id"/>
+                        <button type = "submit" class = "btn btn-warning btn-sm">Ẩn</button>
+                    </form>
+                }
+                <form asp-controller = "Comment" asp-action = "Delete" method = "post" style = "display:inline" onsubmit = "return confirm('Xóa bình luận này?');">
+                    <input type = "hidden" name = "id" value = "@comment.Id"/>
+                    <button type = "submit" class = "btn btn-danger btn-sm">Xóa</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

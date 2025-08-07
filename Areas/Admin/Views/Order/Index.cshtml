@@ -1,7 +1,8 @@
-﻿@model IEnumerable<MyWebApp.Models.Order>
+﻿@model MyWebApp.ViewModels.ListViewModel
+
 @{
     ViewData["Title"] = "Quản lý đơn hàng";
-
+    uint STT = (uint)((Model.CurrentPage - 1) * 10 + 1); // Bắt đầu theo page
     string orderCode = Context.Request.Query["orderCode"];
     string userName = Context.Request.Query["userName"];
     string status = Context.Request.Query["status"];
@@ -9,90 +10,94 @@
     string dateTo = Context.Request.Query["dateTo"];
 }
 
-<h2 class="text-center text-primary mb-4">Quản lý đơn hàng</h2>
+<h2 class = "text-center text-primary mb-4">Quản lý đơn hàng</h2>
 
-<form method="get" class="row g-3 align-items-end mb-4 shadow-sm bg-light p-3 rounded">
-    <div class="col-md-3">
-        <label class="form-label">🔎 Mã đơn hàng</label>
-        <input type="text" name="orderCode" value="@orderCode" class="form-control" placeholder="VD: DH12345" />
+<form method = "get" class = "row g-3 align-items-end mb-4 shadow-sm bg-light p-3 rounded">
+    <div class = "col-md-3">
+        <label class = "form-label">🔎 Mã đơn hàng</label>
+        <input type = "text" name = "orderCode" value = "@orderCode" class = "form-control" placeholder = "VD: DH12345"/>
     </div>
-    <div class="col-md-3">
-        <label class="form-label">👤 Người đặt</label>
-        <input type="text" name="userName" value="@userName" class="form-control" placeholder="Tên người dùng" />
-    </div>
-
-    <div class="col-md-3">
-        <label class="form-label">📅 Từ ngày</label>
-        <input type="date" name="dateFrom" value="@dateFrom" class="form-control" />
+    <div class = "col-md-3">
+        <label class = "form-label">👤 Người đặt</label>
+        <input type = "text" name = "userName" value = "@userName" class = "form-control" placeholder = "Tên người dùng"/>
     </div>
 
-    <div class="col-md-3">
-        <label class="form-label">📅 Đến ngày</label>
-        <input type="date" name="dateTo" value="@dateTo" class="form-control" />
+    <div class = "col-md-3">
+        <label class = "form-label">📅 Từ ngày</label>
+        <input type = "date" name = "dateFrom" value = "@dateFrom" class = "form-control"/>
     </div>
 
-    <div class="col-md-2">
-        <label class="form-label">📦 Trạng thái</label>
-        <select name="status" class="form-select">
-            <option value="">-- Tất cả --</option>
-            <option value="1" selected="@(status == "1" ? "selected" : null)">Chờ xác nhận</option>
-            <option value="2" selected="@(status == "2" ? "selected" : null)">Đã xác nhận</option>
-            <option value="3" selected="@(status == "3" ? "selected" : null)">Đã giao</option>
-            <option value="0" selected="@(status == "0" ? "selected" : null)">Đã hủy</option>
+    <div class = "col-md-3">
+        <label class = "form-label">📅 Đến ngày</label>
+        <input type = "date" name = "dateTo" value = "@dateTo" class = "form-control"/>
+    </div>
+
+    <div class = "col-md-2">
+        <label class = "form-label">📦 Trạng thái</label>
+        <select name = "status" class = "form-select">
+            <option value = "">-- Tất cả --</option>
+            <option value = "1" selected = "@(status == "1" ? "selected" : null)">Chờ xác nhận</option>
+            <option value = "2" selected = "@(status == "2" ? "selected" : null)">Đã xác nhận</option>
+            <option value = "3" selected = "@(status == "3" ? "selected" : null)">Đã giao</option>
+            <option value = "0" selected = "@(status == "0" ? "selected" : null)">Đã hủy</option>
         </select>
     </div>
 
-    <div class="col-md-1 text-end">
-        <button type="submit" class="btn btn-primary w-100">
-            <i class="bi bi-filter"></i> Lọc
+    <div class = "col-md-1 text-end">
+        <button type = "submit" class = "btn btn-primary w-100">
+            <i class = "bi bi-filter"></i> Lọc
         </button>
     </div>
 </form>
 
-<div class="table-responsive">
-    <table class="table table-bordered table-hover shadow-sm rounded">
-        <thead class="table-primary text-center">
-            <tr>
-                <th>Mã đơn</th>
-                <th>Người đặt</th>
-                <th>Ngày đặt</th>
-                <th>Trạng thái</th>
-                <th>Số sản phẩm</th>
-                <th>Hành động</th>
-            </tr>
+<div class = "table-responsive">
+    <table class = "table table-bordered table-hover shadow-sm rounded">
+        <thead class = "table-primary text-center">
+        <tr>
+            <th>STT</th>
+            <th>Mã đơn</th>
+            <th>Người đặt</th>
+            <th>Ngày đặt</th>
+            <th>Trạng thái</th>
+            <th>Số sản phẩm</th>
+            <th>Hành động</th>
+        </tr>
         </thead>
-        <tbody class="align-middle text-center">
-            @foreach (var order in Model)
+        <tbody class = "align-middle text-center">
+        @foreach (var order in Model.Orders)
+        {
+            string statusLabel = order.Status switch
             {
-                string statusLabel = order.Status switch
-                {
-                    1 => "Chờ xác nhận",
-                    2 => "Đã xác nhận",
-                    3 => "Đã giao",
-                    _ => "Đã hủy"
-                };
+                1 => "Chờ xác nhận",
+                2 => "Đã xác nhận",
+                3 => "Đã giao",
+                _ => "Đã hủy"
+            };
 
-                string badgeClass = order.Status switch
-                {
-                    1 => "badge bg-warning text-dark",
-                    2 => "badge bg-primary",
-                    3 => "badge bg-success",
-                    _ => "badge bg-danger"
-                };
+            string badgeClass = order.Status switch
+            {
+                1 => "badge bg-warning text-dark",
+                2 => "badge bg-primary",
+                3 => "badge bg-success",
+                _ => "badge bg-danger"
+            };
 
-                <tr>
-                    <td>@order.OrderCode</td>
-                    <td>@order.UserName</td>
-                    <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td><span class="@badgeClass">@statusLabel</span></td>
-                    <td>@(order.OrderDetails?.Count() ?? 0)</td>
-                    <td>
-                        <a class="btn btn-sm btn-outline-info" asp-action="Detail" asp-route-id="@order.OrderId">
-                            <i class="bi bi-eye"></i> Xem
-                        </a>
-                    </td>
-                </tr>
-            }
+            <tr>
+                <td>@STT</td>
+                <td>@order.OrderCode</td>
+                <td>@order.UserName</td>
+                <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                <td><span class = "@badgeClass">@statusLabel</span></td>
+                <td>@(order.OrderDetails?.Count() ?? 0)</td>
+                <td>
+                    <a class = "btn btn-sm btn-outline-info" asp-action = "Detail" asp-route-id = "@order.OrderId">
+                        <i class = "bi bi-eye"></i> Xem
+                    </a>
+                </td>
+            </tr>
+            STT++;
+        }
         </tbody>
     </table>
+    @await Html.PartialAsync("_Paganite", Model) <!-- Partial view for pagination -->
 </div>

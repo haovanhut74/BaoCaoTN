@@ -18,7 +18,11 @@ public class CategoryController : BaseController
         int pageSize = 10; // Số sản phẩm hiển thị trên mỗi trang
 
         var totalItems = await _context.Categories.CountAsync();
-        var categories = await _context.Categories.OrderByDescending(c => c.Id).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        var categories = await _context.Categories
+            .OrderByDescending(c => c.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
         var viewModel = new ListViewModel
         {
             Categories = categories,

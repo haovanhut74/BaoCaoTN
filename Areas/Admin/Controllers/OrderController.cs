@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
+using MyWebApp.ViewModels;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
@@ -12,7 +13,7 @@ public class OrderController : BaseController
 
     // Hiển thị danh sách đơn hàng
     public async Task<IActionResult> Index(string? orderCode, string? userName, string? status, string? dateFrom,
-        string? dateTo)
+        string? dateTo, int page = 1)
     {
         var query = _context.Orders.Include(o => o.OrderDetails).AsQueryable();
 
@@ -30,12 +31,30 @@ public class OrderController : BaseController
 
         if (!string.IsNullOrWhiteSpace(dateTo) && DateTime.TryParse(dateTo, out var toDate))
         {
-            toDate = toDate.Date.AddDays(1).AddTicks(-1); // đến hết ngày đó
+            toDate = toDate.Date.AddDays(1).AddTicks(-1);
             query = query.Where(o => o.OrderDate <= toDate);
         }
 
-        var list = await query.OrderByDescending(o => o.OrderDate).ToListAsync();
-        return View(list);
+        int pageSize = 10;
+        int totalItems = await query.CountAsync();
+        var orders = await query.OrderByDescending(o => o.OrderDate)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var viewModel = new ListViewModel
+        {
+            Orders = orders,
+            CurrentPage = page,
+            TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+            OrderCode = orderCode,
+            UserName = userName,
+            Status = status,
+            DateFrom = dateFrom,
+            DateTo = dateTo
+        };
+
+        return View(viewModel);
     }
 
 

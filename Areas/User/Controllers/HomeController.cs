@@ -36,13 +36,17 @@ public class HomeController : Controller
 
         var products = await productsQuery.OrderByDescending(p => p.Id).ToListAsync();
 
+        // Lấy slider hiển thị
+        var sliders = await _context.Sliders.Where(s => s.Status == 1).ToListAsync();
+
         var vm = new ProductFilterViewModel
         {
             Products = products,
             Categories = categories,
             Brands = brands,
-            SelectedSlugCategories = selectedSlugCategories.Count > 0 ? selectedSlugCategories : [],
-            SelectedSlugBrands = selectedSlugBrands.Count > 0 ? selectedSlugBrands : []
+            SelectedSlugCategories = selectedSlugCategories.Count > 0 ? selectedSlugCategories : new List<string>(),
+            SelectedSlugBrands = selectedSlugBrands.Count > 0 ? selectedSlugBrands : new List<string>(),
+            Sliders = sliders
         };
 
         return View(vm);
@@ -68,5 +72,4 @@ public class HomeController : Controller
 
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
-
 }

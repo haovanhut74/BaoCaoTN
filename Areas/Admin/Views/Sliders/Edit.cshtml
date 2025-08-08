@@ -1,0 +1,53 @@
+﻿@model MyWebApp.Models.Sliders
+
+@{
+    ViewData["Title"] = "Chỉnh sửa Slider";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-controller = "Sliders" asp-action = "Edit" method = "post" enctype = "multipart/form-data">
+    <input type = "hidden" asp-for = "Id"/>
+
+    <div class = "mb-3">
+        <label asp-for = "Title" class = "form-label"></label>
+        <input asp-for = "Title" class = "form-control"/>
+        <span asp-validation-for = "Title" class = "text-danger"></span>
+    </div>
+
+    <div class = "mb-3">
+        <label asp-for = "Description" class = "form-label"></label>
+        <textarea asp-for = "Description" class = "form-control"></textarea>
+        <span asp-validation-for = "Description" class = "text-danger"></span>
+    </div>
+
+    <div class = "mb-3">
+        <label asp-for = "Status" class = "form-label"></label>
+        <select asp-for = "Status" class = "form-control">
+            <option value = "1" selected = "@(Model.Status == 1 ? "selected" : null)">Hiển thị</option>
+            <option value = "0" selected = "@(Model.Status == 0 ? "selected" : null)">Ẩn</option>
+        </select>
+        <span asp-validation-for = "Status" class = "text-danger"></span>
+    </div>
+
+    <div class = "mb-3">
+        <label asp-for = "ImageFile" class = "form-label">Ảnh slider (nếu muốn thay đổi)</label>
+        <input asp-for = "ImageFile" type = "file" class = "form-control"/>
+        <span asp-validation-for = "ImageFile" class = "text-danger"></span>
+
+        @if (!string.IsNullOrEmpty(Model.Image))
+        {
+            <div class = "mt-2">
+                <p>Ảnh hiện tại:</p>
+                <img src = "~/img/Slider/@Model.Image" alt = "Ảnh slider" width = "200"/>
+            </div>
+        }
+    </div>
+
+    <button type = "submit" class = "btn btn-success">Lưu</button>
+    <a asp-action = "Index" class = "btn btn-secondary">Hủy</a>
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

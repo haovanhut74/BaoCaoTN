@@ -11,4 +11,6 @@ public class ProductFilterViewModel
     public List<Guid> SelectedBrandIds { get; set; } = new();
     public List<string> SelectedSlugCategories { get; set; } = new();
     public List<string> SelectedSlugBrands { get; set; } = new();
+    // Thêm:
+    public List<Sliders> Sliders { get; set; } = new();
 }

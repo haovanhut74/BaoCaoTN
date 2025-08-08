@@ -1,0 +1,38 @@
+﻿@model IEnumerable<MyWebApp.Models.Sliders>
+
+<h2>Quản lý Slider</h2>
+<a class = "btn btn-primary mb-3" asp-action = "Create">Thêm mới</a>
+
+<table class = "table table-bordered">
+    <thead>
+    <tr>
+        <th>Hình ảnh</th>
+        <th>Tiêu đề</th>
+        <th>Mô tả</th>
+        <th>Trạng thái</th>
+        <th>Hành động</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @if (!string.IsNullOrEmpty(item.Image))
+                {
+                    <img src = "~/img/Slider/@item.Image" width = "150" alt=""/>
+                }
+            </td>
+            <td>@item.Title</td>
+            <td>@item.Description</td>
+            <td>@(item.Status == 1 ? "Hiển thị" : "Ẩn")</td>
+            <td>
+                <a class = "btn btn-sm btn-warning" asp-action = "Edit" asp-route-id = "@item.Id">Sửa</a>
+                <form asp-action = "Delete" asp-route-id = "@item.Id" method = "post" style = "display:inline-block">
+                    <button class = "btn btn-sm btn-danger" onclick = "return confirm('Xóa slider này?')">Xóa</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

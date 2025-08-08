@@ -64,6 +64,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseRouting();
 
+// Đặt Session trước Authentication để session sẵn sàng cho auth
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -79,7 +81,7 @@ app.MapControllerRoute(
         pattern: "{controller=Home}/{action=Index}/{id?}", // Mặc định vào area "user"
         defaults: new { area = "User" })
     .WithStaticAssets();
-
+app.MapRazorPages(); // Cho Razor Pages Identity, nếu bạn dùng
 // Initialize the database with seed data
 using (var scope = app.Services.CreateScope())
 {

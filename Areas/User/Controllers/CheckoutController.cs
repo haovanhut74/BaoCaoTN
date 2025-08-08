@@ -27,7 +27,9 @@ public class CheckoutController : BaseController
 
         var cart = await _context.Carts
             .Include(c => c.CartItems)
+            .ThenInclude(ci => ci.Product)
             .FirstOrDefaultAsync(c => c.UserId == userId);
+
 
         if (cart == null || !cart.CartItems.Any())
         {
@@ -57,13 +59,12 @@ public class CheckoutController : BaseController
                 OrderCode = orderCode,
                 UserName = order.UserName,
                 ProductId = item.ProductId,
+                Product = item.Product, // Gán luôn để email có tên
                 Price = item.Price,
                 Quantity = item.Quantity
             };
             _context.OrderDetails.Add(orderDetail);
         }
-
-        await _context.SaveChangesAsync();
 
         // Xóa giỏ hàng sau khi đặt thành công
         _context.CartItems.RemoveRange(cart.CartItems);
@@ -73,7 +74,6 @@ public class CheckoutController : BaseController
         var receiver = user?.Email;
         var subject = "Xác nhận đơn hàng";
         var message = $"""
-
                        <!DOCTYPE html>
                        <html lang="vi">
                        <head>
@@ -81,7 +81,8 @@ public class CheckoutController : BaseController
                            <title>Xác nhận đơn hàng</title>
                        </head>
                        <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 0;">
-                           <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 20px;">
+                           <table align="center" width="600" cellpadding="0" cellspacing="0" 
+                                  style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 20px;">
                                <tr>
                                    <td style="text-align: center; padding-bottom: 20px;">
                                        <h2 style="color: #007bff; margin: 0;">Cảm ơn bạn đã đặt hàng!</h2>
@@ -96,11 +97,47 @@ public class CheckoutController : BaseController
                                        <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email này hoặc số điện thoại hỗ trợ.</p>
                                    </td>
                                </tr>
+
+                               <!-- Bảng chi tiết sản phẩm -->
+                               <tr>
+                                   <td style="padding: 10px 0;">
+                                       <table width="100%" cellpadding="8" cellspacing="0" 
+                                              style="border-collapse: collapse; font-size: 14px; border: 1px solid #ddd;">
+                                           <thead style="background-color: #f2f2f2;">
+                                               <tr>
+                                                   <th align="left" style="border: 1px solid #ddd;">Tên sản phẩm</th>
+                                                   <th align="center" style="border: 1px solid #ddd;">Số lượng</th>
+                                                   <th align="right" style="border: 1px solid #ddd;">Giá</th>
+                                                   <th align="right" style="border: 1px solid #ddd;">Thành tiền</th>
+                                               </tr>
+                                           </thead>
+                                           <tbody>
+                                               {string.Join("", order.OrderDetails.Select(d => $"""
+                                                    "
+                                                                            <tr>
+                                                                                <td style='border: 1px solid #ddd;'>{d.Product.Name}</td>
+                                                                                <td align='center' style='border: 1px solid #ddd;'>{d.Quantity}</td>
+                                                                                <td align='right' style='border: 1px solid #ddd;'>{d.Price:C0}</td>
+                                                                                <td align='right' style='border: 1px solid #ddd;'>{(d.Quantity * d.Price):C0}</td>
+                                                                            </tr>
+                                                                            
+                                                    """))}
+                                               <tr>
+                                                   <td colspan="3" align="right" style="border: 1px solid #ddd; font-weight: bold;">Tổng cộng</td>
+                                                   <td align="right" style="border: 1px solid #ddd; font-weight: bold; color: #d9534f;">
+                                                       {order.OrderDetails.Sum(d => d.Quantity * d.Price):C0}
+                                                   </td>
+                                               </tr>
+                                           </tbody>
+                                       </table>
+                                   </td>
+                               </tr>
+
                                <tr>
                                    <td style="text-align: center; padding-top: 20px;">
-                                       <a href="https://yourshop.com/orders/{orderCode}" 
+                                       <a asp-action="Index" asp-controller="Home"
                                           style="background-color: #007bff; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                                          Xem chi tiết đơn hàng
+                                          Xem chi tiết đơn hàng tại webstie
                                        </a>
                                    </td>
                                </tr>
@@ -112,8 +149,8 @@ public class CheckoutController : BaseController
                            </table>
                        </body>
                        </html>
-
                        """;
+
 
         await _emailSender.SendEmailAsync(receiver, subject, message);
 

@@ -1,14 +1,10 @@
-﻿@model MyWebApp.Models.Product
+﻿@using MyWebApp.Models
+@model MyWebApp.Models.Product
 
 @{
     ViewData["Title"] = "Chi tiết sản phẩm - " + Model.Name;
 }
-<style>
-    .badge {
-        font-size: 1rem;
-        padding: 0.5em 0.75em;
-    }
-</style>
+<link rel="stylesheet" href="~/css/User/ProductDetail.css" />
 
 <div class = "container my-5">
     @Html.AntiForgeryToken()
@@ -146,6 +142,45 @@
 
         </div>
     </div>
+
+    <!-- Sản phẩm liên quan -->
+    @if (ViewBag.RelatedProducts != null && ((List<Product>)ViewBag.RelatedProducts).Any())
+    {
+        <div class = "mt-5">
+            <h4 class = "fw-bold mb-4 text-primary">
+                <i class = "fa fa-link me-2"></i> Sản phẩm liên quan
+            </h4>
+            <div class = "row g-4">
+                @foreach (var rp in (List<Product>)ViewBag.RelatedProducts)
+                {
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card h-100 border-0 shadow-sm rounded-3 product-card d-flex flex-column">
+                            <div class="position-relative overflow-hidden">
+                                <img src="~/img/product/@rp.Image" 
+                                     class="card-img-top img-fluid product-img" 
+                                     alt="@rp.Name" />
+                            </div>
+                            <div class="card-body text-center d-flex flex-column">
+                                <h6 class="card-title fw-semibold text-truncate-multiline" 
+                                    title="@rp.Name">@rp.Name</h6>
+                                <p class="text-danger fw-bold mb-2">@rp.Price.ToString("N0") ₫</p>
+                                <div class="mt-auto">
+                                    <a asp-action="Detail"
+                                       asp-route-categorySlug="@rp.Category?.Slug"
+                                       asp-route-brandSlug="@rp.Brand?.Slug"
+                                       asp-route-productSlug="@rp.Slug"
+                                       class="btn btn-outline-primary btn-sm px-3 rounded-pill">
+                                        <i class="fa fa-eye me-1"></i> Xem chi tiết
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                }
+            </div>
+        </div>
+    }
 
 </div>
 

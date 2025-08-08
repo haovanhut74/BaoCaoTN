@@ -60,12 +60,23 @@ public class ProductController : BaseController
         if (product == null)
             return NotFound();
 
-        // Lấy riêng các comment đã được duyệt, kèm reply
+        // Lấy bình luận đã duyệt
         product.Comments = await _context.Comments
             .Where(c => c.ProductId == product.Id && c.Status == CommentStatus.Approved)
             .Include(c => c.User)
             .Include(c => c.Replies)
             .ToListAsync();
+
+        // Lấy danh sách sản phẩm liên quan (cùng danh mục)
+        var relatedProducts = await _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
+            .Where(p => p.CategoryId == product.CategoryId && p.Id != product.Id)
+            .OrderByDescending(p => p.CreatedAt)
+            .Take(4) // Giới hạn số lượng hiển thị
+            .ToListAsync();
+
+        ViewBag.RelatedProducts = relatedProducts;
 
         return View(product);
     }

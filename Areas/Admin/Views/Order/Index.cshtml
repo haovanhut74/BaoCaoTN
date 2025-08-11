@@ -99,5 +99,29 @@
         }
         </tbody>
     </table>
-    @await Html.PartialAsync("_Paganite", Model) <!-- Partial view for pagination -->
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label = "Page navigation" class = "mt-4">
+            <ul class = "pagination justify-content-center">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class = "page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a
+                            class = "page-link"
+                            asp-action = "Index"
+                            asp-route-page = "@i"
+                            asp-route-orderCode = "@orderCode"
+                            asp-route-userName = "@userName"
+                            asp-route-status = "@status"
+                            asp-route-dateFrom = "@dateFrom"
+                            asp-route-dateTo = "@dateTo"
+                        >
+                            @i
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
 </div>

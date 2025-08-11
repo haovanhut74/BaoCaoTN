@@ -51,6 +51,42 @@
 </form>
 
 <div class = "table-responsive">
+    <div class = "mb-3">
+        <a
+            class = "btn btn-success me-2" asp-action = "ExportCsv"
+            asp-route-orderCode = "@orderCode"
+            asp-route-userName = "@userName"
+            asp-route-status = "@status"
+            asp-route-dateFrom = "@dateFrom"
+            asp-route-dateTo = "@dateTo"
+        >
+            <i class = "bi bi-file-earmark-spreadsheet"></i> Xuất CSV
+        </a>
+
+        <a
+            class = "btn btn-primary me-2" asp-action = "ExportExcel"
+            asp-route-orderCode = "@orderCode"
+            asp-route-userName = "@userName"
+            asp-route-status = "@status"
+            asp-route-dateFrom = "@dateFrom"
+            asp-route-dateTo = "@dateTo"
+        >
+            <i class = "bi bi-file-excel"></i> Xuất Excel
+        </a>
+
+        <a
+            class = "btn btn-danger"
+            asp-action = "ExportPdf"
+            asp-route-orderCode = "@orderCode"
+            asp-route-userName = "@userName"
+            asp-route-status = "@status"
+            asp-route-dateFrom = "@dateFrom"
+            asp-route-dateTo = "@dateTo"
+        >
+            <i class = "bi bi-file-pdf"></i> Xuất PDF
+        </a>
+    </div>
+
     <table class = "table table-bordered table-hover shadow-sm rounded">
         <thead class = "table-primary text-center">
         <tr>

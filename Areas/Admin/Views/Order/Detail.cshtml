@@ -1,5 +1,4 @@
 ﻿@model MyWebApp.Models.Order
-@using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
     ViewData["Title"] = "Chi tiết đơn hàng";
@@ -18,6 +17,11 @@
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h4 class="mb-0">🧾 Chi tiết đơn hàng</h4>
             <span class="fw-light">Mã đơn: <strong>@Model.OrderCode</strong></span>
+        </div>
+        <div class="mb-3">
+            <a asp-action="PrintOrder" asp-route-id="@Model.OrderId" target="_blank" class="btn btn-outline-primary">
+                <i class="bi bi-printer"></i> In đơn hàng
+            </a>
         </div>
         <div class="card-body">
             <div class="row g-4">

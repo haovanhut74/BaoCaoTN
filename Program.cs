@@ -28,6 +28,14 @@ builder.Services
         //Yêu cầu xác thực tài khoản đã được xác nhận
         options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<DataContext>();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    // Nếu trang đăng nhập nằm trong Area User
+    options.LoginPath = "/User/Account/Login";
+    options.AccessDeniedPath = "/User/Account/AccessDenied"; // tuỳ chọn
+});
+
 builder.Services.AddRazorPages();
 
 builder.Services.Configure<IdentityOptions>(options =>
@@ -54,7 +62,6 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 var app = builder.Build();
 app.UseStatusCodePagesWithReExecute("/Home/Error", "?statuscode={0}");
-app.UseSession(); // Enable session support
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

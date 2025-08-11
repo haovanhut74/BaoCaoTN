@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Globalization;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,9 @@ using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 using MyWebApp.Models;
 using MyWebApp.ViewModels;
+using OfficeOpenXml; // NuGet: EPPlus
+using iTextSharp.text; // NuGet: iTextSharp.LGPLv2.Core
+using iTextSharp.text.pdf;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
@@ -70,7 +74,7 @@ public class ProductController : BaseController
             string imgName = Guid.NewGuid().ToString() + "_" + product.ImageFile.FileName;
             string filePath = Path.Combine(uploadDir, imgName);
 
-            using FileStream fs = new(filePath, FileMode.Create);
+            await using FileStream fs = new(filePath, FileMode.Create);
             await product.ImageFile.CopyToAsync(fs);
             product.Image = imgName;
         }
@@ -89,7 +93,7 @@ public class ProductController : BaseController
                 await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
                 product.Image = imgName;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ModelState.AddModelError("ImageUrl", "Không thể tải ảnh từ liên kết.");
             }
@@ -161,7 +165,7 @@ public class ProductController : BaseController
         string uploadDir = Path.Combine(_env.WebRootPath, "img/product");
 
         // Trường hợp có file upload
-        if (product.ImageFile != null && product.ImageFile.Length > 0)
+        if (product.ImageFile is { Length: > 0 })
         {
             // Xóa ảnh cũ nếu có
             if (!string.IsNullOrEmpty(oldProduct.Image))
@@ -174,7 +178,7 @@ public class ProductController : BaseController
             // Lưu ảnh mới
             string newImgName = Guid.NewGuid() + Path.GetExtension(product.ImageFile.FileName);
             string newFilePath = Path.Combine(uploadDir, newImgName);
-            using var fs = new FileStream(newFilePath, FileMode.Create);
+            await using var fs = new FileStream(newFilePath, FileMode.Create);
             await product.ImageFile.CopyToAsync(fs);
             product.Image = newImgName;
         }
@@ -275,5 +279,142 @@ public class ProductController : BaseController
         }
 
         return NotFound();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ExportCsv()
+    {
+        var products = await _context.Products.Include(p => p.Category).Include(p => p.Brand).ToListAsync();
+
+        var sb = new StringBuilder();
+        sb.AppendLine("Tên sản phẩm,Giá,Số lượng,Danh mục,Thương hiệu");
+
+        foreach (var p in products)
+        {
+            sb.AppendLine($"{p.Name},{p.Price},{p.Quantity},{p.Category?.Name},{p.Brand?.Name}");
+        }
+
+        var csvBytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
+        return File(csvBytes, "text/csv", "Products.csv");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ExportExcel()
+    {
+        var products = await _context.Products.Include(p => p.Category).Include(p => p.Brand).ToListAsync();
+
+        using var package = new ExcelPackage();
+        var worksheet = package.Workbook.Worksheets.Add("Products");
+
+        // Header
+        worksheet.Cells[1, 1].Value = "Tên sản phẩm";
+        worksheet.Cells[1, 2].Value = "Giá";
+        worksheet.Cells[1, 3].Value = "Số lượng";
+        worksheet.Cells[1, 4].Value = "Danh mục";
+        worksheet.Cells[1, 5].Value = "Thương hiệu";
+
+        int row = 2;
+        foreach (var p in products)
+        {
+            worksheet.Cells[row, 1].Value = p.Name;
+            worksheet.Cells[row, 2].Value = p.Price;
+            worksheet.Cells[row, 3].Value = p.Quantity;
+            worksheet.Cells[row, 4].Value = p.Category?.Name;
+            worksheet.Cells[row, 5].Value = p.Brand?.Name;
+            row++;
+        }
+
+        var stream = new MemoryStream(await package.GetAsByteArrayAsync());
+        stream.Position = 0; // reset vị trí stream trước khi trả về
+        return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Products.xlsx");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ExportPdf()
+    {
+        var products = await _context.Products.Include(p => p.Category).Include(p => p.Brand).ToListAsync();
+
+        using var stream = new MemoryStream();
+        var document = new Document(PageSize.A4.Rotate());
+        var writer = PdfWriter.GetInstance(document, stream);
+        document.Open();
+
+        // Font path
+        BaseFont baseFont;
+        string fontPath = Path.Combine(_env.WebRootPath, "fonts", "tahoma.ttf");
+
+        if (System.IO.File.Exists(fontPath))
+        {
+            baseFont = BaseFont.CreateFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        }
+        else
+        {
+            baseFont = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+        }
+
+        var font = new Font(baseFont, 12);
+
+        var table = new PdfPTable(6) { WidthPercentage = 100 };
+        table.SetWidths(new float[] { 1f, 3f, 2f, 1.5f, 2f, 2f });
+
+        table.AddCell(new PdfPCell(new Phrase("Image", font)) { HorizontalAlignment = Element.ALIGN_CENTER });
+        table.AddCell(new PdfPCell(new Phrase("Product Name", font)) { HorizontalAlignment = Element.ALIGN_CENTER });
+        table.AddCell(new PdfPCell(new Phrase("Price", font)) { HorizontalAlignment = Element.ALIGN_CENTER });
+        table.AddCell(new PdfPCell(new Phrase("Quantity", font)) { HorizontalAlignment = Element.ALIGN_CENTER });
+        table.AddCell(new PdfPCell(new Phrase("Category", font)) { HorizontalAlignment = Element.ALIGN_CENTER });
+        table.AddCell(new PdfPCell(new Phrase("Brand", font)) { HorizontalAlignment = Element.ALIGN_CENTER });
+
+        foreach (var p in products)
+        {
+            if (!string.IsNullOrEmpty(p.Image))
+            {
+                string imgPath = Path.Combine(_env.WebRootPath, "img/product", p.Image);
+                if (System.IO.File.Exists(imgPath))
+                {
+                    try
+                    {
+                        byte[] imgBytes = await System.IO.File.ReadAllBytesAsync(imgPath);
+                        var img = Image.GetInstance(imgBytes);
+                        img.ScaleAbsolute(50f, 50f);
+                        var cell = new PdfPCell(img)
+                        {
+                            HorizontalAlignment = Element.ALIGN_CENTER,
+                            VerticalAlignment = Element.ALIGN_MIDDLE,
+                            Padding = 5
+                        };
+                        table.AddCell(cell);
+                    }
+                    catch
+                    {
+                        table.AddCell(new PdfPCell(new Phrase("Image Error", font))
+                            { HorizontalAlignment = Element.ALIGN_CENTER });
+                    }
+                }
+                else
+                {
+                    table.AddCell(new PdfPCell(new Phrase("No Image", font))
+                        { HorizontalAlignment = Element.ALIGN_CENTER });
+                }
+            }
+            else
+            {
+                table.AddCell(new PdfPCell(new Phrase("No Image", font))
+                    { HorizontalAlignment = Element.ALIGN_CENTER });
+            }
+
+            table.AddCell(new PdfPCell(new Phrase(p.Name, font)));
+            table.AddCell(new PdfPCell(new Phrase(p.Price.ToString("N0"), font))
+                { HorizontalAlignment = Element.ALIGN_RIGHT });
+            table.AddCell(new PdfPCell(new Phrase(p.Quantity.ToString(), font))
+                { HorizontalAlignment = Element.ALIGN_CENTER });
+            table.AddCell(new PdfPCell(new Phrase(p.Category?.Name ?? "", font)));
+            table.AddCell(new PdfPCell(new Phrase(p.Brand?.Name ?? "", font)));
+        }
+
+        document.Add(table);
+        document.Close();
+
+        stream.Position = 0;
+        return File(stream.ToArray(), "application/pdf", "Products.pdf");
     }
 }

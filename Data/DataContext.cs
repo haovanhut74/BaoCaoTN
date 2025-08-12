@@ -20,6 +20,7 @@ public class DataContext : IdentityDbContext<ApplicationUser>
     public DbSet<RolePermission> RolePermissions { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Sliders> Sliders { get; set; }
+    public DbSet<Contact> Contacts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

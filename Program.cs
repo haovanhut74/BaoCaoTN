@@ -14,7 +14,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")
     ));
-builder.Services.AddTransient<IEmailSender, EmailSeneder>(); // Thêm dịch vụ gửi email
+builder.Services.AddTransient<IEmailSender, EmailSender>(); // Thêm dịch vụ gửi email
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
@@ -35,6 +35,12 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/User/Account/Login";
     options.AccessDeniedPath = "/User/Account/AccessDenied"; // tuỳ chọn
 });
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 builder.Services.AddRazorPages();
 

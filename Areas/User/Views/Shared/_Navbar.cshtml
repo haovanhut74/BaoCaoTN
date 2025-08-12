@@ -5,19 +5,25 @@
         </button>
         <div class = "collapse navbar-collapse" id = "mainNavbar">
             <ul class = "navbar-nav me-auto mb-2 mb-lg-0">
-                <li class = "nav-item"><a class = "nav-link" asp-controller = "Home" asp-action = "Index">Trang chủ</a>
+                <li class = "nav-item">
+                    <a class = "nav-link" asp-controller = "Home" asp-action = "Index">Trang chủ</a>
                 </li>
+
                 <li class = "nav-item">
                     <a class = "nav-link" asp-area = "User" asp-controller = "Product" asp-action = "Index">Sản phẩm</a>
                 </li>
-                <li class = "nav-item">
-                    <a class = "nav-link" asp-area = "User" asp-controller = "Category" asp-action = "Index">Danh
-                        mục</a></li>
+
                 <li class = "nav-item">
                     <a class = "nav-link" asp-area = "User" asp-controller = "Cart" asp-action = "Index">Giỏ hàng</a>
                 </li>
+
+                <li class = "nav-item">
+                    <a class = "nav-link" asp-area = "User" asp-controller = "Contact" asp-action = "Index">
+                        Liên hệ
+                    </a>
+                </li>
             </ul>
-            <form asp-area="User" class = "d-flex" asp-controller = "Product" asp-action = "Search" method = "post">
+            <form asp-area = "User" class = "d-flex" asp-controller = "Product" asp-action = "Search" method = "post">
                 <input name = "searchTerm" class = "form-control me-2" type = "search" placeholder = "Tìm Laptop, PC..."/>
                 <button class = "btn btn-outline-success" type = "submit">Tìm</button>
             </form>

@@ -1,0 +1,54 @@
+﻿@model IEnumerable<MyWebApp.Models.Contact>
+@{
+    ViewData["Title"] = "Quản lý liên hệ";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h2>📬 Quản lý liên hệ</h2>
+
+<form method = "get" class = "mb-3">
+    <div class = "input-group">
+        <input type = "text" name = "search" value = "@ViewBag.Search" class = "form-control" placeholder = "Tìm kiếm...">
+        <button class = "btn btn-primary" type = "submit">Tìm</button>
+    </div>
+</form>
+
+<table class = "table table-bordered table-hover">
+    <thead class = "table-light">
+    <tr>
+        <th>Họ tên</th>
+        <th>Email</th>
+        <th>Chủ đề</th>
+        <th>Ngày gửi</th>
+        <th style = "width:150px;">Hành động</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var c in Model)
+    {
+        <tr>
+            <td>@c.Name</td>
+            <td>@c.Email</td>
+            <td>@c.Subject</td>
+            <td>@c.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>
+                <a asp-controller="Contact" asp-action="Detail" asp-route-id="@c.Id" class = "btn btn-info btn-sm">Xem</a>
+                <form method = "post" asp-action = "Delete" asp-route-id = "@c.Id" style = "display:inline" onsubmit = "return confirm('Bạn có chắc muốn xóa?')">
+                    <button class = "btn btn-danger btn-sm">Xóa</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<nav>
+    <ul class = "pagination">
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class = "page-item @(i == ViewBag.Page ? "active" : "")">
+                <a class = "page-link" href = "@Url.Action("Index", new { page = i, search = ViewBag.Search })">@i</a>
+            </li>
+        }
+    </ul>
+</nav>

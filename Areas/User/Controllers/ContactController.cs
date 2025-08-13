@@ -25,6 +25,10 @@ public class ContactController : BaseController
     {
         if (ModelState.IsValid)
         {
+            // Lưu vào database
+            _context.Contacts.Add(contact);
+            await _context.SaveChangesAsync();
+            
             // Gửi email cho Admin
             await _emailSender.SendEmailAsync(
                 "haovanhut74@gmail.com",

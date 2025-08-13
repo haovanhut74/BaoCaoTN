@@ -1,0 +1,19 @@
+﻿@model MyWebApp.Models.Contact
+@{
+    ViewData["Title"] = "Chi tiết liên hệ";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h2>📄 Chi tiết liên hệ</h2>
+<div class="card">
+    <div class="card-body">
+        <p><strong>👤 Họ tên:</strong> @Model.Name</p>
+        <p><strong>📧 Email:</strong> @Model.Email</p>
+        <p><strong>📌 Chủ đề:</strong> @Model.Subject</p>
+        <p><strong>🕒 Ngày gửi:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+        <p><strong>💬 Nội dung:</strong></p>
+        <div class="p-3 bg-light border">@Model.Message</div>
+    </div>
+</div>
+
+<a class="btn btn-secondary mt-3" href="@Url.Action("Index")">⬅ Quay lại</a>

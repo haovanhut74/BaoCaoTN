@@ -14,7 +14,11 @@ public class ProductController : BaseController
     public ProductController(DataContext context) : base(context) { }
 
 
-    public async Task<IActionResult> Index(List<string> selectedSlugBrands, List<string> selectedSlugCategories)
+    public async Task<IActionResult> Index(
+        List<string> selectedSlugBrands,
+        List<string> selectedSlugCategories,
+        decimal? minPrice,
+        decimal? maxPrice)
     {
         var categories = await _context.Categories.ToListAsync();
         var brands = await _context.Brands.ToListAsync();
@@ -23,11 +27,17 @@ public class ProductController : BaseController
             .Include(p => p.Category)
             .Include(p => p.Brand);
 
-        if (selectedSlugCategories is { Count: > 0 })
+        if (selectedSlugCategories?.Count > 0)
             productsQuery = productsQuery.Where(p => selectedSlugCategories.Contains(p.Category.Slug));
 
-        if (selectedSlugBrands is { Count: > 0 })
+        if (selectedSlugBrands?.Count > 0)
             productsQuery = productsQuery.Where(p => selectedSlugBrands.Contains(p.Brand.Slug));
+
+        if (minPrice.HasValue)
+            productsQuery = productsQuery.Where(p => p.Price >= minPrice.Value);
+
+        if (maxPrice.HasValue)
+            productsQuery = productsQuery.Where(p => p.Price <= maxPrice.Value);
 
         var products = await productsQuery.OrderByDescending(p => p.Id).ToListAsync();
 
@@ -36,8 +46,10 @@ public class ProductController : BaseController
             Products = products,
             Categories = categories,
             Brands = brands,
-            SelectedSlugCategories = selectedSlugCategories.Count > 0 ? selectedSlugCategories : new List<string>(),
-            SelectedSlugBrands = selectedSlugBrands.Count > 0 ? selectedSlugBrands : new List<string>()
+            SelectedSlugCategories = selectedSlugCategories ?? new List<string>(),
+            SelectedSlugBrands = selectedSlugBrands ?? new List<string>(),
+            MinPrice = minPrice,
+            MaxPrice = maxPrice
         };
 
         return View(vm);
@@ -83,7 +95,11 @@ public class ProductController : BaseController
 
 
     [HttpGet]
-    public async Task<IActionResult> FilterPartial(List<string> selectedSlugBrands, List<string> selectedSlugCategories)
+    public async Task<IActionResult> FilterPartial(
+        List<string> selectedSlugBrands,
+        List<string> selectedSlugCategories,
+        decimal? minPrice,
+        decimal? maxPrice)
     {
         IQueryable<Product> productsQuery = _context.Products
             .Include(p => p.Category)
@@ -95,10 +111,17 @@ public class ProductController : BaseController
         if (selectedSlugBrands?.Count > 0)
             productsQuery = productsQuery.Where(p => selectedSlugBrands.Contains(p.Brand.Slug));
 
+        if (minPrice.HasValue)
+            productsQuery = productsQuery.Where(p => p.Price >= minPrice.Value);
+
+        if (maxPrice.HasValue)
+            productsQuery = productsQuery.Where(p => p.Price <= maxPrice.Value);
+
         var products = await productsQuery.OrderByDescending(p => p.Id).ToListAsync();
 
         return PartialView("_ProductListPartial", products);
     }
+
 
     [HttpPost]
     public async Task<IActionResult> Search(string searchTerm)
@@ -150,11 +173,13 @@ public class ProductController : BaseController
             // Trả về view cùng model sản phẩm (đã include comment) để giữ lại các comment cũ
             return View("Detail", product);
         }
+
         // Nếu là phản hồi thì đặt Rating = 0 hoặc không lưu Rating
         if (ParentCommentId.HasValue)
         {
             Rating = 0; // Hoặc không truyền rating từ form cho reply, tùy cách thiết kế
         }
+
         var comment = new Comment
         {
             ProductId = ProductId,

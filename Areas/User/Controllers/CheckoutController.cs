@@ -64,7 +64,16 @@ public class CheckoutController : BaseController
                 Quantity = item.Quantity
             };
             _context.OrderDetails.Add(orderDetail);
+            // Trừ tồn kho sản phẩm
+            item.Product.Quantity -= item.Quantity;
+            item.Product.Sold += item.Quantity; // Cập nhật số lượng đã bán
+            // Đảm bảo không bị âm (trong trường hợp Quantity không đủ)
+            if (item.Product.Quantity < 0)
+                item.Product.Quantity = 0;
+
+            _context.Products.Update(item.Product);
         }
+
 
         // Xóa giỏ hàng sau khi đặt thành công
         _context.CartItems.RemoveRange(cart.CartItems);

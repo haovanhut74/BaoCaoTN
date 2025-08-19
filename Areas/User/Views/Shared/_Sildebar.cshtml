@@ -22,8 +22,54 @@
                 </div>
             </div>
 
-            <!-- ❌ BỎ nút lọc -->
-            @* <button type="submit" class="btn btn-primary w-100">Lọc sản phẩm</button> *@
+            <div class="mt-3">
+                <label>Giá (₫):</label>
+                <div class="d-flex gap-2 align-items-center">
+                    <input type="number" id="minPriceInput" name="minPrice" class="form-control" placeholder="Giá thấp nhất" value="@Model.MinPrice" />
+                    <input type="number" id="maxPriceInput" name="maxPrice" class="form-control" placeholder="Giá cao nhất" value="@Model.MaxPrice" />
+                </div>
+                <p>Khoảng giá: <span id="priceRange">@Model.MinPrice - @Model.MaxPrice</span> ₫</p>
+            </div>
         </form>
     </aside>
 }
+<script>
+    const minInput = document.getElementById('minPriceInput');
+    const maxInput = document.getElementById('maxPriceInput');
+    const priceRange = document.getElementById('priceRange');
+
+    function filterProducts() {
+        let form = $('#filterForm');
+        let url = '@Url.Action("FilterPartial", "Product", new { area = "User" })';
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: form.serialize(),
+            success: function (html) {
+                $('#product-list-container').html(html);
+            },
+            error: function () {
+                showToast("⚠️ Lọc sản phẩm thất bại!", "danger");
+            }
+        });
+    }
+
+    function updatePriceRange() {
+        let min = parseInt(minInput.value) || 0;
+        let max = parseInt(maxInput.value) || 0;
+
+        if(min > max) [min, max] = [max, min]; // hoán đổi nếu nhập nhầm
+        priceRange.innerText = min.toLocaleString() + " - " + max.toLocaleString();
+
+        filterProducts();
+    }
+
+    // Gọi khi thay đổi giá
+    minInput.addEventListener('input', updatePriceRange);
+    maxInput.addEventListener('input', updatePriceRange);
+
+    // Checkbox vẫn gọi filterProducts
+    $('#filterForm input[type="checkbox"]').on('change', filterProducts);
+</script>
+

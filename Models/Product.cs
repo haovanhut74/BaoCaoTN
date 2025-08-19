@@ -27,6 +27,8 @@ public class Product
     [Range(0, int.MaxValue, ErrorMessage = "Số lượng sản phẩm phải lớn hơn hoặc bằng 0")]
     public int Quantity { get; set; }
 
+    public int Sold { get; set; } = 0;  
+
     [Required(ErrorMessage = "Vui lòng chọn danh mục sản phẩm")]
     public Guid CategoryId { get; set; }
 

@@ -60,15 +60,19 @@
                     },
                     success: function (response) {
                         if (response.success) {
-                            showToast("🛒 Đã thêm vào giỏ hàng!", "success");
+                            showToast(response.message, "success"); // hiển thị message thành công từ server
 
                             if (response.cartCount !== undefined) {
                                 $("#cartCount").text(response.cartCount);
                             }
                         } else {
-                            showToast("❌ Thêm không thành công!", "danger");
+                            // in ra message chi tiết từ server (hết hàng, số lượng vượt quá, v.v.)
+                            showToast(response.message, "danger");
                         }
+                        
+
                     },
+
                     error: function () {
                         showToast("❌ Có lỗi xảy ra!", "danger");
                     }

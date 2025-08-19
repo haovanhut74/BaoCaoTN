@@ -10,7 +10,13 @@ public class ProductFilterViewModel
     public List<Guid> SelectedCategoryIds { get; set; } = new();
     public List<Guid> SelectedBrandIds { get; set; } = new();
     public List<string> SelectedSlugCategories { get; set; } = new();
+
     public List<string> SelectedSlugBrands { get; set; } = new();
+
     // Thêm:
     public List<Sliders> Sliders { get; set; } = new();
+
+    // Giá trị lọc
+    public decimal? MinPrice { get; set; }
+    public decimal? MaxPrice { get; set; }
 }

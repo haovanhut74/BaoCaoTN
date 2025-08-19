@@ -72,7 +72,7 @@ public class CartController : BaseController
         var product = await _context.Products.FindAsync(id);
         if (product == null)
         {
-            return Json(new { success = false, message = "Sản phẩm không tồn tại!" });
+            return Json(new { success = false, message = "❌ Sản phẩm không tồn tại!" });
         }
 
         var cart = await GetOrCreateCartAsync();
@@ -81,10 +81,28 @@ public class CartController : BaseController
 
         if (existingItem != null)
         {
+            if (existingItem.Quantity + 1 > product.Quantity)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"⚠️ Sản phẩm \"{product.Name}\" chỉ còn {product.Quantity} cái trong kho!"
+                });
+            }
+
             existingItem.Quantity++;
         }
         else
         {
+            if (product.Quantity <= 0)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"⚠️ Sản phẩm \"{product.Name}\" đã hết hàng!"
+                });
+            }
+
             var newItem = new CartItem
             {
                 Id = Guid.NewGuid(),
@@ -98,20 +116,21 @@ public class CartController : BaseController
 
         await _context.SaveChangesAsync();
 
-
         return Json(new
         {
             success = true,
-            message = $"Đã thêm sản phẩm \"{product.Name}\" vào giỏ hàng!",
+            message = $"🛒 Đã thêm \"{product.Name}\" vào giỏ hàng!",
             cartCount = cart.CartItems.Sum(ci => ci.Quantity)
         });
     }
+
 
     [HttpPost]
     public async Task<IActionResult> Increase(Guid id) // id là CartItemId
     {
         var cart = await GetOrCreateCartAsync();
-        var item = cart.CartItems.FirstOrDefault(ci => ci.Id == id); // tìm theo CartItem.Id
+        var item = cart.CartItems.FirstOrDefault(ci => ci.Id == id);
+
         if (item != null)
         {
             var product = await _context.Products.FindAsync(item.ProductId);
@@ -124,7 +143,7 @@ public class CartController : BaseController
                 }
                 else
                 {
-                    TempData["Error"] = $"Sản phẩm {product.Name} chỉ còn {product.Quantity} cái!";
+                    TempData["Error"] = $"Không thể thêm nữa. Sản phẩm {product.Name} chỉ còn {product.Quantity} cái!";
                     TempData["ErrorProductId"] = id;
                 }
             }
@@ -132,6 +151,7 @@ public class CartController : BaseController
 
         return RedirectToAction("Index");
     }
+
 
     [HttpPost]
     public async Task<IActionResult> Decrease(Guid id) // id là CartItemId

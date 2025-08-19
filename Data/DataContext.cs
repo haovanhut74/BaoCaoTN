@@ -21,6 +21,7 @@ public class DataContext : IdentityDbContext<ApplicationUser>
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Sliders> Sliders { get; set; }
     public DbSet<Contact> Contacts { get; set; }
+    public DbSet<Shiping> Shipings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

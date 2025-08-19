@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MyWebApp.Areas.Admin.Controllers;
 using MyWebApp.Data;
 using MyWebApp.Interface.Service;
 using MyWebApp.Models;
@@ -28,16 +29,12 @@ builder.Services
         //Yêu cầu xác thực tài khoản đã được xác nhận
         options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<DataContext>();
-
 builder.Services.ConfigureApplicationCookie(options =>
 {
     // Nếu trang đăng nhập nằm trong Area User
     options.LoginPath = "/User/Account/Login";
     options.AccessDeniedPath = "/User/Account/AccessDenied"; // tuỳ chọn
 });
-builder.Services.Configure<EmailSettings>(
-    builder.Configuration.GetSection("EmailSettings"));
-builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<IEmailSender, EmailSender>();

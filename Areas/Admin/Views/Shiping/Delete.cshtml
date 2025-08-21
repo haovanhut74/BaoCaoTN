@@ -1,0 +1,25 @@
+﻿@model MyWebApp.Models.Shiping
+@{
+    ViewData["Title"] = "Xóa phí giao hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class = "container mt-4">
+    <h2>@ViewData["Title"]</h2>
+    <h4>Bạn có chắc muốn xóa?</h4>
+    <dl class = "row">
+        <dt class = "col-sm-2">Tỉnh/Thành</dt>
+        <dd class = "col-sm-10">@Model.City</dd>
+
+        <dt class = "col-sm-2">Quận/Huyện</dt>
+        <dd class = "col-sm-10">@Model.District</dd>
+
+        <dt class = "col-sm-2">Giá</dt>
+        <dd class = "col-sm-10">@Model.Price.ToString("N0") đ</dd>
+    </dl>
+    <form asp-action = "Delete">
+        <input type = "hidden" asp-for = "Id"/>
+        <button type = "submit" class = "btn btn-danger">Xóa</button>
+        <a asp-action = "Index" class = "btn btn-secondary">Hủy</a>
+    </form>
+</div>

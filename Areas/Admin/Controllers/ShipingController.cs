@@ -43,4 +43,64 @@ public class ShipingController : BaseController
         await _context.SaveChangesAsync();
         return RedirectToAction("Index");
     }
+
+
+    // GET: Edit
+    public IActionResult Edit(Guid id)
+    {
+        var shiping = _context.Shipings.Find(id);
+        if (shiping == null) return NotFound();
+        return View(shiping);
+    }
+
+    // POST: Edit
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Edit(Shiping shiping)
+    {
+        if (ModelState.IsValid)
+        {
+            _context.Shipings.Update(shiping);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
+        }
+
+        return View(shiping);
+    }
+
+    // GET: Delete
+    public IActionResult Delete(Guid id)
+    {
+        var shiping = _context.Shipings.Find(id);
+        if (shiping == null) return NotFound();
+        return View(shiping);
+    }
+
+    [HttpPost]
+    public IActionResult DeleteAjax(Guid id)
+    {
+        var ship = _context.Shipings.Find(id);
+        if (ship == null)
+        {
+            return Json(new { success = false, message = "Không tìm thấy dữ liệu" });
+        }
+
+        _context.Shipings.Remove(ship);
+        _context.SaveChanges();
+
+        return Json(new { success = true });
+    }
+
+
+    // // POST: Delete
+    // [HttpPost, ActionName("Delete")]
+    // [ValidateAntiForgeryToken]
+    // public IActionResult DeleteConfirmed(Guid id)
+    // {
+    //     var shiping = _context.Shipings.Find(id);
+    //     if (shiping == null) return NotFound();
+    //     _context.Shipings.Remove(shiping);
+    //     _context.SaveChanges();
+    //     return RedirectToAction(nameof(Index));
+    // }
 }

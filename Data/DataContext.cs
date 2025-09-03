@@ -22,6 +22,9 @@ public class DataContext : IdentityDbContext<ApplicationUser>
     public DbSet<Sliders> Sliders { get; set; }
     public DbSet<Contact> Contacts { get; set; }
     public DbSet<Shiping> Shipings { get; set; }
+    public DbSet<ProductSpecification> ProductSpecifications { get; set; }
+    public DbSet<SpecificationName> SpecificationNames { get; set; }
+    public DbSet<ProductImage> ProductImages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -1,0 +1,41 @@
+﻿@model MyWebApp.Models.ProductSpecification
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class = "container mt-4">
+    <h2 class = "mb-4 text-primary"><i class = "fa fa-plus"></i> Thêm thông số</h2>
+
+    <form asp-action = "Create" method = "post">
+        <input type = "hidden" asp-for = "ProductId"/>
+
+        <div class = "mb-3">
+            <label class = "form-label fw-bold">Chọn thông số có sẵn</label>
+            <select asp-for = "SpecNameId" class = "form-select" asp-items = "ViewBag.SpecNames">
+                <option value = "">-- Chọn thông số --</option>
+            </select>
+
+        </div>
+
+        <div class = "mb-3">
+            <label class = "form-label fw-bold">Hoặc nhập thông số mới</label>
+            <input asp-for = "Key" class = "form-control" placeholder = "Ví dụ: GPU"/>
+            <span asp-validation-for = "Key" class = "text-danger"></span>
+        </div>
+
+        <div class = "mb-3">
+            <label asp-for = "Value" class = "form-label fw-bold"></label>
+            <input asp-for = "Value" class = "form-control"/>
+            <span asp-validation-for = "Value" class = "text-danger"></span>
+        </div>
+        
+        <div class = "mb-3">
+            <label class = "form-label fw-bold">Thời gian bảo hành (tháng)</label>
+            <input asp-for = "WarrantyMonths" type = "number" min = "0" class = "form-control"/>
+            <span asp-validation-for = "WarrantyMonths" class = "text-danger"></span>
+        </div>
+        
+        <button type = "submit" class = "btn btn-success"><i class = "fa fa-save"></i> Lưu</button>
+        <a asp-action = "Index" asp-route-productId = "@Model.ProductId" class = "btn btn-secondary">Hủy</a>
+    </form>
+</div>

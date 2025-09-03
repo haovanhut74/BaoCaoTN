@@ -59,15 +59,21 @@ public class ProductController : BaseController
     [Route("{categorySlug}/{brandSlug}/{productSlug}")]
     public async Task<IActionResult> Detail(string categorySlug, string brandSlug, string productSlug)
     {
+        // Decode productSlug để xử lý %2F
+        productSlug = Uri.UnescapeDataString(productSlug);
+
         var product = await _context.Products
+            .AsNoTracking()
             .Include(p => p.Category)
             .Include(p => p.Brand)
+            .Include(p => p.Images)
+            .Include(p => p.Specifications)
+            .ThenInclude(s => s.SpecName) // quan trọng: load SpecName
             .FirstOrDefaultAsync(p =>
-                p.Slug == productSlug &&
-                p.Category != null &&
+                p.Slug == Uri.UnescapeDataString(productSlug) &&
                 p.Category.Slug == categorySlug &&
-                p.Brand != null &&
                 p.Brand.Slug == brandSlug);
+
 
         if (product == null)
             return NotFound();

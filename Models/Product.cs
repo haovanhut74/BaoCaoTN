@@ -27,7 +27,7 @@ public class Product
     [Range(0, int.MaxValue, ErrorMessage = "Số lượng sản phẩm phải lớn hơn hoặc bằng 0")]
     public int Quantity { get; set; }
 
-    public int Sold { get; set; } = 0;  
+    public int Sold { get; set; } = 0;
 
     [Required(ErrorMessage = "Vui lòng chọn danh mục sản phẩm")]
     public Guid CategoryId { get; set; }
@@ -35,13 +35,15 @@ public class Product
     [Required(ErrorMessage = "Vui lòng chọn thương hiệu sản phẩm")]
     public Guid BrandId { get; set; }
 
-    public string? Image { get; set; }
+    public string? MainImage { get; set; }
+    public List<ProductImage> Images { get; set; } = []; // nhiều ảnh
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     public Category? Category { get; set; }
     public Brand? Brand { get; set; }
     public List<Comment> Comments { get; set; } = new();
+    public List<ProductSpecification> Specifications { get; set; } = [];
 
     [NotMapped]
     [FileExtension(ErrorMessage = "Chỉ nhận tệp ảnh có đuôi jpg, png, jpeg")]

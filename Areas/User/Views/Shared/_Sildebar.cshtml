@@ -1,38 +1,42 @@
 ﻿@using MyWebApp.ViewModels
 
+<link rel="stylesheet" href="~/css/User/ProductFillter.css" />
 @if (Model is ProductFilterViewModel filterModel)
 {
-    <aside class = "col-lg-3 mb-4">
-        <form id = "filterForm">
-            <div class = "card mb-4 shadow-sm">
-                <div class = "card-header bg-primary text-white">
-                    <i class = "fas fa-list"></i> Danh mục
-                </div>
-                <div class = "card-body">
-                    @await Component.InvokeAsync("Category", new { selectedSlugCategories = filterModel.SelectedSlugCategories })
-                </div>
+    <form id="filterForm" class="mb-4">
+        <div class="d-flex flex-wrap align-items-center gap-4 p-3 bg-light rounded shadow-sm">
+
+            <!-- Danh mục -->
+            <div class="filter-item d-flex align-items-center">
+                <label class="fw-bold me-2"><i class="fas fa-list"></i> Danh mục:</label>
+                @await Component.InvokeAsync("Category", new { selectedSlugCategories = filterModel.SelectedSlugCategories })
             </div>
 
-            <div class = "card mb-4 shadow-sm">
-                <div class = "card-header bg-success text-white">
-                    <i class = "fas fa-tags"></i> Thương hiệu
-                </div>
-                <div class = "card-body">
-                    @await Component.InvokeAsync("Brand", new { selectedSlugBrands = filterModel.SelectedSlugBrands })
-                </div>
+            <!-- Thương hiệu -->
+            <div class="filter-item d-flex align-items-center">
+                <label class="fw-bold me-2"><i class="fas fa-tags"></i> Thương hiệu:</label>
+                @await Component.InvokeAsync("Brand", new { selectedSlugBrands = filterModel.SelectedSlugBrands })
             </div>
 
-            <div class="mt-3">
-                <label>Giá (₫):</label>
-                <div class="d-flex gap-2 align-items-center">
-                    <input type="number" id="minPriceInput" name="minPrice" class="form-control" placeholder="Giá thấp nhất" value="@Model.MinPrice" />
-                    <input type="number" id="maxPriceInput" name="maxPrice" class="form-control" placeholder="Giá cao nhất" value="@Model.MaxPrice" />
-                </div>
-                <p>Khoảng giá: <span id="priceRange">@Model.MinPrice - @Model.MaxPrice</span> ₫</p>
+            <!-- Giá -->
+            <div class="filter-item d-flex align-items-center">
+                <label class="fw-bold me-2"><i class="fas fa-dollar-sign"></i> Giá:</label>
+                <input type="number" id="minPriceInput" name="minPrice"
+                       class="form-control form-control-sm w-auto" placeholder="Từ" value="@Model.MinPrice" />
+                <span class="mx-1">-</span>
+                <input type="number" id="maxPriceInput" name="maxPrice"
+                       class="form-control form-control-sm w-auto" placeholder="Đến" value="@Model.MaxPrice" />
             </div>
-        </form>
-    </aside>
+
+            <!-- Hiển thị khoảng giá -->
+            <div class="text-muted">
+                Khoảng: <span id="priceRange">@Model.MinPrice - @Model.MaxPrice</span> ₫
+            </div>
+        </div>
+    </form>
+
 }
+
 <script>
     const minInput = document.getElementById('minPriceInput');
     const maxInput = document.getElementById('maxPriceInput');

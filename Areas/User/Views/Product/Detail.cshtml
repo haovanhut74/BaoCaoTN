@@ -3,142 +3,217 @@
 
 @{
     ViewData["Title"] = "Chi tiết sản phẩm - " + Model.Name;
+
+    // Gom tất cả ảnh: ảnh chính + ảnh phụ
+    var allImages = new List<string>();
+    if (!string.IsNullOrEmpty(Model.MainImage)) allImages.Add(Model.MainImage);
+
+    if (Model.Images != null && Model.Images.Any())
+    {
+        allImages.AddRange(Model.Images.Select(i => i.ImageUrl));
+    }
 }
+
 <link rel="stylesheet" href="~/css/User/ProductDetail.css" />
 
-<div class = "container my-5">
+<div class="container my-5">
     @Html.AntiForgeryToken()
-    <div class = "row g-5">
+    <div class="row g-4">
         <!-- Hình ảnh sản phẩm -->
-        <div class = "col-md-5">
-            <div class = "border rounded shadow-sm p-3 bg-white">
-                <img src = "~/img/product/@Model.Image" class = "img-fluid rounded" alt = "@Model.Name"/>
+        <div class="col-lg-6">
+            <div class="product-images-container animate-fade-in">
+                <!-- Carousel chính -->
+                <div id="productCarousel" class="carousel slide mb-3" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        @for (int i = 0; i < allImages.Count; i++)
+                        {
+                            <div class="carousel-item @(i == 0 ? "active" : "")">
+                                <img
+                                    src="@(allImages[i].StartsWith("/img/product/") ? allImages[i] : Url.Content("~/img/product/" + allImages[i]))"
+                                    class="d-block w-100" alt="@Model.Name"
+                                />
+                            </div>
+                        }
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+
+                <!-- Thumbnails -->
+                <div class="thumbnails-container">
+                    @for (int i = 0; i < allImages.Count; i++)
+                    {
+                        <img
+                            src="@(allImages[i].StartsWith("/img/product/") ? allImages[i] : Url.Content("~/img/product/" + allImages[i]))"
+                            class="thumbnail-img"
+                            data-index="@i"
+                            alt="Thumbnail @(i+1)"
+                        />
+                    }
+                </div>
             </div>
         </div>
 
         <!-- Thông tin sản phẩm -->
-        <div class = "col-md-7">
-            <div class = "border rounded shadow-sm p-4 bg-white">
-                <h2 class = "fw-bold text-primary">@Model.Name</h2>
+        <div class="col-lg-6">
+            <div class="product-info-container animate-fade-in">
+                <h1 class="product-title">@Model.Name</h1>
 
-                <p class = "mt-3">
-                    <i class = "fa fa-tag me-1 text-muted"></i>
-                    <strong>Giá:</strong>
-                    <span class = "text-danger fw-bold h4">@Model.Price.ToString("N0") ₫</span>
-                </p>
+                <div class="price-section">
+                    <span class="price-value">@Model.Price.ToString("N0") ₫</span>
+                    <small class="text-muted">Đã bao gồm VAT</small>
+                </div>
 
-                <p>
-                    <i class = "fa fa-boxes me-1 text-muted"></i>
-                    <strong>Số lượng còn:</strong>
-                    <span class = "text-dark">@Model.Quantity</span>
-                </p>
+                <div class="product-details">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fa fa-boxes"></i>
+                        </div>
+                        <span class="info-label">Số lượng còn:</span>
+                        <span class="info-value">@Model.Quantity</span>
+                    </div>
 
-                <p>
-                    <i class = "fa fa-calendar-alt me-1 text-muted"></i>
-                    <strong>Ngày tạo:</strong>
-                    <span class = "text-dark">@Model.CreatedAt.ToString("dd/MM/yyyy")</span>
-                </p>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fa fa-calendar-alt"></i>
+                        </div>
+                        <span class="info-label">Ngày tạo:</span>
+                        <span class="info-value">@Model.CreatedAt.ToString("dd/MM/yyyy")</span>
+                    </div>
 
-                <p>
-                    <i class = "fa fa-list-alt me-1 text-muted"></i>
-                    <strong>Danh mục:</strong>
-                    <span class = "badge bg-info text-dark">@Model.Category?.Name</span>
-                </p>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fa fa-list-alt"></i>
+                        </div>
+                        <span class="info-label">Danh mục:</span>
+                        <span class="badge-custom badge-category">@Model.Category?.Name</span>
+                    </div>
 
-                <p>
-                    <i class = "fa fa-copyright me-1 text-muted"></i>
-                    <strong>Thương hiệu:</strong>
-                    <span class = "badge bg-secondary">@Model.Brand?.Name</span>
-                </p>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fa fa-copyright"></i>
+                        </div>
+                        <span class="info-label">Thương hiệu:</span>
+                        <span class="badge-custom badge-brand">@Model.Brand?.Name</span>
+                    </div>
+                </div>
 
-                @if (@Model.Quantity > 0)
+                @if (Model.Quantity > 0)
                 {
-                    <button
-                        type = "button"
-                        class = "btn btn-success mt-2 btn-add-to-cart w-100"
-                        data-id = "@Model.Id"
-                    >
-                        <i class = "fa fa-cart-plus me-1"></i> Thêm vào giỏ hàng
+                    <button type="button" class="btn btn-add-to-cart w-100" data-id="@Model.Id">
+                        <i class="fa fa-cart-plus me-2"></i> Thêm vào giỏ hàng
                     </button>
                 }
                 else
                 {
-                    <button
-                        type = "button"
-                        class = "btn btn-secondary mt-2 w-100"
-                        disabled
-                    >
-                        <i class = "fa fa-ban me-1"></i> Hết hàng
+                    <button type="button" class="btn btn-out-of-stock w-100" disabled>
+                        <i class="fa fa-ban me-2"></i> Hết hàng
                     </button>
                 }
+            </div>
+        </div>
+    </div>
 
-            </div>
-        </div>
-    </div>
     <!-- Mô tả sản phẩm -->
-    <div class = "row mt-5">
-        <div class = "col-12">
-            <div class = "border rounded shadow-sm p-4 bg-light">
-                <h4 class = "text-dark fw-semibold mb-3">
-                    <i class = "fa fa-file-alt me-2 text-secondary"></i> Mô tả sản phẩm
-                </h4>
-                <div class = "text-secondary fs-6" style = "white-space: pre-line;">
-                    @Html.Raw(Model.Description)
-                </div>
+    <div class="content-section animate-fade-in">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fa fa-file-alt"></i>
             </div>
+            <h3 class="section-title">Mô tả sản phẩm</h3>
+        </div>
+        <div class="product-description">
+            @Html.Raw(Model.Description)
         </div>
     </div>
-    <div class = "review-section mt-5">
-        <div class = "card shadow-sm border-0">
-            <div class = "card-header bg-warning text-dark fw-bold">
-                <i class = "fa fa-star me-2"></i> Đánh giá & Bình luận
+
+    <!-- Thông số kỹ thuật sản phẩm -->
+    @if (Model.Specifications != null && Model.Specifications.Any())
+    {
+        <div class="content-section animate-fade-in">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fa fa-cogs"></i>
+                </div>
+                <h3 class="section-title">Thông số kỹ thuật</h3>
             </div>
-            <div class = "card-body">
-                <form method = "post" asp-action = "AddComment" asp-controller = "Product">
-                    <input type = "hidden" name = "ProductId" value = "@Model.Id"/>
+            <table class="table table-bordered table-custom">
+                <tbody>
+                @foreach (var spec in Model.Specifications)
+                {
+                    <tr>
+                        <td>@(spec.SpecName?.Name ?? spec.Key)</td>
+                        <td>@spec.Value</td>
+                        @if (spec.WarrantyMonths is null or 0)
+                        {
+                            <td></td>
+                        }
+                        else
+                        {
+                            <td>@spec.WarrantyMonths tháng</td>
+                        }
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <!-- Đánh giá & Bình luận -->
+    <div class="review-section animate-fade-in">
+        <div class="card">
+            <div class="card-header">
+                <i class="fa fa-star me-2"></i> Đánh giá & Bình luận
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="AddComment" asp-controller="Product">
+                    <input type="hidden" name="ProductId" value="@Model.Id"/>
 
                     <!-- Rating -->
-                    <div class = "mb-3">
-                        <label for = "Rating" class = "form-label">Đánh giá sao:</label>
-                        <select class = "form-select w-auto d-inline-block" name = "Rating" id = "Rating">
-                            <option value = "5">⭐⭐⭐⭐⭐</option>
-                            <option value = "4">⭐⭐⭐⭐</option>
-                            <option value = "3">⭐⭐⭐</option>
-                            <option value = "2">⭐⭐</option>
-                            <option value = "1">⭐</option>
+                    <div class="mb-3">
+                        <label for="Rating" class="form-label fw-semibold">Đánh giá sao:</label>
+                        <select class="form-select w-auto d-inline-block" name="Rating" id="Rating">
+                            <option value="5">⭐⭐⭐⭐⭐</option>
+                            <option value="4">⭐⭐⭐⭐</option>
+                            <option value="3">⭐⭐⭐</option>
+                            <option value="2">⭐⭐</option>
+                            <option value="1">⭐</option>
                         </select>
                     </div>
+
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
-                        <!-- Comment content -->
-                        <div class = "mb-3">
-                            <label for = "Content" class = "form-label">Nội dung bình luận:</label>
-                            <textarea class = "form-control" name = "Content" id = "Content" rows = "3" placeholder = "Viết bình luận..." required></textarea>
+                        <div class="mb-3">
+                            <label for="Content" class="form-label fw-semibold">Nội dung bình luận:</label>
+                            <textarea class="form-control" name="Content" id="Content" rows="4" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..." required></textarea>
                         </div>
 
-                        <!-- Submit -->
-                        <button type = "submit" class = "btn btn-success">
-                            <i class = "fa fa-paper-plane me-1"></i> Gửi bình luận
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa fa-paper-plane me-2"></i> Gửi bình luận
                         </button>
                     }
                     else
                     {
-                        <a asp-area = "User" asp-controller = "Account" asp-action = "Login" class = "btn btn-primary">Đăng
-                            nhập để bình luận</a>
+                        <a asp-area="User" asp-controller="Account" asp-action="Login" class="btn btn-primary">
+                            <i class="fa fa-sign-in-alt me-2"></i>Đăng nhập để bình luận
+                        </a>
                     }
-
                 </form>
             </div>
         </div>
 
         <!-- Danh sách bình luận -->
-        <div class = "mt-4">
-            <h5 class = "text-dark mb-3">
-                <i class = "fa fa-comments me-2 text-secondary"></i> Bình luận gần đây
+        <div class="mt-4">
+            <h5 class="text-dark mb-3">
+                <i class="fa fa-comments me-2 text-secondary"></i> Bình luận gần đây
             </h5>
-
-            <!-- Danh sách bình luận -->
-            <div class = "comments-list">
+            <div class="comments-list">
                 @if (Model.Comments != null && Model.Comments.Any())
                 {
                     @foreach (var comment in Model.Comments.Where(c => c.ParentCommentId == null).OrderByDescending(c => c.CreatedAt))
@@ -148,126 +223,297 @@
                 }
                 else
                 {
-                    <div class = "alert alert-info">Chưa có bình luận nào.</div>
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-circle me-2"></i>Chưa có bình luận nào.
+                    </div>
                 }
-
             </div>
-
         </div>
     </div>
 
     <!-- Sản phẩm liên quan -->
     @if (ViewBag.RelatedProducts != null && ((List<Product>)ViewBag.RelatedProducts).Any())
     {
-        <div class = "mt-5">
-            <h4 class = "fw-bold mb-4 text-primary">
-                <i class = "fa fa-link me-2"></i> Sản phẩm liên quan
-            </h4>
-            <div class = "row g-4">
+        <div class="content-section animate-fade-in">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fa fa-link"></i>
+                </div>
+                <h3 class="section-title">Sản phẩm liên quan</h3>
+            </div>
+            <div class="row g-4">
                 @foreach (var rp in (List<Product>)ViewBag.RelatedProducts)
                 {
-                    <div class="col-md-3 col-sm-6">
-                        <div class="card h-100 border-0 shadow-sm rounded-3 product-card d-flex flex-column">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card product-card">
                             <div class="position-relative overflow-hidden">
-                                <img src="~/img/product/@rp.Image" 
-                                     class="card-img-top img-fluid product-img" 
-                                     alt="@rp.Name" />
+                                @{
+                                    var relatedImg = rp.MainImage ?? rp.Images.FirstOrDefault()?.ImageUrl;
+                                }
+                                @if (!string.IsNullOrEmpty(relatedImg))
+                                {
+                                    <img
+                                        src="@(relatedImg.StartsWith("/img/product/") ? relatedImg : Url.Content("~/img/product/" + relatedImg))"
+                                        class="product-img" alt="@rp.Name"
+                                    />
+                                }
                             </div>
                             <div class="card-body text-center d-flex flex-column">
-                                <h6 class="card-title fw-semibold text-truncate-multiline" 
-                                    title="@rp.Name">@rp.Name</h6>
-                                <p class="text-danger fw-bold mb-2">@rp.Price.ToString("N0") ₫</p>
+                                <h6 class="card-title" title="@rp.Name">@rp.Name</h6>
+                                <p class="text-danger mb-2">@rp.Price.ToString("N0") ₫</p>
                                 <div class="mt-auto">
-                                    <a asp-action="Detail"
-                                       asp-route-categorySlug="@rp.Category?.Slug"
-                                       asp-route-brandSlug="@rp.Brand?.Slug"
-                                       asp-route-productSlug="@rp.Slug"
-                                       class="btn btn-outline-primary btn-sm px-3 rounded-pill">
+                                    <a asp-action="Detail" asp-route-categorySlug="@rp.Category?.Slug" asp-route-brandSlug="@rp.Brand?.Slug" asp-route-productSlug="@rp.Slug" class="btn btn-outline-primary btn-sm px-3 rounded-pill">
                                         <i class="fa fa-eye me-1"></i> Xem chi tiết
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                 }
             </div>
         </div>
     }
-
 </div>
 
 @section Scripts {
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const addToCartBtn = document.querySelector(".btn-add-to-cart");
-            document.querySelectorAll(".reply-btn").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    const id = btn.dataset.id;
-                    const form = document.getElementById(`reply-form-${id}`);
-                    if (form) form.classList.toggle("d-none");
-                });
+            // Add animation classes with delay
+            const animatedElements = document.querySelectorAll('.animate-fade-in');
+            animatedElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, index * 200);
             });
+
+            // Add to cart functionality
+            const addToCartBtn = document.querySelector(".btn-add-to-cart");
             addToCartBtn?.addEventListener("click", function (e) {
                 e.preventDefault();
-
+                
+                // Add loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i>Đang thêm...';
+                this.disabled = true;
+                
                 const productId = this.dataset.id;
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-
                 const params = new URLSearchParams();
                 params.append("Id", productId);
                 params.append("__RequestVerificationToken", token);
 
                 fetch('/User/Cart/Add', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                     body: params
                 })
-
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            showToast(data.message, "success");
-                            document.querySelector("#cartCount").textContent = data.cartCount;
+                            showToast(data.message || "Thêm vào giỏ hàng thành công", "success");
+                            const cartCount = document.querySelector("#cartCount");
+                            if (cartCount) {
+                                cartCount.textContent = data.cartCount;
+                            }
                         } else {
                             showToast("Thêm không thành công", "danger");
                         }
                     })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast("Có lỗi xảy ra, vui lòng thử lại", "danger");
+                    })
+                    .finally(() => {
+                        // Reset button state
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                    });
+
+                function showToast(message, type) {
+                    const toastContainer = document.getElementById("toast-container") || createToastContainer();
+                    const toast = document.createElement("div");
+                    toast.className = `toast align-items-center text-white bg-${type} border-0 show`;
+                    toast.setAttribute("role", "alert");
+                    toast.innerHTML = `
+                        <div class="d-flex">
+                            <div class="toast-body">${message}</div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>`;
+                    toastContainer.appendChild(toast);
+                    
+                    // Auto remove after 5 seconds
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.remove();
+                        }
+                    }, 5000);
+                    
+                    // Add click to close functionality
+                    const closeBtn = toast.querySelector('.btn-close');
+                    closeBtn.addEventListener('click', () => {
+                        toast.remove();
+                    });
+                }
+
+                function createToastContainer() {
+                    const container = document.createElement("div");
+                    container.id = "toast-container";
+                    container.style.position = "fixed";
+                    container.style.top = "1rem";
+                    container.style.right = "1rem";
+                    container.style.zIndex = "1055";
+                    document.body.appendChild(container);
+                    return container;
+                }
             });
 
-            function showToast(message, type) {
-                const toastContainer = document.getElementById("toast-container") || createToastContainer();
+            // Carousel and thumbnails functionality
+            const carousel = new bootstrap.Carousel(document.getElementById('productCarousel'), {
+                interval: false, // không tự chạy
+                ride: false       // không auto start
+            });
 
-                const toast = document.createElement("div");
-                toast.className = `toast align-items-center text-white bg-${type} border-0 show`;
-                toast.setAttribute("role", "alert");
-                toast.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">${message}</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto"
-                        data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>`;
-                toastContainer.appendChild(toast);
+            // Thumbnail click handlers
+            document.querySelectorAll(".thumbnail-img").forEach((img, index) => {
+                img.addEventListener("click", function () {
+                    // Remove active class from all thumbnails
+                    document.querySelectorAll(".thumbnail-img").forEach(thumb => {
+                        thumb.style.borderColor = 'transparent';
+                        thumb.style.transform = 'scale(1)';
+                    });
+                    
+                    // Add active style to clicked thumbnail
+                    this.style.borderColor = 'var(--primary-color)';
+                    this.style.transform = 'scale(1.05)';
+                    
+                    // Go to corresponding carousel slide
+                    carousel.to(parseInt(this.dataset.index));
+                });
+                
+                // Set initial active thumbnail
+                if (index === 0) {
+                    img.style.borderColor = 'var(--primary-color)';
+                    img.style.transform = 'scale(1.05)';
+                }
+            });
 
-                setTimeout(() => toast.remove(), 3000);
-            }
+            // Carousel slide change handler
+            const carouselElement = document.getElementById('productCarousel');
+            carouselElement.addEventListener('slide.bs.carousel', function (event) {
+                // Update thumbnail active state when carousel changes
+                document.querySelectorAll(".thumbnail-img").forEach((thumb, index) => {
+                    if (index === event.to) {
+                        thumb.style.borderColor = 'var(--primary-color)';
+                        thumb.style.transform = 'scale(1.05)';
+                    } else {
+                        thumb.style.borderColor = 'transparent';
+                        thumb.style.transform = 'scale(1)';
+                    }
+                });
+            });
 
-            function createToastContainer() {
-                const container = document.createElement("div");
-                container.id = "toast-container";
-                container.style.position = "fixed";
-                container.style.top = "1rem";
-                container.style.right = "1rem";
-                container.style.zIndex = "1055";
-                document.body.appendChild(container);
-                return container;
-            }
+            // Image zoom functionality
+            const mainImages = document.querySelectorAll('#productCarousel .carousel-item img');
+            mainImages.forEach(img => {
+                img.addEventListener('click', function() {
+                    // Create modal for image zoom
+                    const modal = document.createElement('div');
+                    modal.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.9);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 9999;
+                        cursor: zoom-out;
+                    `;
+                    
+                    const zoomedImg = document.createElement('img');
+                    zoomedImg.src = this.src;
+                    zoomedImg.style.cssText = `
+                        max-width: 90%;
+                        max-height: 90%;
+                        object-fit: contain;
+                        border-radius: 8px;
+                    `;
+                    
+                    modal.appendChild(zoomedImg);
+                    document.body.appendChild(modal);
+                    
+                    // Close on click
+                    modal.addEventListener('click', () => {
+                        document.body.removeChild(modal);
+                    });
+                    
+                    // Close on escape key
+                    const closeOnEscape = (e) => {
+                        if (e.key === 'Escape') {
+                            document.body.removeChild(modal);
+                            document.removeEventListener('keydown', closeOnEscape);
+                        }
+                    };
+                    document.addEventListener('keydown', closeOnEscape);
+                });
+            });
 
+            // Smooth scroll for related products
+            const relatedProductLinks = document.querySelectorAll('.product-card a');
+            relatedProductLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Add a subtle loading effect
+                    this.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Đang tải...';
+                });
+            });
 
+            // Lazy loading animation for content sections
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Initially hide animated elements and observe them
+            document.querySelectorAll('.animate-fade-in').forEach(element => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(30px)';
+                element.style.transition = 'all 0.6s ease-out';
+                observer.observe(element);
+            });
         });
 
+        // Additional utility functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(amount);
+        }
 
+        // Form validation for review form
+        const reviewForm = document.querySelector('#reviewForm');
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', function(e) {
+                const content = this.querySelector('#Content');
+                if (content && content.value.trim().length < 10) {
+                    e.preventDefault();
+                    showToast('Vui lòng viết ít nhất 10 ký tự cho đánh giá', 'danger');
+                    content.focus();
+                    return false;
+                }
+            });
+        }
     </script>
 }

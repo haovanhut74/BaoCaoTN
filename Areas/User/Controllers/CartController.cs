@@ -53,7 +53,35 @@ public class CartController : BaseController
                 CartItemId = ci.Id, // <-- ID của CartItem dùng để tăng/giảm/xóa
                 ProductId = ci.ProductId,
                 ProductName = ci.Product.Name,
-                ImageUrl = ci.Product.Image,
+                ImageUrl = ci.Product.MainImage,
+                Quantity = ci.Quantity,
+                Price = ci.Price
+            }).ToList(),
+
+            TotalPrice = cart.CartItems.Sum(ci => ci.Price * ci.Quantity)
+        };
+
+        return View(cartViewModel);
+    }
+
+    public async Task<IActionResult> Detail()
+    {
+        var cart = await GetOrCreateCartAsync();
+
+        if (cart.CartItems == null || !cart.CartItems.Any())
+        {
+            TempData["Info"] = "Giỏ hàng trống!";
+            return RedirectToAction("Index");
+        }
+
+        var cartViewModel = new CartItemViewModel
+        {
+            CartItems = cart.CartItems.Select(ci => new CartItemDisplayViewModel
+            {
+                CartItemId = ci.Id,
+                ProductId = ci.ProductId,
+                ProductName = ci.Product.Name,
+                ImageUrl = ci.Product.MainImage,
                 Quantity = ci.Quantity,
                 Price = ci.Price
             }).ToList(),
@@ -191,5 +219,19 @@ public class CartController : BaseController
         }
 
         return RedirectToAction("Index");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetShippingFee(string city, string district)
+    {
+        if (string.IsNullOrWhiteSpace(city) || string.IsNullOrWhiteSpace(district))
+            return Json(new { price = 0m });
+
+        var shipping = await _context.Shipings
+            .FirstOrDefaultAsync(s => s.City == city && s.District == district);
+
+        decimal fee = shipping?.Price ?? 0m;
+
+        return Json(new { price = fee });
     }
 }

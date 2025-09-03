@@ -1,23 +1,14 @@
 ﻿@model MyWebApp.ViewModels.CartItemViewModel
 @{
-    ViewData["Title"] = "Giỏ hàng";
-    decimal grandTotal = Model.TotalPrice;
+    ViewData["Title"] = "Thanh toán";
 }
 
 <div class = "container my-5">
-    <h2 class = "mb-4 text-primary"><i class = "fa fa-shopping-cart me-2"></i>Giỏ hàng của bạn</h2>
-
-    @if (!Model.CartItems.Any())
-    {
-        <div class = "alert alert-info text-center">
-            Giỏ hàng của bạn đang trống. <a asp-action = "Index" asp-controller = "Home" class = "alert-link">Mua sắm
-                ngay</a>!
-        </div>
-    }
-    else
-    {
-        <div class = "table-responsive">
-            <table class = "table table-bordered align-middle text-center shadow-sm">
+    <div class = "row">
+        <!-- Giỏ hàng -->
+        <div class = "col-md-12">
+            <h4>Giỏ hàng</h4>
+            <table class = "table table-bordered text-center align-middle">
                 <thead class = "table-dark">
                 <tr>
                     <th>Hình ảnh</th>
@@ -28,16 +19,14 @@
                     <th></th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id = "cartBody">
                 @foreach (var item in Model.CartItems)
                 {
-                    <tr>
-                        <td style = "width: 120px;">
-                            <img src = "~/img/product/@item.ImageUrl" class = "img-thumbnail" style = "height: 80px;"/>
-                        </td>
-                        <td class = "text-start">@item.ProductName</td>
+                    <tr data-id = "@item.CartItemId">
+                        <td><img src = "~/img/product/@item.ImageUrl" style = "height:60px"/></td>
+                        <td>@item.ProductName</td>
                         <td>@item.Price.ToString("N0") ₫</td>
-                        <td style = "width: 180px;">
+                        <td>
                             <div class = "input-group justify-content-center">
                                 <form asp-controller = "Cart" asp-action = "Decrease" method = "post" asp-route-id = "@item.CartItemId" class = "me-1">
                                     <button type = "submit" class = "btn btn-outline-secondary">-</button>
@@ -49,29 +38,17 @@
                                     <button type = "submit" class = "btn btn-outline-secondary">+</button>
                                 </form>
                             </div>
-
-                            @if (TempData["ErrorProductId"]?.ToString() == item.CartItemId.ToString())
-                            {
-                                <div class = "text-danger small mt-1">@TempData["Error"]</div>
-                            }
                         </td>
-                        <td class = "fw-bold text-danger">
-                            @Model.CartItems.Where(x => x.CartItemId == item.CartItemId).Sum(x => x.Quantity * x.Price).ToString("N0")₫
-                        </td>
+                        <td class = "subtotal">@((item.Quantity * item.Price).ToString("N0")) ₫</td>
                         <td>
-                            <form asp-controller = "Cart" asp-action = "Remove" method = "post" asp-route-id = "@item.CartItemId">
-                                <button type = "submit" class = "btn btn-danger btn-sm">
-                                    <i class = "fa fa-trash"></i> Xóa
-                                </button>
-                            </form>
+                            <button class = "btn btn-danger btn-sm btn-remove">Xóa</button>
                         </td>
                     </tr>
                 }
                 </tbody>
-
                 <tfoot>
                 <tr>
-                    <td colspan = "4" class = "text-end fw-bold">Tổng tiền sản phẩm:</td>
+                    <td colspan = "4" class = "text-end fw-bold">Tổng tiền:</td>
                     <td id = "cartTotal" class = "fw-bold text-danger">@Model.TotalPrice.ToString("N0") ₫</td>
                     <td></td>
                 </tr>
@@ -80,16 +57,17 @@
                     <td id = "shippingFee" class = "fw-bold text-danger">0 ₫</td>
                     <td></td>
                 </tr>
-                <tr class = "table-secondary fw-bold">
-                    <td colspan = "4" class = "text-end">Tổng cộng:</td>
-                    <td id = "grandTotal" class = "text-danger fs-5">@grandTotal.ToString("N0") ₫</td>
+                <tr>
+                    <td colspan = "4" class = "text-end fw-bold">Thanh toán:</td>
+                    <td id = "grandTotal" class = "fw-bold text-success">@Model.TotalPrice.ToString("N0") ₫</td>
                     <td></td>
                 </tr>
                 </tfoot>
             </table>
         </div>
+
         <!-- Địa chỉ & Ship -->
-        <div class = "col-md-3">
+        <div class = "col-md-5">
             <h4>Thông tin giao hàng</h4>
             <form id = "shippingForm">
                 <div class = "mb-3">
@@ -109,25 +87,7 @@
                 <button type = "submit" class = "btn btn-success w-100">Cập nhật phí ship</button>
             </form>
         </div>
-        <div class = "d-flex justify-content-between mt-4">
-            <a asp-action = "Index" asp-controller = "Home" class = "btn btn-outline-secondary">
-                <i class = "fa fa-arrow-left me-1"></i> Tiếp tục mua sắm
-            </a>
-            @if (User.Identity?.IsAuthenticated ?? false)
-            {
-                <a asp-controller = "Checkout" asp-action = "Checkout" class = "btn btn-success px-4">
-                    <i class = "fa fa-credit-card me-1"></i> Thanh toán
-                </a>
-            }
-            else
-            {
-                <a asp-area = "User" asp-controller = "Account" asp-action = "Login" class = "btn btn-primary px-4">
-                    <i class = "fa fa-sign-in me-1"></i> Đăng nhập để thanh toán
-                </a>
-            }
-
-        </div>
-    }
+    </div>
 </div>
 
 @section Scripts{
@@ -173,30 +133,69 @@
                     var district = $("#District").val();
                     if (city && district) {
                         $.getJSON('/User/Cart/GetShippingFee', {city: city, district: district}, function (res) {
-                            var ship = res.price || 0;
-                            $("#shippingFee").text(ship.toLocaleString() + ' ₫');
-
-                            // tính grand total
-                            var totalPrice = 0;
-                            $("tbody tr").each(function () {
-                                var subtotalText = $(this).find("td:nth-child(5)").text();
-                                var subtotal = parseInt(subtotalText.replace(/\D/g, '')) || 0;
-                                totalPrice += subtotal;
-                            });
-
-                            var grandTotal = totalPrice + ship;
-                            $("#grandTotal").text(grandTotal.toLocaleString() + ' ₫');
+                            $("#shippingFee").text(res.price.toLocaleString() + ' ₫');
+                            updateGrandTotal();
                         });
                     }
-
-
                 }
 
+                // Tăng số lượng
+                $("#cartBody").on("click", ".btn-increase", function () {
+                    var tr = $(this).closest("tr");
+                    var cartItemId = tr.data("id");
+                    $.post('/User/Cart/Increase', {id: cartItemId}, function () {
+                        var quantityInput = tr.find(".quantity");
+                        quantityInput.val(parseInt(quantityInput.val()) + 1);
+                        updateSubtotal(tr);
+                    });
+                });
 
+                // Xóa sản phẩm
+                $("#cartBody").on("click", ".btn-remove", function () {
+                    var tr = $(this).closest("tr");
+                    var cartItemId = tr.data("id");
+                    $.post('/User/Cart/Remove', {id: cartItemId}, function (res) {
+                        if (res.success) {
+                            if (res.empty) {
+                                window.location.href = '/User/Cart/Index';
+                            } else {
+                                tr.remove();
+                                updateGrandTotal(res.total);
+                            }
+                        }
+                    });
+                });
+
+// Giảm số lượng
+                $("#cartBody").on("click", ".btn-decrease", function () {
+                    var tr = $(this).closest("tr");
+                    var cartItemId = tr.data("id");
+                    $.post('/User/Cart/Decrease', {id: cartItemId}, function (res) {
+                        if (res.success) {
+                            if (res.empty) {
+                                window.location.href = '/User/Cart/Index';
+                            } else {
+                                var qty = parseInt(tr.find(".quantity").val()) - 1;
+                                if (qty <= 0) {
+                                    tr.remove();
+                                } else {
+                                    tr.find(".quantity").val(qty);
+                                    updateSubtotal(tr);
+                                }
+                                updateGrandTotal(res.total);
+                            }
+                        }
+                    });
+                });
+
+                // Cập nhật tổng tiền dựa vào server
+                function updateGrandTotal(totalFromServer) {
+                    var ship = parseInt($("#shippingFee").text().replace(/\D/g, '')) || 0;
+                    $("#cartTotal").text(totalFromServer.toLocaleString() + ' ₫');
+                    $("#grandTotal").text((totalFromServer + ship).toLocaleString() + ' ₫');
+                }
             }
         );
 
     </script>
 }
-
-

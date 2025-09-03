@@ -1,0 +1,25 @@
+﻿@model MyWebApp.ViewModels.ProductSpecificationEditViewModel
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ProductId" />
+
+    <div class="mb-3">
+        <label class="form-label">Specification Name</label>
+        <select asp-for="SpecNameId" class="form-select" asp-items="Model.SpecNames">
+            <option value="">-- Chọn thông số --</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Value" class="form-label">Value</label>
+        <input asp-for="Value" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="WarrantyMonths" class="form-label">Warranty Months</label>
+        <input asp-for="WarrantyMonths" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>

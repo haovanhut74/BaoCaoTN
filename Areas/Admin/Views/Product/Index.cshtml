@@ -1,11 +1,10 @@
 ﻿@model MyWebApp.ViewModels.ListViewModel
-
-
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     uint STT = (uint)((Model.CurrentPage - 1) * 10 + 1); // Bắt đầu theo page
 }
 <link rel = "stylesheet" href = "https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
 <div class = "container mt-4">
     <h2 class = "mb-4 text-primary"><i class = "fa fa-boxes me-2"></i>Quản lý sản phẩm</h2>
 
@@ -53,22 +52,82 @@
                     <tr>
                         <td class = "text-center">@STT</td>
                         <td style = "width: 100px;">
-                            <img src = "~/img/product/@product.Image" alt = "@product.Name" class = "img-thumbnail" style = "height: 60px;"/>
+                            <img
+                                src = "~/img/product/@product.MainImage"
+                                alt = "@product.Name" class = "img-thumbnail" style = "height:60px;object-fit:cover;"
+                            />
                         </td>
                         <td class = "text-start">@product.Name</td>
                         <td>@product.Price.ToString("N0") ₫</td>
                         <td>@product.Quantity</td>
                         <td>@product.Category?.Name</td>
                         <td>@product.Brand?.Name</td>
-                        <td style = "width: 160px;">
+                        <td style = "width: 200px;">
                             <a asp-area = "Admin" asp-action = "Edit" asp-controller = "Product" asp-route-id = "@product.Id" class = "btn btn-sm btn-warning me-1">
                                 <i class = "fa fa-edit"></i> Sửa
                             </a>
-                            <a asp-area = "Admin" asp-action = "Delete" asp-controller = "Product" asp-route-id = "@product.Id" class = "btn btn-sm btn-danger" onclick = "return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
+                            <a
+                                asp-area = "Admin" asp-action = "Delete" asp-controller = "Product" asp-route-id = "@product.Id" class = "btn btn-sm btn-danger me-1"
+                                onclick = "return confirm('Bạn có chắc muốn xóa sản phẩm này?');"
+                            >
                                 <i class = "fa fa-trash"></i> Xoá
+                            </a>
+                            <a
+                                asp-area = "Admin" asp-controller = "ProductSpecification"
+                                asp-action = "Index" asp-route-productId = "@product.Id"
+                                class = "btn btn-sm btn-info me-1"
+                            >
+                                <i class = "fa fa-cogs"></i> Thông số
+                            </a>
+                            <a href = "#" class = "btn btn-sm btn-secondary" data-bs-toggle = "modal" data-bs-target = "#imagesModal-@product.Id">
+                                <i class = "fa fa-image"></i> Ảnh
                             </a>
                         </td>
                     </tr>
+
+                    <!-- Modal quản lý ảnh -->
+                    <div class = "modal fade" id = "imagesModal-@product.Id" tabindex = "-1">
+                        <div class = "modal-dialog modal-lg">
+                            <div class = "modal-content">
+                                <div class = "modal-header">
+                                    <h5 class = "modal-title">Quản lý ảnh - @product.Name</h5>
+                                    <button type = "button" class = "btn-close" data-bs-dismiss = "modal"></button>
+                                </div>
+                                <div class = "modal-body">
+                                    <div class = "row g-3 mb-3">
+                                        @foreach (var img in product.Images)
+                                        {
+                                            <div class = "col-3 position-relative">
+                                                <img src = "@img.ImageUrl" class = "img-fluid rounded" alt = ""/>
+                                                <form method = "post" asp-action = "DeleteImage" style = "position:absolute;top:5px;right:5px;">
+                                                    <input type = "hidden" name = "ImageId" value = "@img.Id"/>
+                                                    <button type = "submit" class = "btn btn-sm btn-danger">&times;
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        }
+                                    </div>
+                                    <form method = "post" asp-action = "AddImage" enctype = "multipart/form-data">
+                                        <input type = "hidden" name = "ProductId" value = "@product.Id"/>
+                                        <label class = "form-label">Chọn ảnh phụ</label>
+                                        <input
+                                            type = "file" name = "ImageFile" id = "ImageFile-@product.Id"
+                                            required class = "form-control"
+                                            onchange = "previewImage(this, 'imgPreview-@product.Id')"
+                                        />
+
+                                        <img
+                                            id = "imgPreview-@product.Id" class = "img-thumbnail mt-2 mb-2"
+                                            style = "max-height:150px; display:none;"
+                                        />
+                                        <button type = "submit" class = "btn btn-success mt-2">Thêm ảnh</button>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     STT++;
                 }
                 </tbody>
@@ -76,17 +135,30 @@
 
         </div>
     }
-    @await Html.PartialAsync("_Paganite", Model) <!-- Partial view for pagination -->
+    @await Html.PartialAsync("_Paganite", Model)
 </div>
 
 @section Scripts {
-
     <script src = "https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script src = "https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
     <script src = "https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
     <script src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src = "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src = "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script>
+        function previewImage(input, previewId) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById(previewId);
+                    img.src = e.target.result;
+                    img.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
     <script>
         $(document).ready(function () {
             $('#myTable').DataTable({
@@ -95,7 +167,8 @@
                     {
                         extend: 'csvHtml5',
                         text: '<i class="fa fa-file-csv"></i> CSV',
-                        className: 'btn btn-outline-primary'
+                        className: 'btn btn-outline-primary',
+                        bom: true
                     },
                     {
                         extend: 'excelHtml5',
@@ -107,23 +180,10 @@
                         text: '<i class="fa fa-file-pdf"></i> PDF',
                         className: 'btn btn-outline-danger'
                     },
-                    {
-                        extend: 'print',
-                        text: '<i class="fa fa-print"></i> In',
-                        className: 'btn btn-outline-secondary'
-                    },
-                    {
-                        extend: 'csvHtml5',
-                        text: '<i class="fa fa-file-csv"></i> CSV',
-                        className: 'btn btn-outline-primary',
-                        bom: true // <-- thêm bom để Excel đọc đúng UTF-8
-                    }
+                    {extend: 'print', text: '<i class="fa fa-print"></i> In', className: 'btn btn-outline-secondary'}
                 ],
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json'
-                }
+                language: {url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/vi.json'}
             });
         });
-
     </script>
 }

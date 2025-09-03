@@ -1,0 +1,13 @@
+﻿.filter-item {
+    margin-bottom: 1.5rem; /* cách dòng khi wrap */
+    flex-wrap: wrap;
+}
+.col-auto{
+    padding-bottom: 2px;
+}
+
+@media (max-width: 768px) {
+    .filter-item {
+        flex: 1 1 100%; /* chiếm 100% chiều ngang */
+    }
+}

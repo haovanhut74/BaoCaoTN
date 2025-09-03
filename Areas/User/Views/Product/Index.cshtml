@@ -2,30 +2,31 @@
 
 @{
     ViewData["Title"] = "Danh sách sản phẩm";
+    ViewData["col-12"] = true;
 }
-
+<link rel = "stylesheet" href = "~/css/User/ProductIndex.css"/>
 <!-- AntiForgery hidden form -->
 <form id = "antiForgeryForm" style = "display:none;">
     @Html.AntiForgeryToken()
 </form>
 
-<form method = "get" asp-action = "Index">
-    <div class = "row">
-        <div class = "col-md-12">
-            <h2 class = "mb-4 text-primary fw-bold">Danh sách sản phẩm</h2>
-            <div id = "product-list-container">
-                @await Html.PartialAsync("_ProductListPartial", Model.Products)
+<div class = "main-container">
+    <form method = "get" asp-action = "Index">
+        <div class = "row">
+            <div class = "col-md-12">
+                <div id = "product-list-container">
+                    @await Html.PartialAsync("_ProductListPartial", Model.Products)
+                </div>
             </div>
         </div>
-    </div>
-</form>
+    </form>
+</div>
 
 <!-- Toast Container -->
 <div id = "toast-container" style = "position: fixed; top: 1rem; right: 1rem; z-index: 1055;"></div>
 
 @section Scripts {
     <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <script>
         $(document).ready(function () {
             // Bắt sự kiện checkbox lọc thay đổi
@@ -69,7 +70,7 @@
                             // in ra message chi tiết từ server (hết hàng, số lượng vượt quá, v.v.)
                             showToast(response.message, "danger");
                         }
-                        
+
 
                     },
 
@@ -99,4 +100,7 @@
             setTimeout(() => toast.remove(), 3000);
         }
     </script>
+    <script src = "js/ProductIndex.js"></script>
+
 }
+

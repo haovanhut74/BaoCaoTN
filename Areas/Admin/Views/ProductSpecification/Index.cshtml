@@ -1,0 +1,65 @@
+﻿@model IEnumerable<MyWebApp.Models.ProductSpecification>
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var product = ViewBag.Product as Product;
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-primary">
+        <i class="fa fa-cogs"></i> Thông số kỹ thuật của: @product?.Name
+    </h2>
+
+    <div class="mb-3 text-end">
+        <a asp-area="Admin" asp-controller="ProductSpecification" asp-action="Create"
+           asp-route-productId="@product?.Id" class="btn btn-success">
+            <i class="fa fa-plus"></i> Thêm thông số
+        </a>
+        <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Quay lại danh sách sản phẩm
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">Chưa có thông số nào.</div>
+    }
+    else
+    {
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Tên thông số</th>
+                    <th>Giá trị</th>
+                    <th>Bảo hành</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int stt = 1;
+                    foreach (var spec in Model)
+                    {
+                        <tr>
+                            <td>@stt</td>
+                            <td>@(spec.SpecName?.Name ?? spec.Key)</td>
+                            <td>@spec.Value</td>
+                            <td>@(spec.WarrantyMonths.HasValue ? spec.WarrantyMonths + " tháng" : "-")</td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@spec.Id" class="btn btn-sm btn-warning me-1">
+                                    <i class="fa fa-edit"></i> Sửa
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@spec.Id"
+                                   onclick="return confirm('Bạn có chắc muốn xóa thông số này?');"
+                                   class="btn btn-sm btn-danger">
+                                    <i class="fa fa-trash"></i> Xoá
+                                </a>
+                            </td>
+                        </tr>
+                        stt++;
+                    }
+                }
+            </tbody>
+        </table>
+    }
+</div>

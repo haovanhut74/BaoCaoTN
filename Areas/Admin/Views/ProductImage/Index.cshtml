@@ -1,0 +1,31 @@
+﻿@* @model List<MyWebApp.Models.ProductImage> *@
+@* @{ *@
+@*     ViewBag.Title = "Quản lý ảnh sản phẩm - " + ViewBag.Product.Name; *@
+@* } *@
+@* *@
+@* <h3>@ViewBag.Product.Name - Ảnh sản phẩm</h3> *@
+@* *@
+@* <form asp-action="Upload" method="post" enctype="multipart/form-data"> *@
+@*     <input type="hidden" name="productId" value="@ViewBag.Product.Id" /> *@
+@*     <input type="file" name="file" required /> *@
+@*     <button type="submit" class="btn btn-primary">Tải ảnh lên</button> *@
+@* </form> *@
+@* *@
+@* <hr /> *@
+@* *@
+@* <div class="row g-3 mt-3"> *@
+@*     @foreach (var img in Model) *@
+@*     { *@
+@*         <div class="col-md-3"> *@
+@*             <div class="card shadow-sm"> *@
+@*                 <img src="~/img/product/@img.ImageUrl" class="card-img-top" /> *@
+@*                 <div class="card-body text-center"> *@
+@*                     <form asp-action="Delete" method="post"> *@
+@*                         <input type="hidden" name="id" value="@img.Id" /> *@
+@*                         <button type="submit" class="btn btn-danger btn-sm">Xóa</button> *@
+@*                     </form> *@
+@*                 </div> *@
+@*             </div> *@
+@*         </div> *@
+@*     } *@
+@* </div> *@

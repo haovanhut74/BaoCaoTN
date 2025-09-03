@@ -33,6 +33,7 @@ public class ProductController : BaseController
         var products = await _context.Products
             .Include(p => p.Category)
             .Include(p => p.Brand)
+            .Include(p => p.Images)
             .OrderByDescending(p => p.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -76,7 +77,7 @@ public class ProductController : BaseController
 
             await using FileStream fs = new(filePath, FileMode.Create);
             await product.ImageFile.CopyToAsync(fs);
-            product.Image = imgName;
+            product.MainImage = imgName;
         }
         else if (!string.IsNullOrEmpty(product.ImageUrl))
         {
@@ -91,7 +92,7 @@ public class ProductController : BaseController
                 string filePath = Path.Combine(_env.WebRootPath, "img/product", imgName);
 
                 await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
-                product.Image = imgName;
+                product.MainImage = imgName;
             }
             catch (Exception)
             {
@@ -168,9 +169,9 @@ public class ProductController : BaseController
         if (product.ImageFile is { Length: > 0 })
         {
             // Xóa ảnh cũ nếu có
-            if (!string.IsNullOrEmpty(oldProduct.Image))
+            if (!string.IsNullOrEmpty(oldProduct.MainImage))
             {
-                string oldPath = Path.Combine(uploadDir, oldProduct.Image);
+                string oldPath = Path.Combine(uploadDir, oldProduct.MainImage);
                 if (System.IO.File.Exists(oldPath))
                     System.IO.File.Delete(oldPath);
             }
@@ -180,7 +181,7 @@ public class ProductController : BaseController
             string newFilePath = Path.Combine(uploadDir, newImgName);
             await using var fs = new FileStream(newFilePath, FileMode.Create);
             await product.ImageFile.CopyToAsync(fs);
-            product.Image = newImgName;
+            product.MainImage = newImgName;
         }
         // Trường hợp có link ảnh và không upload file
         else if (!string.IsNullOrEmpty(product.ImageUrl))
@@ -198,9 +199,9 @@ public class ProductController : BaseController
                 }
 
                 // Xóa ảnh cũ
-                if (!string.IsNullOrEmpty(oldProduct.Image))
+                if (!string.IsNullOrEmpty(oldProduct.MainImage))
                 {
-                    string oldPath = Path.Combine(uploadDir, oldProduct.Image);
+                    string oldPath = Path.Combine(uploadDir, oldProduct.MainImage);
                     if (System.IO.File.Exists(oldPath))
                         System.IO.File.Delete(oldPath);
                 }
@@ -209,7 +210,7 @@ public class ProductController : BaseController
                 string savePath = Path.Combine(uploadDir, newImgName);
                 await System.IO.File.WriteAllBytesAsync(savePath, imgBytes);
 
-                product.Image = newImgName;
+                product.MainImage = newImgName;
             }
             catch
             {
@@ -220,7 +221,7 @@ public class ProductController : BaseController
         else
         {
             // Không có file, không có link -> giữ nguyên ảnh cũ
-            product.Image = oldProduct.Image;
+            product.MainImage = oldProduct.MainImage;
         }
 
         // Slug kiểm tra trùng
@@ -262,10 +263,10 @@ public class ProductController : BaseController
         if (product != null)
         {
             // Xoá file ảnh (nếu có)
-            if (!string.IsNullOrEmpty(product.Image))
+            if (!string.IsNullOrEmpty(product.MainImage))
             {
                 string uploadDir = Path.Combine(_env.WebRootPath, "img/product");
-                string imgName = product.Image.Replace("img/product/", "").Replace("img/product", "");
+                string imgName = product.MainImage.Replace("img/product/", "").Replace("img/product", "");
                 string filePath = Path.Combine(uploadDir, imgName);
                 if (System.IO.File.Exists(filePath))
                 {
@@ -276,6 +277,80 @@ public class ProductController : BaseController
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
+        }
+
+        return NotFound();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddImage(Guid productId, IFormFile? imageFile, string? imageUrl)
+    {
+        if ((imageFile == null || imageFile.Length == 0) && string.IsNullOrEmpty(imageUrl))
+        {
+            ModelState.AddModelError("", "Vui lòng chọn file hoặc nhập link ảnh.");
+            return RedirectToAction(nameof(Index), new { id = productId });
+        }
+
+        string uploadDir = Path.Combine(_env.WebRootPath, "img/product");
+        string fileName = "";
+
+        if (imageFile != null && imageFile.Length > 0)
+        {
+            fileName = Guid.NewGuid() + Path.GetExtension(imageFile.FileName);
+            string filePath = Path.Combine(uploadDir, fileName);
+
+            await using var fs = new FileStream(filePath, FileMode.Create);
+            await imageFile.CopyToAsync(fs);
+        }
+        else if (!string.IsNullOrEmpty(imageUrl))
+        {
+            try
+            {
+                using var httpClient = new HttpClient();
+                var imgBytes = await httpClient.GetByteArrayAsync(imageUrl);
+
+                string ext = Path.GetExtension(imageUrl).Split('?')[0].ToLower();
+                if (!new[] { ".jpg", ".jpeg", ".png", ".gif" }.Contains(ext))
+                {
+                    ModelState.AddModelError("", "Định dạng ảnh không hợp lệ.");
+                    return RedirectToAction(nameof(Index), new { id = productId });
+                }
+
+                fileName = Guid.NewGuid() + ext;
+                string savePath = Path.Combine(uploadDir, fileName);
+                await System.IO.File.WriteAllBytesAsync(savePath, imgBytes);
+            }
+            catch
+            {
+                ModelState.AddModelError("", "Không thể tải ảnh từ link.");
+                return RedirectToAction(nameof(Index), new { id = productId });
+            }
+        }
+
+        _context.ProductImages.Add(new ProductImage
+        {
+            ProductId = productId,
+            ImageUrl = "/img/product/" + fileName // ✅ Lưu luôn path
+        });
+
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index), new { id = productId });
+    }
+
+    [HttpPost]
+    [HasPermission("ManageProducts")]
+    public async Task<IActionResult> DeleteImage(Guid imageId)
+    {
+        var img = await _context.ProductImages.FindAsync(imageId);
+        if (img != null)
+        {
+            string path = Path.Combine(_env.WebRootPath, "img/product", img.ImageUrl);
+            if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
+
+            _context.ProductImages.Remove(img);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index), new { id = img.ProductId });
         }
 
         return NotFound();
@@ -366,9 +441,9 @@ public class ProductController : BaseController
 
         foreach (var p in products)
         {
-            if (!string.IsNullOrEmpty(p.Image))
+            if (!string.IsNullOrEmpty(p.MainImage))
             {
-                string imgPath = Path.Combine(_env.WebRootPath, "img/product", p.Image);
+                string imgPath = Path.Combine(_env.WebRootPath, "img/product", p.MainImage);
                 if (System.IO.File.Exists(imgPath))
                 {
                     try

@@ -1,0 +1,51 @@
+﻿@model List<MyWebApp.Models.Product>
+<link rel="stylesheet" href="~/css/User/Compare.css" />
+<div class="comparison-wrapper">
+    <table class="comparison-table table">
+        <thead>
+        <tr>
+            <th class="feature-col">Thông số</th>
+            @foreach (var p in Model)
+            {
+                <th class="product-col">
+                    <div class="product-title">@p.Name</div>
+                </th>
+            }
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="feature">Giá</td>
+            @foreach (var p in Model)
+            {
+                <td class="value price">@p.Price.ToString("N0") VND</td>
+            }
+        </tr>
+        <tr>
+            <td class="feature">Thương hiệu</td>
+            @foreach (var p in Model)
+            {
+                <td class="value brand">@p.Brand?.Name</td>
+            }
+        </tr>
+
+        @* Thông số kỹ thuật *@
+        @{
+            var allSpecs = Model.SelectMany(p => p.Specifications).Select(s => s.SpecName?.Name ?? s.Key).Distinct();
+        }
+        @foreach (var specName in allSpecs)
+        {
+            <tr>
+                <td class="feature">@specName</td>
+                @foreach (var p in Model)
+                {
+                    var spec = p.Specifications.FirstOrDefault(s => (s.SpecName?.Name ?? s.Key) == specName);
+                    <td class="value">@(spec?.Value ?? "-")</td>
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+

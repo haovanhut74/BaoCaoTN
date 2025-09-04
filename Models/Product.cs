@@ -23,6 +23,9 @@ public class Product
     [Range(1, double.MaxValue, ErrorMessage = "Giá sản phẩm phải lớn hơn hoặc bằng 1")]
     public decimal Price { get; set; }
 
+    public decimal? DiscountPrice { get; set; } // Giá sau giảm (nếu có)
+    public int? DiscountPercent { get; set; }
+
     [Required(ErrorMessage = "Số lượng sản phẩm không được để trống")]
     [Range(0, int.MaxValue, ErrorMessage = "Số lượng sản phẩm phải lớn hơn hoặc bằng 0")]
     public int Quantity { get; set; }

@@ -30,6 +30,19 @@
                     </div>
 
                     <div class = "col-md-3">
+                        <label asp-for = "DiscountPercent" class = "form-label">Giảm giá (%)</label>
+                        <input asp-for = "DiscountPercent" class = "form-control" placeholder = "Nhập % giảm nếu có"/>
+                        <span asp-validation-for = "DiscountPercent" class = "text-danger"></span>
+                    </div>
+
+                    <div class = "col-md-3">
+                        <label asp-for = "DiscountPrice" class = "form-label">Giá sau giảm (VND)</label>
+                        <input asp-for = "DiscountPrice" class = "form-control" placeholder = "Tự động hoặc nhập trực tiếp"/>
+                        <span asp-validation-for = "DiscountPrice" class = "text-danger"></span>
+                    </div>
+
+
+                    <div class = "col-md-3">
                         <label asp-for = "Quantity" class = "form-label">Số lượng</label>
                         <input asp-for = "Quantity" class = "form-control"/>
                         <span asp-validation-for = "Quantity" class = "text-danger"></span>
@@ -90,7 +103,33 @@
     <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
     <script src = "https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    <script>
+        // Tự động tính DiscountPrice khi nhập DiscountPercent
+        $('#DiscountPercent').on('input', function () {
+            let percent = parseFloat($(this).val());
+            let price = parseFloat($('#Price').val());
+            if (!isNaN(percent) && !isNaN(price)) {
+                let discounted = price * (100 - percent) / 100;
+                $('#DiscountPrice').val(Math.round(discounted));
+            }
+            
 
+        });
+
+        // Nếu người dùng chỉnh DiscountPrice trực tiếp, có thể tính ngược %
+        // (tùy nhu cầu bạn muốn hay không)
+        $('#DiscountPrice').on('input', function () {
+            let discount = parseFloat($(this).val());
+            let price = parseFloat($('#Price').val());
+            if (!isNaN(discount) && !isNaN(price) && discount < price) {
+                let percent = Math.round((1 - discount / price) * 100);
+                $('#DiscountPercent').val(percent);
+            }
+            
+
+        });
+
+    </script>
     <script>
         // Preview hình ảnh từ file
         function readURL(input) {

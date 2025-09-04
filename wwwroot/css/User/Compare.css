@@ -1,0 +1,108 @@
+﻿/* Wrapper scroll ngang cho mobile */
+.comparison-wrapper {
+    overflow-x: auto;
+    padding: 1rem;
+}
+
+/* Bảng chính */
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    border: 1px solid #dee2e6;
+}
+
+/* Header */
+.comparison-table thead {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+}
+
+.comparison-table th {
+    font-weight: 600;
+    text-align: center;
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-right: 1px solid rgba(255,255,255,0.3);
+}
+
+.comparison-table th:last-child {
+    border-right: none;
+}
+
+/* Cột thông số */
+.feature-col {
+    background-color: #f1f3f5;
+    font-weight: 600;
+    min-width: 180px;
+    border-right: 1px solid #dee2e6;
+}
+
+/* Cột sản phẩm */
+.product-col {
+    min-width: 200px;
+}
+
+/* Tên sản phẩm */
+.product-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+/* Body rows */
+.comparison-table td {
+    text-align: center;
+    padding: 12px 15px;
+    vertical-align: middle;
+    border: 1px solid #dee2e6;
+}
+
+/* Cột thông số */
+.feature {
+    background-color: #f8f9fa;
+    font-weight: 500;
+    text-align: left;
+}
+
+/* Giá */
+.price {
+    font-weight: 700;
+    color: #dc3545;
+}
+
+/* Thương hiệu */
+.brand {
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+/* Hover effect */
+.comparison-table tbody tr:hover {
+    background-color: rgba(102, 126, 234, 0.05);
+    transition: background-color 0.2s ease;
+}
+
+/* Màu nền khác nhau cho các cột sản phẩm xen kẽ */
+.comparison-table td.value:nth-child(odd) {
+    background-color: #fef9f9;
+}
+
+.comparison-table td.value:nth-child(even) {
+    background-color: #f5faff;
+}
+
+/* Responsive: thu gọn trên mobile */
+@media (max-width: 768px) {
+    .comparison-table th,
+    .comparison-table td {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+    .product-title {
+        font-size: 1rem;
+    }
+}

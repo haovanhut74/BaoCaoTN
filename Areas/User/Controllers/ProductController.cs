@@ -152,39 +152,34 @@ public class ProductController : BaseController
         var product = await _context.Products
             .Include(p => p.Category)
             .Include(p => p.Brand)
-            .Include(p => p.Comments) // cần để hiển thị bình luận luôn
-            .ThenInclude(c => c.User)
             .FirstOrDefaultAsync(p => p.Id == ProductId);
 
         if (product == null)
             return NotFound();
 
-        // Kiểm tra lỗi
+        // Validate
         if (CommentFilter.ContainsBannedWord(Content))
         {
-            ModelState.AddModelError("Content", "Nội dung bình luận chứa từ ngữ không phù hợp.");
             TempData["error"] = "Nội dung bình luận chứa từ ngữ không phù hợp.";
+            return RedirectToAction(nameof(Detail),
+                new
+                {
+                    categorySlug = product.Category?.Slug, brandSlug = product.Brand?.Slug, productSlug = product.Slug
+                });
         }
 
         if (CommentFilter.ContainsLink(Content))
         {
-            ModelState.AddModelError("Content", "Bình luận không được chứa link.");
             TempData["error"] = "Bình luận không được chứa link.";
+            return RedirectToAction(nameof(Detail),
+                new
+                {
+                    categorySlug = product.Category?.Slug, brandSlug = product.Brand?.Slug, productSlug = product.Slug
+                });
         }
 
-
-        // Nếu có lỗi thì trả lại view với lỗi hiển thị
-        if (!ModelState.IsValid)
-        {
-            // Trả về view cùng model sản phẩm (đã include comment) để giữ lại các comment cũ
-            return View("Detail", product);
-        }
-
-        // Nếu là phản hồi thì đặt Rating = 0 hoặc không lưu Rating
         if (ParentCommentId.HasValue)
-        {
-            Rating = 0; // Hoặc không truyền rating từ form cho reply, tùy cách thiết kế
-        }
+            Rating = 0;
 
         var comment = new Comment
         {
@@ -199,12 +194,27 @@ public class ProductController : BaseController
         _context.Comments.Add(comment);
         await _context.SaveChangesAsync();
 
-        // Sau khi thêm thành công, redirect để tránh gửi lại form khi refresh
         return RedirectToAction(nameof(Detail), new
         {
             categorySlug = product.Category?.Slug,
             brandSlug = product.Brand?.Slug,
             productSlug = product.Slug
         });
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> ComparePartial(List<Guid> productIds)
+    {
+        if (productIds == null || productIds.Count < 2)
+            return Content("<p>Vui lòng chọn ít nhất 2 sản phẩm.</p>");
+
+        var products = await _context.Products
+            .Include(p => p.Brand)
+            .Include(p => p.Specifications)
+            .ThenInclude(s => s.SpecName)
+            .Where(p => productIds.Contains(p.Id))
+            .ToListAsync();
+
+        return PartialView("_ComparePartial", products);
     }
 }

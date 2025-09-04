@@ -111,12 +111,17 @@ public class ProductController : BaseController
             ModelState.AddModelError("", "Sản phẩm đã có trong Data");
             return View(product);
         }
-
         if (ModelState.IsValid)
         {
+            // Tính giá sau giảm
+            if (product.DiscountPercent.HasValue)
+                product.DiscountPrice = Math.Round(product.Price * (100 - product.DiscountPercent.Value) / 100);
+            else
+                product.DiscountPrice = product.Price;
+
             _context.Products.Add(product);
-            TempData["message"] = "Thêm mới thành công";
             await _context.SaveChangesAsync();
+            TempData["message"] = "Thêm mới thành công";
             return RedirectToAction("Index");
         }
 
@@ -238,9 +243,14 @@ public class ProductController : BaseController
         {
             try
             {
-                _context.Update(product);
+                if (product.DiscountPercent.HasValue)
+                    product.DiscountPrice = Math.Round(product.Price * (100 - product.DiscountPercent.Value) / 100);
+                else
+                    product.DiscountPrice = product.Price;
+
+                _context.Products.Update(product); 
                 await _context.SaveChangesAsync();
-                TempData["message"] = "Cập nhật sản phẩm thành công";
+                TempData["message"] = "Thêm mới thành công";
                 return RedirectToAction("Index");
             }
             catch (DbUpdateConcurrencyException)

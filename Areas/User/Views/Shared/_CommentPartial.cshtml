@@ -3,61 +3,103 @@
 
 @if (Model.Status == CommentStatus.Approved)
 {
-    <div class = "card mb-3 border-0 shadow-sm ms-@((Model.ParentCommentId.HasValue ? 5 : 0))">
-        <div class = "card-body">
-            <div class = "d-flex justify-content-between mb-2">
-                <strong class = "text-dark">👤 @Model.User?.UserName</strong>
-                <small class = "text-muted">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+    <div class="comment-item @(Model.ParentCommentId.HasValue ? "comment-reply" : "comment-main")" 
+         style="@(Model.ParentCommentId.HasValue ? "margin-left: 2.5rem;" : "")">
+        
+        <div class="comment-card">
+            <!-- Comment Header -->
+            <div class="comment-header">
+                <div class="comment-user">
+                    <div class="user-avatar">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <h6 class="user-name">@Model.User?.UserName</h6>
+                        <span class="comment-date">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                </div>
+
+                <!-- Rating for main comments only -->
+                @if (!Model.ParentCommentId.HasValue)
+                {
+                    <div class="comment-rating">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="fa fa-star @(i <= Model.Rating ? "star-filled" : "star-empty")"></i>
+                        }
+                        <span class="rating-text">(@Model.Rating/5)</span>
+                    </div>
+                }
             </div>
 
-            @if (!Model.ParentCommentId.HasValue) // Chỉ hiển thị sao cho bình luận cha
-            {
-                <div class="mb-2 text-warning">
-                    @for (int i = 1; i <= 5; i++)
-                    {
-                        <i class="fa fa-star @(i <= Model.Rating ? "" : "text-secondary")"></i>
-                    }
-                </div>
-            }
+            <!-- Comment Content -->
+            <div class="comment-content">
+                <p>@Model.Content</p>
+            </div>
 
+            <!-- Comment Actions -->
+            <div class="comment-actions">
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <button class="btn-reply reply-btn" data-id="@Model.Id">
+                        <i class="fa fa-reply me-1"></i>
+                        Phản hồi
+                    </button>
+                }
 
-            <p class = "text-secondary mb-1">@Model.Content</p>
+                @if (Model.Replies != null && Model.Replies.Any())
+                {
+                    <button class="btn-toggle-replies toggle-replies-btn" data-id="@Model.Id">
+                        <i class="fa fa-comments me-1"></i>
+                        <span class="replies-count">@Model.Replies.Count phản hồi</span>
+                        <i class="fa fa-chevron-down toggle-icon"></i>
+                    </button>
+                }
+            </div>
 
+            <!-- Reply Form -->
             @if (User.Identity?.IsAuthenticated ?? false)
             {
-                <button class = "btn btn-sm btn-outline-secondary reply-btn" data-id = "@Model.Id">↩ Phản hồi</button>
-                <form method = "post" asp-action = "AddComment" asp-controller = "Product" class = "reply-form mt-2 d-none" id = "reply-form-@Model.Id">
-                    @Html.AntiForgeryToken()
-                    <input type = "hidden" name = "ProductId" value = "@Model.ProductId"/>
-                    <input type = "hidden" name = "ParentCommentId" value = "@Model.Id"/>
-                    <textarea name = "Content" class = "form-control" rows = "2" required placeholder = "Viết phản hồi..."></textarea>
-                    <button type = "submit" class = "btn btn-sm btn-primary mt-1">
-                        <i class = "fa fa-reply me-1"></i> Gửi phản hồi
-                    </button>
-                </form>
+                <div class="reply-form d-none" id="reply-form-@Model.Id">
+                    <form method="post" asp-action="AddComment" asp-controller="Product">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="ProductId" value="@Model.ProductId"/>
+                        <input type="hidden" name="ParentCommentId" value="@Model.Id"/>
+                        
+                        <div class="reply-input-container">
+                            <div class="reply-avatar">
+                                <i class="fa fa-user"></i>
+                            </div>
+                            <textarea name="Content" 
+                                    class="form-control reply-textarea" 
+                                    rows="3" 
+                                    required 
+                                    placeholder="Viết phản hồi của bạn..."></textarea>
+                        </div>
+                        
+                        <div class="reply-actions">
+                            <button type="button" class="btn-cancel" onclick="this.closest('.reply-form').classList.add('d-none')">
+                                Hủy
+                            </button>
+                            <button type="submit" class="btn-submit">
+                                <i class="fa fa-paper-plane me-1"></i>
+                                Gửi phản hồi
+                            </button>
+                        </div>
+                    </form>
+                </div>
             }
+        </div>
 
-            <!-- Đệ quy hiển thị phản hồi -->
-            @if (Model.Replies != null && Model.Replies.Any())
-            {
-                foreach (var reply in Model.Replies.OrderBy(r => r.CreatedAt))
+        <!-- Replies Container -->
+        @if (Model.Replies != null && Model.Replies.Any())
+        {
+            <div class="replies-container d-none" id="replies-@Model.Id">
+                @foreach (var reply in Model.Replies.OrderByDescending(r => r.CreatedAt))
                 {
                     @await Html.PartialAsync("_CommentPartial", reply)
                 }
-            }
-        </div>
+            </div>
+        }
     </div>
-}
-
-
-@section Scripts {
-    <script>
-        document.querySelectorAll(".reply-btn").forEach(btn => {
-            btn.addEventListener("click", function () {
-                const id = this.dataset.id;
-                const form = document.getElementById(`reply-form-${id}`);
-                if (form) form.classList.toggle("d-none");
-            });
-        });
-    </script>
 }

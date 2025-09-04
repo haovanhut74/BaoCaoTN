@@ -212,8 +212,41 @@
     animation: fadeIn 0.6s ease-out forwards;
 }
 
+#compareModal .modal-dialog {
+    max-width: 95%;
+}
+
+#compareTableContainer {
+    overflow-x: auto; /* scroll ngang khi bảng rộng */
+}
+
+table.compare-table th, table.compare-table td {
+    vertical-align: middle;
+}
+
 @media (max-width: 768px) {
     .product-image-container {
         height: 200px;
     }
+}
+/* Modal luôn nổi trên overlay */
+.modal,
+.modal-backdrop {
+    z-index: 1055 !important; /* modal mặc định của bootstrap là 1055 */
+}
+
+/* Overlay ảnh sản phẩm không chồng modal */
+.product-card .image-overlay {
+    z-index: 1; /* thấp hơn modal */
+}
+
+/* Badge cũng cần thấp hơn modal */
+.sold-badge,
+.out-of-stock-badge {
+    z-index: 2; /* thấp hơn modal */
+}
+
+/* Nếu có thẻ fade-in animation */
+.fade-in {
+    position: relative; /* để không tạo stacking context cao hơn modal */
 }

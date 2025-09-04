@@ -24,11 +24,15 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true; // Cookie cần thiết cho phiên làm việc
 });
 
-builder.Services
-    .AddIdentity<ApplicationUser, IdentityRole>(
-        //Yêu cầu xác thực tài khoản đã được xác nhận
-        options => options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<DataContext>();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
+    })
+    .AddEntityFrameworkStores<DataContext>()
+    .AddDefaultTokenProviders()
+    .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>(TokenOptions.DefaultProvider); // ✅ Đăng ký "Default"
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     // Nếu trang đăng nhập nằm trong Area User

@@ -201,13 +201,12 @@ public class ProductController : BaseController
             productSlug = product.Slug
         });
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> ComparePartial(List<Guid> productIds)
     {
-        if (productIds == null || productIds.Count < 2)
-            return Content("<p>Vui lòng chọn ít nhất 2 sản phẩm.</p>");
-
+        if (productIds == null && productIds.Count < 2 || productIds.Count > 2)
+            return Content("Vui lòng chọn tối đa 2 sản phẩm");
         var products = await _context.Products
             .Include(p => p.Brand)
             .Include(p => p.Specifications)

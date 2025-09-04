@@ -38,42 +38,43 @@
 }
 
 <script>
-    const minInput = document.getElementById('minPriceInput');
-    const maxInput = document.getElementById('maxPriceInput');
-    const priceRange = document.getElementById('priceRange');
+    document.addEventListener('DOMContentLoaded', function () {
+        const minInput = document.getElementById('minPriceInput');
+        const maxInput = document.getElementById('maxPriceInput');
+        const priceRange = document.getElementById('priceRange');
 
-    function filterProducts() {
-        let form = $('#filterForm');
-        let url = '@Url.Action("FilterPartial", "Product", new { area = "User" })';
+        function filterProducts() {
+            let form = $('#filterForm'); // vẫn dùng jQuery
+            let url = '@Url.Action("FilterPartial", "Product", new { area = "User" })';
 
-        $.ajax({
-            url: url,
-            type: 'GET',
-            data: form.serialize(),
-            success: function (html) {
-                $('#product-list-container').html(html);
-            },
-            error: function () {
-                showToast("⚠️ Lọc sản phẩm thất bại!", "danger");
-            }
-        });
-    }
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: form.serialize(),
+                success: function (html) {
+                    $('#product-list-container').html(html);
+                },
+                error: function () {
+                    showToast("⚠️ Lọc sản phẩm thất bại!", "danger");
+                }
+            });
+        }
 
-    function updatePriceRange() {
-        let min = parseInt(minInput.value) || 0;
-        let max = parseInt(maxInput.value) || 0;
+        function updatePriceRange() {
+            let min = parseInt(minInput.value) || 0;
+            let max = parseInt(maxInput.value) || 0;
 
-        if(min > max) [min, max] = [max, min]; // hoán đổi nếu nhập nhầm
-        priceRange.innerText = min.toLocaleString() + " - " + max.toLocaleString();
+            if(min > max) [min, max] = [max, min]; // hoán đổi nếu nhập nhầm
+            priceRange.innerText = min.toLocaleString() + " - " + max.toLocaleString();
 
-        filterProducts();
-    }
+            filterProducts();
+        }
 
-    // Gọi khi thay đổi giá
-    minInput.addEventListener('input', updatePriceRange);
-    maxInput.addEventListener('input', updatePriceRange);
+        minInput.addEventListener('input', updatePriceRange);
+        maxInput.addEventListener('input', updatePriceRange);
 
-    // Checkbox vẫn gọi filterProducts
-    $('#filterForm input[type="checkbox"]').on('change', filterProducts);
+        $('#filterForm input[type="checkbox"]').on('change', filterProducts);
+    });
+
 </script>
 

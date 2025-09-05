@@ -1,6 +1,6 @@
 ﻿@model List<MyWebApp.Models.Product>
 
-<link rel = "stylesheet" href = "~/css/User/Product.css"/>
+    <link rel = "stylesheet" href = "~/css/User/Product.css"/>
 
 <div class = "row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4">
     @if (!Model.Any())
@@ -57,12 +57,12 @@
                             <span>Đăng bán: @item.CreatedAt.ToString("dd/MM/yyyy")</span>
                         </div>
 
-                        <div class = "mt-auto">
-                            <p>Giá gốc: @item.Price.ToString("N0") VND</p>
+                        <div class = "mt-auto ">
+                            <p class="text-decoration-line-through">@item.Price.ToString("N0") VND</p>
                             @if (item.DiscountPercent is > 0)
                             {
-                                <p>Giá giảm: <span class = "text-danger">@item.DiscountPrice?.ToString("N0") VND</span>
-                                    (<span>@item.DiscountPercent %</span>)</p>
+                                <p><strong><span class = "text-danger">@item.DiscountPrice?.ToString("N0") VND</span></strong>
+                                    (<span>-@item.DiscountPercent %</span>)</p>
                             }
 
                             @if (item.Sold > 0)
@@ -72,7 +72,13 @@
                                     Đã bán: <strong>@item.Sold</strong>
                                 </div>
                             }
-
+                            else
+                            {
+                                <div class = "sold-info">
+                                    <i class = "fas fa-fire me-1"></i>
+                                    Đã bán: <strong>@item.Sold</strong>
+                                </div>
+                            }
                             <a
                                 asp-area = "User"
                                 asp-controller = "Product"

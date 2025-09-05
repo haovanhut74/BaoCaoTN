@@ -7,6 +7,7 @@ public class CartItemDisplayViewModel
     public string ProductName { get; set; } = string.Empty;
     public string ImageUrl { get; set; } = string.Empty;
     public decimal Price { get; set; }
+    public decimal? DiscountPrice { get; set; }  // Giá giảm
     public int Quantity { get; set; }
-    public decimal TotalPrice => Price * Quantity;
+    public decimal FinalPrice => (DiscountPrice ?? Price) * Quantity;
 }

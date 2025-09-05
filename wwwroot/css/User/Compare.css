@@ -10,7 +10,7 @@
     border-collapse: collapse;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
     border: 1px solid #dee2e6;
 }
 
@@ -27,7 +27,7 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    border-right: 1px solid rgba(255,255,255,0.3);
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .comparison-table th:last-child {
@@ -71,7 +71,7 @@
 /* Giá */
 .price {
     font-weight: 700;
-    color: #dc3545!important;
+    color: #dc3545 !important;
 }
 
 /* Thương hiệu */
@@ -102,12 +102,14 @@
         padding: 0.75rem;
         font-size: 0.9rem;
     }
+
     .product-title {
         font-size: 1rem;
     }
 }
-.modal-dialog-scrollable .modal-content {
+
+.modal.show .modal-dialog {
+    transform: none;
     margin-top: 70px;
-    max-height: 100%;
     overflow: hidden;
 }

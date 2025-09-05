@@ -50,15 +50,17 @@ public class CartController : BaseController
         {
             CartItems = cart.CartItems.Select(ci => new CartItemDisplayViewModel
             {
-                CartItemId = ci.Id, // <-- ID của CartItem dùng để tăng/giảm/xóa
+                CartItemId = ci.Id,
                 ProductId = ci.ProductId,
                 ProductName = ci.Product.Name,
                 ImageUrl = ci.Product.MainImage,
                 Quantity = ci.Quantity,
-                Price = ci.Price
+                Price = ci.Price, // giá gốc
+                DiscountPrice = ci.Product.DiscountPrice // thêm giá giảm
             }).ToList(),
 
-            TotalPrice = cart.CartItems.Sum(ci => ci.Price * ci.Quantity)
+            TotalPrice = cart.CartItems.Sum(ci =>
+                (ci.Product.DiscountPrice ?? ci.Price) * ci.Quantity)
         };
 
         return View(cartViewModel);
@@ -83,10 +85,12 @@ public class CartController : BaseController
                 ProductName = ci.Product.Name,
                 ImageUrl = ci.Product.MainImage,
                 Quantity = ci.Quantity,
-                Price = ci.Price
+                Price = ci.Price, // giá gốc
+                DiscountPrice = ci.Product.DiscountPrice // thêm giá giảm
             }).ToList(),
 
-            TotalPrice = cart.CartItems.Sum(ci => ci.Price * ci.Quantity)
+            TotalPrice = cart.CartItems.Sum(ci =>
+                (ci.Product.DiscountPrice ?? ci.Price) * ci.Quantity)
         };
 
         return View(cartViewModel);
@@ -137,7 +141,7 @@ public class CartController : BaseController
                 CartId = cart.Id,
                 ProductId = id,
                 Quantity = 1,
-                Price = product.Price
+                Price = product.DiscountPrice ?? product.Price
             };
             _context.CartItems.Add(newItem);
         }

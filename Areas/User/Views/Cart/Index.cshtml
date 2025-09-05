@@ -1,6 +1,8 @@
 ﻿@model MyWebApp.ViewModels.CartItemViewModel
 @{
     ViewData["Title"] = "Giỏ hàng";
+
+
     decimal grandTotal = Model.TotalPrice;
 }
 
@@ -36,7 +38,23 @@
                             <img src = "~/img/product/@item.ImageUrl" class = "img-thumbnail" style = "height: 80px;"/>
                         </td>
                         <td class = "text-start">@item.ProductName</td>
-                        <td>@item.Price.ToString("N0") ₫</td>
+                        <td>
+                            @if (item.DiscountPrice != null && item.DiscountPrice > 0)
+                            {
+                                <span class = "text-muted text-decoration-line-through">
+                                    @item.Price.ToString("N0") ₫
+                                </span>
+                                <br/>
+                                <span class = "text-danger fw-bold">
+                                    @item.DiscountPrice.Value.ToString("N0") ₫
+                                </span>
+                            }
+                            else
+                            {
+                                <span class = "fw-bold">@item.Price.ToString("N0") ₫</span>
+                            }
+                        </td>
+
                         <td style = "width: 180px;">
                             <div class = "input-group justify-content-center">
                                 <form asp-controller = "Cart" asp-action = "Decrease" method = "post" asp-route-id = "@item.CartItemId" class = "me-1">
@@ -56,8 +74,9 @@
                             }
                         </td>
                         <td class = "fw-bold text-danger">
-                            @Model.CartItems.Where(x => x.CartItemId == item.CartItemId).Sum(x => x.Quantity * x.Price).ToString("N0")₫
+                            @(((item.DiscountPrice ?? item.Price) * item.Quantity).ToString("N0")) ₫
                         </td>
+
                         <td>
                             <form asp-controller = "Cart" asp-action = "Remove" method = "post" asp-route-id = "@item.CartItemId">
                                 <button type = "submit" class = "btn btn-danger btn-sm">

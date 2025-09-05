@@ -25,6 +25,7 @@ public class DataContext : IdentityDbContext<ApplicationUser>
     public DbSet<ProductSpecification> ProductSpecifications { get; set; }
     public DbSet<SpecificationName> SpecificationNames { get; set; }
     public DbSet<ProductImage> ProductImages { get; set; }
+    public DbSet<DiscountCode> DiscountCodes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

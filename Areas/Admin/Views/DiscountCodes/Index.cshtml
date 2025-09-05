@@ -1,0 +1,43 @@
+﻿@model IEnumerable<MyWebApp.Models.DiscountCode>
+@{
+    ViewData["Title"] = "Danh sách mã giảm giá";
+}
+<h2>@ViewData["Title"]</h2>
+<p>
+    <a asp-action = "Create" class = "btn btn-success">Tạo mới</a>
+</p>
+<table class = "table table-bordered">
+    <thead>
+    <tr>
+        <th>Mã</th>
+        <th>Giảm tiền</th>
+        <th>Giảm %</th>
+        <th>Bắt đầu</th>
+        <th>Kết thúc</th>
+        <th>Trạng thái</th>
+        <th>Lượt đã dùng</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Code</td>
+            <td>@item.DiscountAmount.ToString("N0") ₫</td>
+            <td>@item.DiscountPercent</td>
+            <td>@item.StartDate.ToShortDateString()</td>
+            <td>@item.EndDate.ToShortDateString()</td>
+            <td>@(item.IsActive ? "Hoạt động" : "Ngưng")</td>
+            <td>@item.UsedCount</td>
+            <td>
+                <a asp-action = "Edit" asp-route-id = "@item.Id" class = "btn btn-primary btn-sm">Sửa</a>
+                <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa?');">
+                    <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                </form>
+
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

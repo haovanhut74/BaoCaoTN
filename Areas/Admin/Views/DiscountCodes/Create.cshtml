@@ -1,0 +1,38 @@
+﻿@model MyWebApp.Models.DiscountCode
+@{
+    ViewData["Title"] = "Tạo mã giảm giá";
+}
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label>Mã</label>
+        <input asp-for="Code" class="form-control"/>
+    </div>
+    <div class="mb-3">
+        <label>Giảm tiền</label>
+        <input asp-for="DiscountAmount" class="form-control"/>
+    </div>
+    <div class="mb-3">
+        <label>Giảm %</label>
+        <input asp-for="DiscountPercent" class="form-control"/>
+    </div>
+    <div class="mb-3">
+        <label>Bắt đầu</label>
+        <input asp-for="StartDate" class="form-control" type="date"/>
+    </div>
+    <div class="mb-3">
+        <label>Kết thúc</label>
+        <input asp-for="EndDate" class="form-control" type="date"/>
+    </div>
+    <div class="mb-3 form-check">
+        <input asp-for="IsActive" class="form-check-input" type="checkbox"/>
+        <label class="form-check-label">Kích hoạt</label>
+    </div>
+    <div class="mb-3">
+        <label>Lượt sử dụng tối đa</label>
+        <input asp-for="UsageLimit" class="form-control"/>
+    </div>
+    <button type="submit" class="btn btn-success">Lưu</button>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>

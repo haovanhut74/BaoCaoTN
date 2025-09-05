@@ -4,6 +4,8 @@
     ViewData["Title"] = "Đăng Ký";
 }
 <link rel = "stylesheet" href = "css/User/Register.css"/>
+<link rel = "stylesheet" href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+
 <div class = "register-bg">
     <div class = "register-card">
         <div class = "register-title"><i class = "fa-solid fa-user-plus me-2"></i>Tạo tài khoản mới</div>
@@ -13,8 +15,10 @@
 
             <div class = "mb-3">
                 <label asp-for = "UserName" class = "form-label">Tên đăng nhập</label>
-                <input asp-for = "UserName" class = "form-control" placeholder = "Tên đăng nhập"/>
-                <span asp-validation-for = "UserName" class = "text-danger"></span>
+                <div class = "input-group">
+                    <input asp-for = "UserName" class = "form-control" placeholder = "Tên đăng nhập"/>
+                    <span asp-validation-for = "UserName" class = "text-danger"></span>
+                </div>
             </div>
 
             <div class = "mb-3">
@@ -41,4 +45,63 @@
 
 @section Scripts {
     <partial name = "_ValidationScriptsPartial"/>
+
+    <script>
+        function toggleForm() {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const toggleText = document.getElementById('toggle-text');
+            
+            if (loginForm.classList.contains('active')) {
+                showRegister();
+            } else {
+                showLogin();
+            }
+        }
+        
+        function showLogin() {
+            document.getElementById('login-form').classList.add('active');
+            document.getElementById('register-form').classList.remove('active');
+            document.getElementById('toggle-text').textContent = 'Chuyển sang Đăng ký';
+        }
+        
+        function showRegister() {
+            document.getElementById('register-form').classList.add('active');
+            document.getElementById('login-form').classList.remove('active');
+            document.getElementById('toggle-text').textContent = 'Chuyển sang Đăng nhập';
+        }
+        
+        // Add smooth focus animations
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+        
+        // Add button click effects
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                let ripple = document.createElement('div');
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(255, 255, 255, 0.6)';
+                ripple.style.transform = 'scale(0)';
+                ripple.style.animation = 'ripple 0.6s linear';
+                ripple.style.left = e.offsetX - 10 + 'px';
+                ripple.style.top = e.offsetY - 10 + 'px';
+                ripple.style.width = '20px';
+                ripple.style.height = '20px';
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+    </script>
 }

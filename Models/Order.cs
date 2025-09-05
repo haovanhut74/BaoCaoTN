@@ -7,5 +7,7 @@ public class Order
     public string UserName { get; set; }
     public DateTime OrderDate { get; set; } 
     public int Status { get; set; }
+    public decimal ShippingFee { get; set; }
+    public decimal TotalAmount { get; set; }
     public List<OrderDetail> OrderDetails { get; set; } = new();
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
 
@@ -11,6 +12,12 @@ public class OrderController : BaseController
     // Mặc định show tất cả đơn hàng của user hiện tại
     public async Task<IActionResult> Index()
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
         string currentUser = User.Identity.Name;
 
         var orders = await _context.Orders

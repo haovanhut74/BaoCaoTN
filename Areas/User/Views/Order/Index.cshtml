@@ -18,7 +18,6 @@
     <table class = "table table-bordered table-striped">
         <thead>
         <tr>
-            <th>Mã đơn hàng</th>
             <th>Ngày đặt</th>
             <th>Trạng thái</th>
             <th>Số sản phẩm</th>
@@ -30,7 +29,6 @@
         @foreach (var order in Model)
         {
             <tr>
-                <td>@order.OrderCode</td>
                 <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
                 <td>@(order.Status switch
                     {

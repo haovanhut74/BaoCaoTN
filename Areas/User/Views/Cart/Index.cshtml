@@ -1,8 +1,6 @@
 ﻿@model MyWebApp.ViewModels.CartItemViewModel
 @{
     ViewData["Title"] = "Giỏ hàng";
-
-
     decimal grandTotal = Model.TotalPrice;
 }
 
@@ -34,60 +32,48 @@
                 @foreach (var item in Model.CartItems)
                 {
                     <tr>
-                        <td style = "width: 120px;">
-                            <img src = "~/img/product/@item.ImageUrl" class = "img-thumbnail" style = "height: 80px;"/>
+                        <td style = "width:120px;">
+                            <img src = "~/img/product/@item.ImageUrl" class = "img-thumbnail" style = "height:80px;"/>
                         </td>
                         <td class = "text-start">@item.ProductName</td>
                         <td>
                             @if (item.DiscountPrice != null && item.DiscountPrice > 0)
                             {
-                                <span class = "text-muted text-decoration-line-through">
-                                    @item.Price.ToString("N0") ₫
-                                </span>
+                                <span class = "text-muted text-decoration-line-through">@item.Price.ToString("N0") ₫</span>
                                 <br/>
-                                <span class = "text-danger fw-bold">
-                                    @item.DiscountPrice.Value.ToString("N0") ₫
-                                </span>
+                                <span class = "text-danger fw-bold">@item.DiscountPrice.Value.ToString("N0") ₫</span>
                             }
                             else
                             {
                                 <span class = "fw-bold">@item.Price.ToString("N0") ₫</span>
                             }
                         </td>
-
-                        <td style = "width: 180px;">
+                        <td style = "width:180px;">
                             <div class = "input-group justify-content-center">
                                 <form asp-controller = "Cart" asp-action = "Decrease" method = "post" asp-route-id = "@item.CartItemId" class = "me-1">
                                     <button type = "submit" class = "btn btn-outline-secondary">-</button>
                                 </form>
-
-                                <input type = "text" class = "form-control text-center" readonly value = "@item.Quantity" style = "max-width: 50px;"/>
-
+                                <input type = "text" class = "form-control text-center" readonly value = "@item.Quantity" style = "max-width:50px;"/>
                                 <form asp-controller = "Cart" asp-action = "Increase" method = "post" asp-route-id = "@item.CartItemId" class = "ms-1">
                                     <button type = "submit" class = "btn btn-outline-secondary">+</button>
                                 </form>
                             </div>
-
                             @if (TempData["ErrorProductId"]?.ToString() == item.CartItemId.ToString())
                             {
                                 <div class = "text-danger small mt-1">@TempData["Error"]</div>
                             }
                         </td>
-                        <td class = "fw-bold text-danger">
-                            @(((item.DiscountPrice ?? item.Price) * item.Quantity).ToString("N0")) ₫
-                        </td>
-
+                        <td class = "fw-bold text-danger">@(((item.DiscountPrice ?? item.Price) * item.Quantity).ToString("N0")) ₫</td>
                         <td>
                             <form asp-controller = "Cart" asp-action = "Remove" method = "post" asp-route-id = "@item.CartItemId">
-                                <button type = "submit" class = "btn btn-danger btn-sm">
-                                    <i class = "fa fa-trash"></i> Xóa
+                                <button type = "submit" class = "btn btn-danger btn-sm"><i class = "fa fa-trash"></i>
+                                    Xóa
                                 </button>
                             </form>
                         </td>
                     </tr>
                 }
                 </tbody>
-
                 <tfoot>
                 <tr>
                     <td colspan = "4" class = "text-end fw-bold">Tổng tiền sản phẩm:</td>
@@ -107,7 +93,8 @@
                 </tfoot>
             </table>
         </div>
-        <!-- Địa chỉ & Ship -->
+
+        <!-- Thông tin ship -->
         <div class = "col-md-3">
             <h4>Thông tin giao hàng</h4>
             <form id = "shippingForm">
@@ -125,26 +112,45 @@
                     </select>
                     <input type = "hidden" id = "District" name = "District"/>
                 </div>
-                <button type = "submit" class = "btn btn-success w-100">Cập nhật phí ship</button>
+
+                <div class = "mb-3">
+                    <label>Địa chỉ chi tiết (Số nhà, tên đường...)</label>
+                    <input name = "FullAddress" class = "form-control" placeholder = "VD: 123 Lý Thường Kiệt, P.7" required/>
+                </div>
+
             </form>
         </div>
+
+        <!-- Discount -->
+        <div class = "col-md-3 mt-3">
+            <h4>Mã giảm giá</h4>
+            <form id = "discountForm">
+                <div class = "mb-3">
+                    <input type = "text" id = "discountCode" class = "form-control" placeholder = "Nhập mã giảm giá"/>
+                    <div id = "discountMessage" class = "text-danger small mt-1"></div>
+                </div>
+                <button type = "submit" class = "btn btn-primary w-100">Áp dụng</button>
+            </form>
+        </div>
+
         <div class = "d-flex justify-content-between mt-4">
-            <a asp-action = "Index" asp-controller = "Home" class = "btn btn-outline-secondary">
-                <i class = "fa fa-arrow-left me-1"></i> Tiếp tục mua sắm
-            </a>
+            <a asp-action = "Index" asp-controller = "Home" class = "btn btn-outline-secondary"><i class = "fa fa-arrow-left me-1"></i>
+                Tiếp tục mua sắm</a>
+
             @if (User.Identity?.IsAuthenticated ?? false)
             {
-                <a asp-controller = "Checkout" asp-action = "Checkout" class = "btn btn-success px-4">
-                    <i class = "fa fa-credit-card me-1"></i> Thanh toán
-                </a>
+                <form id = "checkoutForm" asp-controller = "Checkout" asp-action = "Checkout" method = "post">
+                    <input type = "hidden" id = "shipingId" name = "shipingId"/>
+                    <input type="hidden" id="discountCodeHidden" name="discountCode"/>
+                    <input type="hidden" id="fullAddressHidden" name="FullAddress"/>  <!-- thêm dòng này -->
+                    <button type = "submit" class = "btn btn-success">Thanh toán</button>
+                </form>
             }
             else
             {
-                <a asp-area = "User" asp-controller = "Account" asp-action = "Login" class = "btn btn-primary px-4">
-                    <i class = "fa fa-sign-in me-1"></i> Đăng nhập để thanh toán
-                </a>
+                <a asp-area = "User" asp-controller = "Account" asp-action = "Login" class = "btn btn-primary px-4"><i class = "fa fa-sign-in me-1"></i>
+                    Đăng nhập để thanh toán</a>
             }
-
         </div>
     }
 </div>
@@ -153,69 +159,108 @@
     <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
-                // Load tỉnh
-                $.getJSON('https://esgoo.net/api-tinhthanh-new/1/0.htm', function (data) {
+
+            // Load tỉnh
+            $.getJSON('https://esgoo.net/api-tinhthanh-new/1/0.htm', function (data) {
+                if (data.error === 0) {
+                    $.each(data.data, function (_, val) {
+                        $("#tinh").append('<option value="' + val.id + '">' + val.full_name + '</option>');
+                    });
+                }
+            });
+
+            // Chọn tỉnh load quận
+            $("#tinh").change(function () {
+                $("#City").val($("#tinh option:selected").text());
+                $("#quan").html('<option value="">-- Chọn Quận/Huyện --</option>');
+                var idtinh = $(this).val();
+                $.getJSON('https://esgoo.net/api-tinhthanh-new/2/' + idtinh + '.htm', function (data) {
                     if (data.error === 0) {
                         $.each(data.data, function (_, val) {
-                            $("#tinh").append('<option value="' + val.id + '">' + val.full_name + '</option>');
+                            $("#quan").append('<option value="' + val.full_name + '">' + val.full_name + '</option>');
                         });
                     }
                 });
+                updateGrandTotal();
+            });
 
-                // Chọn tỉnh -> load quận
-                $("#tinh").change(function () {
-                    $("#City").val($("#tinh option:selected").text());
-                    $("#quan").html('<option value="">-- Chọn Quận/Huyện --</option>');
-                    var idtinh = $(this).val();
-                    $.getJSON('https://esgoo.net/api-tinhthanh-new/2/' + idtinh + '.htm', function (data) {
-                        if (data.error === 0) {
-                            $.each(data.data, function (_, val) {
-                                $("#quan").append('<option value="' + val.full_name + '">' + val.full_name + '</option>');
-                            });
-                        }
+            $("#quan").change(function () {
+                $("#District").val($("#quan option:selected").text());
+                updateGrandTotal();
+            });
+
+            $("#shippingForm").submit(function (e) {
+                e.preventDefault();
+                updateGrandTotal();
+            });
+
+            function updateGrandTotal() {
+                var city = $("#City").val();
+                var district = $("#District").val();
+                var shipping = 0;
+
+                if (city && district) {
+                    $.getJSON('/User/Cart/GetShippingFee', {city: city, district: district}, function (res) {
+                        shipping = res.price || 0;
+                        $("#shippingFee").text(shipping.toLocaleString() + ' ₫');
+                        $("#shipingId").val(res.id);
+                        recalcGrandTotal();
                     });
-                    updateShipping();
-                });
-
-                $("#quan").change(function () {
-                    $("#District").val($("#quan option:selected").text());
-                    updateShipping();
-                });
-
-                $("#shippingForm").submit(function (e) {
-                    e.preventDefault();
-                    updateShipping();
-                });
-
-                function updateShipping() {
-                    var city = $("#City").val();
-                    var district = $("#District").val();
-                    if (city && district) {
-                        $.getJSON('/User/Cart/GetShippingFee', {city: city, district: district}, function (res) {
-                            var ship = res.price || 0;
-                            $("#shippingFee").text(ship.toLocaleString() + ' ₫');
-
-                            // tính grand total
-                            var totalPrice = 0;
-                            $("tbody tr").each(function () {
-                                var subtotalText = $(this).find("td:nth-child(5)").text();
-                                var subtotal = parseInt(subtotalText.replace(/\D/g, '')) || 0;
-                                totalPrice += subtotal;
-                            });
-
-                            var grandTotal = totalPrice + ship;
-                            $("#grandTotal").text(grandTotal.toLocaleString() + ' ₫');
-                        });
-                    }
-
-
+                } else {
+                    recalcGrandTotal();
                 }
-
-
             }
-        );
 
+            function recalcGrandTotal() {
+                var totalPrice = 0;
+                $("tbody tr").each(function () {
+                    var subtotal = parseInt($(this).find("td:nth-child(5)").text().replace(/\D/g, '')) || 0;
+                    totalPrice += subtotal;
+                });
+                var shipping = parseInt($("#shippingFee").text().replace(/\D/g, '')) || 0;
+                var discount = parseInt($("#discountAmount").val() || 0);
+                var grandTotal = totalPrice + shipping - discount;
+                if (grandTotal < 0) grandTotal = 0;
+                $("#grandTotal").text(grandTotal.toLocaleString() + ' ₫');
+            }
+
+            // Áp dụng mã giảm giá
+            $("#discountForm").submit(function (e) {
+                e.preventDefault();
+                var code = $("#discountCode").val().trim();
+                if (!code) return;
+
+                $.getJSON('/User/Cart/ApplyDiscount', {code: code}, function (res) {
+                    if (res.success) {
+                        $("#discountMessage").removeClass('text-danger').addClass('text-success').text(res.message);
+
+                        // Lưu discountAmount
+                        var discountTotal = (res.discountAmount || 0) + (res.discountPercent ? res.discountPercent * parseInt($("#cartTotal").text().replace(/\D/g, '')) / 100 : 0);
+                        if ($("#discountAmount").length === 0) {
+                            $("<input>").attr({
+                                type: "hidden",
+                                id: "discountAmount",
+                                value: discountTotal
+                            }).appendTo("#checkoutForm");
+                        } else {
+                            $("#discountAmount").val(discountTotal);
+                        }
+
+                        // Lưu discountCode
+                        $("#discountCodeHidden").val(code);
+
+                        recalcGrandTotal();
+                    } else {
+                        $("#discountMessage").removeClass('text-success').addClass('text-danger').text(res.message);
+                    }
+                });
+            });
+
+            $("#checkoutForm").submit(function () {
+                var fullAddr = $("input[name='FullAddress']").val();
+                $("#fullAddressHidden").val(fullAddr);
+            });
+
+        });
     </script>
 }
-
-

@@ -1,10 +1,13 @@
 ﻿@model MyWebApp.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Đăng nhập";
+    ViewData["col-12"] = true;
 }
 
 <link rel = "stylesheet" href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
 <link rel = "stylesheet" href = "~/css/User/Login.css" asp-append-version = "true"/>
+
+
 <div class = "login-bg">
     <div class = "login-card">
         <i class = "fa-solid fa-right-to-bracket login-icon"></i>
@@ -54,4 +57,58 @@
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
+    
+    <script>
+        function toggleForm() {
+            const loginForm = document.getElementById('login-form');
+            
+            if (loginForm.classList.contains('active')) {
+                showRegister();
+            } else {
+                showLogin();
+            }
+        }
+        
+        function showLogin() {
+            document.getElementById('login-form').classList.add('active');
+        }
+        
+        function showRegister() {
+            document.getElementById('login-form').classList.remove('active');
+            document.getElementById('toggle-text').textContent = 'Chuyển sang Đăng nhập';
+        }
+        
+        // Add smooth focus animations
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+        
+        // Add button click effects
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                let ripple = document.createElement('div');
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(255, 255, 255, 0.6)';
+                ripple.style.transform = 'scale(0)';
+                ripple.style.animation = 'ripple 0.6s linear';
+                ripple.style.left = e.offsetX - 10 + 'px';
+                ripple.style.top = e.offsetY - 10 + 'px';
+                ripple.style.width = '20px';
+                ripple.style.height = '20px';
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+    </script>
 }

@@ -228,14 +228,39 @@ public class CartController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetShippingFee(string city, string district)
     {
-        if (string.IsNullOrWhiteSpace(city) || string.IsNullOrWhiteSpace(district))
-            return Json(new { price = 0m });
+        if (string.IsNullOrEmpty(city) || string.IsNullOrEmpty(district))
+            return Json(new { id = Guid.Empty, price = 0m });
 
-        var shipping = await _context.Shipings
+        var ship = await _context.Shipings
             .FirstOrDefaultAsync(s => s.City == city && s.District == district);
 
-        decimal fee = shipping?.Price ?? 0m;
+        if (ship == null)
+            return Json(new { id = Guid.Empty, price = 0m });
 
-        return Json(new { price = fee });
+        return Json(new { id = ship.Id, price = ship.Price });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ApplyDiscount(string code)
+    {
+        if (string.IsNullOrEmpty(code))
+            return Json(new { success = false, message = "Mã giảm giá trống" });
+
+        var now = DateTime.Now;
+        var discount = await _context.DiscountCodes
+            .FirstOrDefaultAsync(d => d.Code == code && d.IsActive && d.StartDate <= now && d.EndDate >= now);
+
+        if (discount == null)
+            return Json(new { success = false, message = "Mã giảm giá không hợp lệ hoặc hết hạn" });
+
+        // Kiểm tra số lượt sử dụng
+        if (discount.UsageLimit > 0 && discount.UsedCount >= discount.UsageLimit)
+            return Json(new { success = false, message = "Mã giảm giá đã hết lượt sử dụng" });
+
+        return Json(new
+        {
+            success = true, discountAmount = discount.DiscountAmount, discountPercent = discount.DiscountPercent ?? 0,
+            message = "Áp dụng mã thành công"
+        });
     }
 }

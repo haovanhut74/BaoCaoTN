@@ -130,6 +130,12 @@
                         <i class = "bi bi-eye"></i> Xem
                     </a>
                 </td>
+                <td>
+                    <form asp-action="Delete" asp-route-id="@order.OrderId" method="post" style="display:inline"
+                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này không?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                    </form>
+                </td>
             </tr>
             STT++;
         }

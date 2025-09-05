@@ -1,0 +1,53 @@
+﻿@model List<MyWebApp.Models.Order>
+
+@{
+    ViewData["Title"] = "Tra cứu đơn hàng";
+}
+
+<h2>Tra cứu đơn hàng</h2>
+
+<form asp-action = "Search" method = "post" class = "form-inline mb-3">
+    <input type = "text" name = "orderCode" class = "form-control mr-2" placeholder = "Mã đơn hàng"/>
+    <div>
+        <button type = "submit" class = "btn btn-primary">Tìm kiếm</button>
+    </div>
+</form>
+
+@if (Model != null && Model.Any())
+{
+    <table class = "table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>Mã đơn hàng</th>
+            <th>Ngày đặt</th>
+            <th>Trạng thái</th>
+            <th>Số sản phẩm</th>
+            <th>Tổng tiền</th>
+            <th>Chi tiết</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.OrderCode</td>
+                <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@(order.Status switch
+                    {
+                        1 => "Chờ xác nhận",
+                        2 => "Đã xác nhận",
+                        3 => "Đã giao",
+                        _ => "Đã hủy"
+                    })</td>
+                <td>@order.OrderDetails.Count</td>
+                <td>@order.OrderDetails.Sum(od => od.Quantity * od.Price).ToString("N0") ₫</td>
+                <td><a asp-action = "Detail" asp-route-id = "@order.OrderId" class = "btn btn-sm btn-info">Xem</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Chưa có đơn hàng hoặc không tìm thấy.</p>
+}

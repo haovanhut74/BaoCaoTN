@@ -1,0 +1,44 @@
+﻿@model MyWebApp.Models.Order
+
+<h2>Chi tiết đơn hàng: @Model.OrderCode</h2>
+
+<p>Ngày đặt: @Model.OrderDate.Date</p>
+<p>Trạng thái: @(Model.Status switch
+                   {
+                       1 => "Chờ xác nhận",
+                       2 => "Đã xác nhận",
+                       3 => "Đã giao",
+                       _ => "Đã hủy"
+                   })</p>
+
+<table class = "table table-bordered">
+    <thead>
+    <tr>
+        <th>STT</th>
+        <th>Tên sản phẩm</th>
+        <th>Hình ảnh</th>
+        <th>Giá</th>
+        <th>Số lượng</th>
+        <th>Thành tiền</th>
+    </tr>
+    </thead>
+    <tbody>
+    @{
+        int stt = 1;
+        foreach (var item in Model.OrderDetails)
+        {
+            <tr>
+                <td>@stt</td>
+                <td>@item.Product?.Name</td>
+                <td><img src = "/img/product/@item.Product?.MainImage" alt = "@item.Product?.Name" width = "100"/></td>
+                <td>@item.Price.ToString("N0") ₫</td>
+                <td>@item.Quantity</td>
+                <td>@((item.Price * item.Quantity).ToString("N0") )₫</td>
+            </tr>
+            stt++;
+        }
+    }
+    </tbody>
+</table>
+
+<p><strong>Tổng tiền: </strong> @Model.OrderDetails.Sum(od => od.Quantity * od.Price).ToString("N0") ₫</p>

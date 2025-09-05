@@ -154,11 +154,24 @@ public class AccountController : Controller
     }
 
     [HttpGet]
-    public IActionResult ResetPassword(string token, string email)
+    public async Task<IActionResult> ResetPassword(string token, string email)
     {
+        if (token == null || email == null)
+        {
+            TempData["Error"] = "Liên kết đặt lại mật khẩu không hợp lệ.";
+            return RedirectToAction("Login");
+        }
+
+        // ✅ Đăng xuất ngay khi người dùng click link
+        if (User.Identity is { IsAuthenticated: true })
+        {
+            await _signInManager.SignOutAsync();
+        }
+
         var model = new ResetPasswordViewModel { Token = token, Email = email };
-        return View(model);
+        return View(model); // Hiển thị form nhập password mới
     }
+
 
     [HttpPost]
     public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
@@ -172,11 +185,22 @@ public class AccountController : Controller
                 return RedirectToAction("Login");
             }
 
+            // Đăng xuất user đang đăng nhập (nếu có)
+            await _signInManager.SignOutAsync();
             var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
             if (result.Succeeded)
             {
                 TempData["Success"] = "Đặt lại mật khẩu thành công!";
+                // ✅ Ngay sau khi reset thành công, invalidate token cũ
+                await _userManager.UpdateSecurityStampAsync(user);
                 return RedirectToAction("Login");
+            }
+
+            // Nếu token hết hạn hoặc không hợp lệ
+            if (result.Errors.Any(e => e.Code == "InvalidToken"))
+            {
+                TempData["Error"] = "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.";
+                return RedirectToAction("ForgotPassword");
             }
 
             foreach (var error in result.Errors)

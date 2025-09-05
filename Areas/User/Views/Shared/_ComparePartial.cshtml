@@ -4,11 +4,13 @@
     <table class = "comparison-table table">
         <thead>
         <tr>
-            <th class = "feature-col">Thông số</th>
+            <th class = "feature-col"></th>
             @foreach (var p in Model)
             {
                 <th class = "product-col">
                     <div class = "product-title">@p.Name</div>
+                    <div class = "product-image">
+                        <img src = "/img/product/@p.MainImage" alt = "" style = "width: 200px; height: 200px"/></div>
                 </th>
             }
         </tr>

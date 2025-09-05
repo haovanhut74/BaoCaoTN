@@ -94,6 +94,31 @@ public class OrderController : BaseController
 
         return RedirectToAction("Detail", new { id });
     }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [HasPermission("ManageOrders")] // hoặc quyền phù hợp
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var order = await _context.Orders
+            .Include(o => o.OrderDetails)
+            .FirstOrDefaultAsync(o => o.OrderId == id);
+
+        if (order == null)
+            return NotFound();
+
+        // Xóa chi tiết đơn trước (nếu cascade chưa bật trong DB)
+        if (order.OrderDetails != null && order.OrderDetails.Any())
+        {
+            _context.OrderDetails.RemoveRange(order.OrderDetails);
+        }
+
+        _context.Orders.Remove(order);
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Đã xóa đơn hàng thành công.";
+        return RedirectToAction(nameof(Index));
+    }
 
     [HttpGet]
     public async Task<IActionResult> ExportCsv(string? orderCode, string? userName, string? status, string? dateFrom,

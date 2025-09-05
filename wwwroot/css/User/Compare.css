@@ -71,13 +71,13 @@
 /* Giá */
 .price {
     font-weight: 700;
-    color: #dc3545;
+    color: #dc3545!important;
 }
 
 /* Thương hiệu */
 .brand {
     font-weight: 600;
-    color: #0d6efd;
+    color: #0d6efd !important;
 }
 
 /* Hover effect */

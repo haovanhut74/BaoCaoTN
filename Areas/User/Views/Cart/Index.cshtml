@@ -1,6 +1,7 @@
 ﻿@model MyWebApp.ViewModels.CartItemViewModel
 @{
     ViewData["Title"] = "Giỏ hàng";
+    ViewData["col-12"] = true;
     decimal grandTotal = Model.TotalPrice;
 }
 
@@ -95,31 +96,53 @@
         </div>
 
         <!-- Thông tin ship -->
-        <div class = "col-md-3">
-            <h4>Thông tin giao hàng</h4>
-            <form id = "shippingForm">
-                <div class = "mb-3">
-                    <label>Thành phố</label>
-                    <select id = "tinh" class = "form-select" required>
-                        <option value = "">-- Chọn Tỉnh/Thành phố --</option>
-                    </select>
-                    <input type = "hidden" id = "City" name = "City"/>
-                </div>
-                <div class = "mb-3">
-                    <label>Quận/Huyện</label>
-                    <select id = "quan" class = "form-select" required>
-                        <option value = "">-- Chọn Quận/Huyện --</option>
-                    </select>
-                    <input type = "hidden" id = "District" name = "District"/>
-                </div>
+        <div class = "row mt-4">
+            <!-- Thông tin ship -->
+            <div class = "col-md-6">
+                <h4>Thông tin giao hàng</h4>
+                <form id = "shippingForm">
+                    <div class = "mb-3">
+                        <label>Thành phố</label>
+                        <select id = "tinh" class = "form-select" required>
+                            <option value = "">-- Chọn Tỉnh/Thành phố --</option>
+                        </select>
+                        <input type = "hidden" id = "City" name = "City"/>
+                    </div>
+                    <div class = "mb-3">
+                        <label>Quận/Huyện</label>
+                        <select id = "quan" class = "form-select" required>
+                            <option value = "">-- Chọn Quận/Huyện --</option>
+                        </select>
+                        <input type = "hidden" id = "District" name = "District"/>
+                    </div>
 
-                <div class = "mb-3">
-                    <label>Địa chỉ chi tiết (Số nhà, tên đường...)</label>
-                    <input name = "FullAddress" class = "form-control" placeholder = "VD: 123 Lý Thường Kiệt, P.7" required/>
-                </div>
+                    <div class = "mb-3">
+                        <label>Địa chỉ chi tiết (Số nhà, tên đường...)</label>
+                        <input name = "FullAddress" class = "form-control" placeholder = "VD: 123 Lý Thường Kiệt, P.7" required/>
+                    </div>
+                </form>
+            </div>
 
-            </form>
+            <!-- Phương thức thanh toán -->
+            <div class = "col-md-6">
+                <h4>Phương thức thanh toán</h4>
+                <form id = "paymentForm">
+                    <div class = "form-check mb-2">
+                        <input class = "form-check-input" type = "radio" name = "PaymentMethod" id = "paymentCOD" value = "COD" checked>
+                        <label class = "form-check-label" for = "paymentCOD">
+                            Thanh toán khi nhận hàng (COD)
+                        </label>
+                    </div>
+                    <div class = "form-check mb-2">
+                        <input class = "form-check-input" type = "radio" name = "PaymentMethod" id = "paymentMomo" value = "Momo">
+                        <label class = "form-check-label" for = "paymentMomo">
+                            Thanh toán qua MoMo
+                        </label>
+                    </div>
+                </form>
+            </div>
         </div>
+
 
         <!-- Discount -->
         <div class = "col-md-3 mt-3">
@@ -139,10 +162,11 @@
 
             @if (User.Identity?.IsAuthenticated ?? false)
             {
-                <form id = "checkoutForm" asp-controller = "Checkout" asp-action = "Checkout" method = "post">
+                <form id = "checkoutForm" asp-controller = "Checkout" asp-action = "CreateMomoPayment" method = "post">
                     <input type = "hidden" id = "shipingId" name = "shipingId"/>
-                    <input type="hidden" id="discountCodeHidden" name="discountCode"/>
-                    <input type="hidden" id="fullAddressHidden" name="FullAddress"/>  <!-- thêm dòng này -->
+                    <input type = "hidden" id = "discountCodeHidden" name = "discountCode"/>
+                    <input type = "hidden" id = "fullAddressHidden" name = "FullAddress"/>  <!-- thêm dòng này -->
+                    <input type = "hidden" id = "paymentMethodHidden" name = "PaymentMethod"/> <!-- thêm dòng này -->
                     <button type = "submit" class = "btn btn-success">Thanh toán</button>
                 </form>
             }
@@ -256,9 +280,68 @@
                 });
             });
 
-            $("#checkoutForm").submit(function () {
-                var fullAddr = $("input[name='FullAddress']").val();
-                $("#fullAddressHidden").val(fullAddr);
+            $(document).ready(function () {
+                function updateCheckoutButton() {
+                    var paymentMethod = $("input[name='PaymentMethod']:checked").val();
+                    var btn = $("#checkoutBtn");
+
+                    if (paymentMethod === "Momo") {
+                        btn.text("Chuyển đến Thanh Toán Momo");
+                        btn.off("click"); // Xóa mọi sự kiện cũ
+                        btn.on("click", function (e) {
+                            e.preventDefault();
+                            var fullAddr = $("input[name='FullAddress']").val();
+                            var shippingId = $("#shipingId").val();
+                            var discountCode = $("#discountCodeHidden").val();
+
+                            // Redirect sang trang thanh toán Momo
+                            window.location.href = '/User/Checkout/CreateMomoPayment?FullAddress=' + encodeURIComponent(fullAddr) +
+                                '&shipingId=' + encodeURIComponent(shippingId) +
+                                '&discountCode=' + encodeURIComponent(discountCode);
+                        });
+                    } else { // COD
+                        btn.text("Thanh toán");
+                        btn.off("click"); // Xóa sự kiện redirect
+                    }
+                }
+
+                // Khi load trang và khi thay đổi radio
+                updateCheckoutButton();
+                $("input[name='PaymentMethod']").change(updateCheckoutButton);
+            });
+
+            $(document).ready(function () {
+
+                function redirectToMomo() {
+                    var fullAddr = $("#shippingForm input[name='FullAddress']").val();
+                    var shipingId = $("#shipingId").val();
+                    var discountCode = $("#discountCodeHidden").val() || "";
+
+                    if (!fullAddr || !shipingId) {
+                        alert("Vui lòng chọn địa chỉ giao hàng và phí vận chuyển.");
+                        return;
+                    }
+
+                    window.location.href = '/User/Checkout/CreateMomoPayment?FullAddress=' + encodeURIComponent(fullAddr) +
+                        '&shipingId=' + encodeURIComponent(shipingId) +
+                        '&discountCode=' + encodeURIComponent(discountCode);
+                }
+
+                $("input[name='PaymentMethod']").change(function () {
+                    var paymentMethod = $(this).val();
+                    var btn = $("#checkoutForm button[type='submit']");
+                    if (paymentMethod === "Momo") {
+                        btn.text("Chuyển đến Thanh Toán MoMo");
+                        btn.off("click").on("click", function (e) {
+                            e.preventDefault();
+                            redirectToMomo();
+                        });
+                    } else {
+                        btn.text("Thanh toán");
+                        btn.off("click");
+                    }
+                });
+
             });
 
         });

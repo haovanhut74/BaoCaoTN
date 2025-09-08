@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MyWebApp.Areas.Admin.Controllers;
 using MyWebApp.Data;
 using MyWebApp.Interface.Service;
 using MyWebApp.Models;
@@ -23,6 +22,7 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30); // Thời gian hết hạn phiên
     options.Cookie.IsEssential = true; // Cookie cần thiết cho phiên làm việc
 });
+
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     {

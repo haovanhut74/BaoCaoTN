@@ -16,4 +16,7 @@ public class Order
     [Required]
     [Display(Name = "Địa chỉ chi tiết")]
     public string FullAddress { get; set; } = string.Empty;
+    
+    [Display(Name = "Phương thức thanh toán")]
+    public string PaymentMethod { get; set; }
 }

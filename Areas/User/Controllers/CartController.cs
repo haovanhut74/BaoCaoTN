@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
@@ -158,7 +159,7 @@ public class CartController : BaseController
 
 
     [HttpPost]
-    public async Task<IActionResult> Increase(Guid id) // id là CartItemId
+    public async Task<IActionResult> Increase(Guid id)
     {
         var cart = await GetOrCreateCartAsync();
         var item = cart.CartItems.FirstOrDefault(ci => ci.Id == id);
@@ -171,59 +172,93 @@ public class CartController : BaseController
                 if (item.Quantity < product.Quantity)
                 {
                     item.Quantity++;
+                    var subtotal = (item.Product.DiscountPrice ?? item.Price) * item.Quantity;
+                    var totalPrice = cart.CartItems.Sum(ci => (ci.Product.DiscountPrice ?? ci.Price) * ci.Quantity);
                     await _context.SaveChangesAsync();
+                    return Json(new
+                    {
+                        success = true, newQuantity = item.Quantity, newSubtotal = subtotal, newTotalPrice = totalPrice
+                    });
                 }
-                else
+
+                return Json(new
                 {
-                    TempData["Error"] = $"Không thể thêm nữa. Sản phẩm {product.Name} chỉ còn {product.Quantity} cái!";
-                    TempData["ErrorProductId"] = id;
-                }
+                    success = false,
+                    message = $"Không thể thêm nữa. Sản phẩm {product.Name} chỉ còn {product.Quantity} cái!"
+                });
             }
         }
 
-        return RedirectToAction("Index");
+        return Json(new { });
     }
 
 
     [HttpPost]
-    public async Task<IActionResult> Decrease(Guid id) // id là CartItemId
+    public async Task<IActionResult> Decrease(Guid id)
     {
         var cart = await GetOrCreateCartAsync();
-        var item = cart.CartItems.FirstOrDefault(ci => ci.Id == id); // tìm theo CartItem.Id
+        var item = cart.CartItems.FirstOrDefault(ci => ci.Id == id);
 
         if (item != null)
         {
             if (item.Quantity > 1)
             {
                 item.Quantity--;
+                await _context.SaveChangesAsync();
             }
             else
             {
                 cart.CartItems.Remove(item);
-                TempData["Success"] = "Đã xóa sản phẩm khỏi giỏ hàng!";
+                await _context.SaveChangesAsync();
+                bool isEmpty = !cart.CartItems.Any();
+                return Json(new
+                {
+                    success = true,
+                    removed = true,
+                    cartEmpty = isEmpty,
+                    newTotalPrice = cart.CartItems.Sum(ci => (ci.Product.DiscountPrice ?? ci.Price) * ci.Quantity)
+                });
             }
-
-            await _context.SaveChangesAsync();
         }
 
-        return RedirectToAction("Index");
+        var subtotal = (item.Product.DiscountPrice ?? item.Price) * item.Quantity;
+        var totalPrice = cart.CartItems.Sum(ci => (ci.Product.DiscountPrice ?? ci.Price) * ci.Quantity);
+        bool cartEmptyAfter = !cart.CartItems.Any();
+
+        return Json(new
+        {
+            success = true,
+            newQuantity = item.Quantity,
+            newSubtotal = subtotal,
+            newTotalPrice = totalPrice,
+            cartEmpty = cartEmptyAfter
+        });
     }
 
     [HttpPost]
-    public async Task<IActionResult> Remove(Guid id) // id là CartItemId
+    public async Task<IActionResult> Remove(Guid id)
     {
         var cart = await GetOrCreateCartAsync();
-        var item = cart.CartItems.FirstOrDefault(ci => ci.Id == id); // tìm theo CartItem.Id
+        var item = cart.CartItems.FirstOrDefault(ci => ci.Id == id);
 
         if (item != null)
         {
             cart.CartItems.Remove(item);
             await _context.SaveChangesAsync();
-            TempData["Success"] = "Đã xóa sản phẩm khỏi giỏ hàng!";
         }
 
-        return RedirectToAction("Index");
+        bool isEmpty = !cart.CartItems.Any();
+        var totalPrice = cart.CartItems.Sum(ci => (ci.Product.DiscountPrice ?? ci.Price) * ci.Quantity);
+
+        return Json(new
+        {
+            success = true,
+            removedId = id,
+            cartEmpty = isEmpty,
+            newTotalPrice = totalPrice
+        });
     }
+
 
     [HttpGet]
     public async Task<IActionResult> GetShippingFee(string city, string district)

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +7,6 @@ using MyWebApp.Data;
 using MyWebApp.Interface.Service;
 using MyWebApp.Models;
 using Newtonsoft.Json.Linq;
-using Shiping = MyWebApp.Migrations.Shiping;
 
 namespace MyWebApp.Areas.User.Controllers;
 
@@ -378,6 +376,6 @@ public class CheckoutController : BaseController
         TempData["Success"] = order.Status == 1
             ? $"Thanh toán thành công cho đơn hàng {order.OrderCode}"
             : $"Thanh toán thất bại cho đơn hàng {order.OrderCode}";
-        return RedirectToAction(order.Status == 1 ? "Index" : "Cart", "Home");
+        return RedirectToAction(order.Status == 1 ? "Index" : "Cart", "Cart");
     }
 }

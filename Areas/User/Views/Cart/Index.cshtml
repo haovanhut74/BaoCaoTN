@@ -43,7 +43,6 @@
                             <thead>
                             <tr>
                                 <th>Sản phẩm</th>
-                                <th>Đơn giá</th>
                                 <th>Số lượng</th>
                                 <th>Thành tiền</th>
                                 <th>Xóa</th>
@@ -54,24 +53,11 @@
                             {
                                 <tr>
                                     <td>
-                                        <div class = "d-flex align-items-center gap-3">
+                                        <div class = "d-flex align-items-center gap-5">
                                             <img src = "~/img/product/@item.ImageUrl" class = "product-image" alt = "@item.ProductName"/>
                                             <div>
                                                 <div class = "product-name">@item.ProductName</div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class = "price-container">
-                                            @if (item.DiscountPrice != null && item.DiscountPrice > 0)
-                                            {
-                                                <span class = "original-price">@item.Price.ToString("N0") ₫</span>
-                                                <span class = "discount-price">@item.DiscountPrice.Value.ToString("N0") ₫</span>
-                                            }
-                                            else
-                                            {
-                                                <span class = "current-price">@item.Price.ToString("N0") ₫</span>
-                                            }
                                         </div>
                                     </td>
                                     <td>

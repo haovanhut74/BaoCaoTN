@@ -187,7 +187,7 @@
 }
 
 .remove-btn {
-    background: linear-gradient(135deg, var(--danger-color), #ef4444);
+    /*background: linear-gradient(135deg, var(--danger-color), #ef4444);*/
     border: none;
     color: white;
     padding: 0.5rem 1rem;
@@ -399,7 +399,9 @@
     border-radius: 20px;
     box-shadow: var(--shadow-lg);
 }
-
+td.subtotal {
+    white-space: nowrap;
+}
 @media (max-width: 768px) {
     .cart-container {
         padding: 1rem 0;

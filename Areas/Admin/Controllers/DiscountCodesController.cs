@@ -29,6 +29,7 @@ public class DiscountCodesController : BaseController
     {
         if (ModelState.IsValid)
         {
+            discountCode.Id = Guid.NewGuid(); 
             _context.DiscountCodes.Add(discountCode);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -50,14 +51,23 @@ public class DiscountCodesController : BaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(Guid id, DiscountCode discountCode)
     {
-        if (id != discountCode.Id) return NotFound();
-
         if (ModelState.IsValid)
         {
-            _context.Update(discountCode);
+            var existing = await _context.DiscountCodes.FindAsync(id);
+            if (existing == null) return NotFound();
+
+            existing.Code = discountCode.Code;
+            existing.DiscountAmount = discountCode.DiscountAmount;
+            existing.DiscountPercent = discountCode.DiscountPercent;
+            existing.StartDate = discountCode.StartDate;
+            existing.EndDate = discountCode.EndDate;
+            existing.IsActive = discountCode.IsActive;
+            existing.UsageLimit = discountCode.UsageLimit;
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
 
         return View(discountCode);
     }

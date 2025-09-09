@@ -9,7 +9,6 @@
     width: 100%;
     border-collapse: collapse;
     border-radius: 12px;
-    overflow: hidden;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
     border: 1px solid #dee2e6;
 }
@@ -108,8 +107,11 @@
     }
 }
 
+/* Giữ modal căn giữa chuẩn Bootstrap */
 .modal.show .modal-dialog {
-    transform: none;
-    margin-top: 70px;
-    overflow: hidden;
+    overflow-y: auto;
+}
+
+.modal-open {
+    overflow: scroll !important;
 }

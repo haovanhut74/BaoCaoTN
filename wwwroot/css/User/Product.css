@@ -254,5 +254,5 @@ table.compare-table th, table.compare-table td {
     position: relative; /* để không tạo stacking context cao hơn modal */
 }
 .modal-content {
-    margin-top: 63px;
+    margin-top: 200px;
 }

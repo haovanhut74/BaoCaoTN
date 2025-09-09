@@ -68,8 +68,17 @@
                 <div class = "price-section">
                     @if (@Model.DiscountPercent is > 0)
                     {
-                        <p>Giá giảm: <span class = "text-danger">@Model.DiscountPrice?.ToString("N0") VND</span>
-                            (<span>@Model.DiscountPercent %</span>)</p>
+                        <p class="text-decoration-line-through">@Model.Price.ToString("N0") VND</p>
+                        <p>
+                            <strong><span class="text-danger">@Model.DiscountPrice?.ToString("N0") VND</span></strong>
+                            (<span>-@Model.DiscountPercent %</span>)
+                        </p>
+                    }
+                    else
+                    {
+                        <p>
+                            <strong><span class="text-danger">@Model.Price.ToString("N0") VND</span></strong>
+                        </p>
                     }
                     <small class = "text-muted">Đã bao gồm VAT</small>
                 </div>

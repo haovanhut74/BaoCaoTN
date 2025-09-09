@@ -64,7 +64,7 @@
             let min = parseInt(minInput.value) || 0;
             let max = parseInt(maxInput.value) || 0;
 
-            if(min > max) [min, max] = [max, min]; // hoán đổi nếu nhập nhầm
+            if(min > max) [min, max] = [min, max]; // hoán đổi nếu nhập nhầm
             priceRange.innerText = min.toLocaleString() + " - " + max.toLocaleString();
 
             filterProducts();

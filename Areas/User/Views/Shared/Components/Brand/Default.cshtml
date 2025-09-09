@@ -2,21 +2,25 @@
 @{
     var selected = ViewBag.SelectedSlugBrands as List<string> ?? new();
 }
-
- @foreach (var brand in Model)
-        {
-            <div class="col-auto">
-                <div class="form-check form-check-inline btn-check-wrap">
-                    <input class="btn-check"
-                           type="checkbox"
-                           name="SelectedSlugBrands"
-                           value="@brand.Slug"
-                           id="brand_@brand.Slug"
-                           @(selected.Contains(brand.Slug) ? "checked" : "") />
-                    <label class="btn btn-outline-primary btn-sm rounded-pill"
-                           for="brand_@brand.Slug">
-                        @brand.Name
-                    </label>
-                </div>
-            </div>
-        }
+<link rel = "stylesheet" href = "~/css/User/BrandCss.css"/>
+<div class = "filter-chips brand-chips">
+    @foreach (var brand in Model)
+    {
+        <div class = "filter-chip">
+            <input
+                class = "filter-checkbox"
+                type = "checkbox"
+                name = "SelectedSlugBrands"
+                value = "@brand.Slug"
+                id = "brand_@brand.Slug"
+                @(selected.Contains(brand.Slug) ? "checked" : "")
+            />
+            <label class = "filter-chip-label" for = "brand_@brand.Slug">
+                <span class = "chip-text">@brand.Name</span>
+                <span class = "chip-icon">
+                    <i class = "fas fa-check"></i>
+                </span>
+            </label>
+        </div>
+    }
+</div>

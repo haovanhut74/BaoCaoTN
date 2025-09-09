@@ -1,0 +1,311 @@
+﻿.category-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    max-height: 140px;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.category-chips .filter-chip {
+    position: relative;
+    display: inline-block;
+}
+
+.category-chips .filter-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.category-chips .filter-chip-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, #ffffff, #f0fff4);
+    color: #495057;
+    border: 2px solid #d4f1d4;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.05);
+    text-transform: capitalize;
+    letter-spacing: 0.3px;
+    min-height: 42px;
+}
+
+.category-chips .filter-chip-label::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 0;
+}
+
+.chip-icon-prefix {
+    margin-right: 8px;
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.category-chips .chip-text,
+.category-chips .chip-icon {
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.category-chips .chip-icon {
+    margin-left: 8px;
+    opacity: 0;
+    transform: translateX(-10px) scale(0.8);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.category-chips .chip-icon i {
+    font-size: 0.8rem;
+    font-weight: 900;
+}
+
+/* Hover Effects */
+.category-chips .filter-chip-label:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.15);
+    border-color: #28a745;
+}
+
+.category-chips .filter-chip-label:hover .chip-text,
+.category-chips .filter-chip-label:hover .chip-icon-prefix {
+    color: #28a745;
+    font-weight: 700;
+}
+
+.category-chips .filter-chip-label:hover .chip-icon-prefix i {
+    transform: scale(1.1);
+}
+
+/* Active/Checked State */
+.category-chips .filter-checkbox:checked + .filter-chip-label {
+    color: white;
+    border-color: #28a745;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.category-chips .filter-checkbox:checked + .filter-chip-label::before {
+    left: 0;
+}
+
+.category-chips .filter-checkbox:checked + .filter-chip-label .chip-icon {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+}
+
+.category-chips .filter-checkbox:checked + .filter-chip-label .chip-text,
+.category-chips .filter-checkbox:checked + .filter-chip-label .chip-icon-prefix {
+    font-weight: 700;
+}
+
+.category-chips .filter-checkbox:checked + .filter-chip-label .chip-icon-prefix i {
+    animation: iconBounce 0.6s ease;
+}
+
+@keyframes iconBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+/* Focus State */
+.category-chips .filter-checkbox:focus + .filter-chip-label {
+    outline: 3px solid rgba(40, 167, 69, 0.2);
+    outline-offset: 2px;
+}
+
+/* Category-specific Colors */
+.category-chips .filter-chip:nth-child(6n+1) .filter-checkbox:checked + .filter-chip-label {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+}
+
+.category-chips .filter-chip:nth-child(6n+2) .filter-checkbox:checked + .filter-chip-label {
+    background: linear-gradient(135deg, #17a2b8, #20c997);
+    box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+    border-color: #17a2b8;
+}
+
+.category-chips .filter-chip:nth-child(6n+3) .filter-checkbox:checked + .filter-chip-label {
+    background: linear-gradient(135deg, #6f42c1, #8f5fe8);
+    box-shadow: 0 8px 25px rgba(111, 66, 193, 0.3);
+    border-color: #6f42c1;
+}
+
+.category-chips .filter-chip:nth-child(6n+4) .filter-checkbox:checked + .filter-chip-label {
+    background: linear-gradient(135deg, #fd7e14, #ff922b);
+    box-shadow: 0 8px 25px rgba(253, 126, 20, 0.3);
+    border-color: #fd7e14;
+}
+
+.category-chips .filter-chip:nth-child(6n+5) .filter-checkbox:checked + .filter-chip-label {
+    background: linear-gradient(135deg, #e83e8c, #ff4d94);
+    box-shadow: 0 8px 25px rgba(232, 62, 140, 0.3);
+    border-color: #e83e8c;
+}
+
+.category-chips .filter-chip:nth-child(6n+6) .filter-checkbox:checked + .filter-chip-label {
+    background: linear-gradient(135deg, #6c757d, #868e96);
+    box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+    border-color: #6c757d;
+}
+
+/* New Category Badge */
+.filter-chip[data-new="true"] .filter-chip-label {
+    position: relative;
+}
+
+.filter-chip[data-new="true"]::after {
+    content: 'NEW';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Hot Category Badge */
+.filter-chip[data-hot="true"]::after {
+    content: '🔥';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: linear-gradient(135deg, #ff9500, #ff6b00);
+    font-size: 0.7rem;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(255, 149, 0, 0.3);
+    z-index: 2;
+}
+
+/* Animation for category chips */
+.category-chips .filter-chip {
+    animation: categorySlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes categorySlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* Custom Scrollbar for Category Chips */
+.category-chips::-webkit-scrollbar {
+    width: 6px;
+}
+
+.category-chips::-webkit-scrollbar-track {
+    background: #e8f5e8;
+    border-radius: 10px;
+}
+
+.category-chips::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border-radius: 10px;
+}
+
+.category-chips::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #218838, #1e7e34);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .category-chips {
+        gap: 8px;
+        max-height: 100px;
+    }
+
+    .category-chips .filter-chip-label {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+        min-height: 38px;
+    }
+
+    .chip-icon-prefix {
+        margin-right: 6px;
+        font-size: 0.8rem;
+    }
+
+    .category-chips .chip-icon {
+        margin-left: 6px;
+    }
+}
+
+@media (max-width: 576px) {
+    .category-chips {
+        gap: 6px;
+        max-height: 80px;
+    }
+
+    .category-chips .filter-chip-label {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        min-height: 34px;
+    }
+
+    .chip-icon-prefix {
+        margin-right: 4px;
+        font-size: 0.75rem;
+    }
+}
+
+/* Loading State */
+.category-chips.loading .filter-chip-label {
+    background: linear-gradient(90deg, #f8f9fa 25%, #e9ecef 50%, #f8f9fa 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .category-chips .filter-chip-label {
+        background: linear-gradient(135deg, #2d3748, #4a5568);
+        color: #e2e8f0;
+        border-color: #4a5568;
+    }
+
+    .category-chips .filter-chip-label:hover .chip-text,
+    .category-chips .filter-chip-label:hover .chip-icon-prefix {
+        color: #68d391;
+    }
+}

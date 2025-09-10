@@ -1,11 +1,12 @@
 ﻿@model MyWebApp.Models.Contact
 @{
-    ViewData["Title"] = "Chi tiết liên hệ";
+    ViewData["Title"] = "Trả lời liên hệ";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<h2>📄 Chi tiết liên hệ</h2>
-<div class = "card">
+<h2>💬 Trả lời liên hệ</h2>
+
+<div class = "card mb-3">
     <div class = "card-body">
         <p><strong>👤 Họ tên:</strong> @Model.Name</p>
         <p><strong>📧 Email:</strong> @Model.Email</p>
@@ -16,20 +17,20 @@
     </div>
 </div>
 
-<hr/>
-
-<h3>✉️ Trả lời liên hệ</h3>
 <form asp-action = "Reply" method = "post">
-    <input type = "hidden" name = "id" value = "@Model.Id"/>
+    <input type = "hidden" asp-for = "Id"/>
     <div class = "mb-3">
-        <label for = "replyMessage" class = "form-label">Nội dung trả lời</label>
-        <textarea class = "form-control" id = "replyMessage" name = "replyMessage" rows = "5" required></textarea>
+        <label for = "reply" class = "form-label">✉️ Nội dung trả lời</label>
+        <textarea class = "form-control" id = "reply" name = "reply" rows = "5">@Model.Reply</textarea>
     </div>
-    <button type = "submit" class = "btn btn-primary">Gửi mail</button>
+    <button type = "submit" class = "btn btn-primary">Gửi trả lời</button>
     <a class = "btn btn-secondary" href = "@Url.Action("Index")">⬅ Quay lại</a>
 </form>
 
-@if (TempData["Success"] != null)
+@if (!string.IsNullOrEmpty(Model.Reply))
 {
-    <div class = "alert alert-success mt-3">@TempData["Success"]</div>
+    <div class = "alert alert-success mt-3">
+        <strong>Đã trả lời lúc:</strong> @Model.ReplyAt?.ToString("dd/MM/yyyy HH:mm") <br/>
+        <strong>Nội dung:</strong> @Model.Reply
+    </div>
 }

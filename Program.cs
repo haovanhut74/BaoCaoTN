@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
+using MyWebApp.Extensions;
 using MyWebApp.Interface.Service;
 using MyWebApp.Models;
 using MyWebApp.Repository.Service;
@@ -66,11 +67,12 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.User.RequireUniqueEmail = true; // Không bắt buộc Email phải duy nhất
 });
 
-
+builder.Services.AddSignalR();
 var app = builder.Build();
+
 app.UseStatusCodePagesWithReExecute("/Home/Error", "?statuscode={0}");
 
-// Configure the HTTP request pipeline.
+// Error handler
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -78,10 +80,14 @@ if (!app.Environment.IsDevelopment())
 
 app.UseRouting();
 
-// Đặt Session trước Authentication để session sẵn sàng cho auth
+// Session trước Authentication
 app.UseSession();
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Map Hub sau khi auth đã sẵn sàng
+app.MapHub<PresenceHub>("/presenceHub");
 
 app.MapStaticAssets();
 
@@ -91,12 +97,14 @@ app.MapControllerRoute(
 );
 
 app.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}", // Mặc định vào area "user"
-        defaults: new { area = "User" })
-    .WithStaticAssets();
-app.MapRazorPages(); // Cho Razor Pages Identity, nếu bạn dùng
-// Initialize the database with seed data
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}",
+    defaults: new { area = "User" }
+).WithStaticAssets();
+
+app.MapRazorPages(); 
+
+// Seed database
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

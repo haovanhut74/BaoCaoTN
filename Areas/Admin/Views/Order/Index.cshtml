@@ -1,7 +1,7 @@
 ﻿@model MyWebApp.ViewModels.ListViewModel
 
 @{
-    ViewData["Title"] = "Quản lý đơn hàng";
+
     uint STT = (uint)((Model.CurrentPage - 1) * 10 + 1); // Bắt đầu theo page
     string orderCode = Context.Request.Query["orderCode"];
     string userName = Context.Request.Query["userName"];
@@ -131,8 +131,7 @@
                     </a>
                 </td>
                 <td>
-                    <form asp-action="Delete" asp-route-id="@order.OrderId" method="post" style="display:inline"
-                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này không?');">
+                    <form asp-action="Delete" asp-route-id="@order.OrderId" method="post" style="display:inline">
                         <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
                     </form>
                 </td>

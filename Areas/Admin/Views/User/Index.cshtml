@@ -1,7 +1,6 @@
 ﻿@model MyWebApp.ViewModels.ListViewModel
 
 @{
-    ViewData["Title"] = "Quản lý người dùng";
     int index = (Model.CurrentPage - 1) * 10 + 1;
 }
 
@@ -11,6 +10,23 @@
     <a class = "btn btn-primary" asp-controller = "User" asp-action = "AddUser">
         <i class = "bi bi-person-plus"></i> Thêm người dùng
     </a>
+    <!-- Bộ lọc Role -->
+    <form asp-action = "Index" method = "get" class = "d-flex">
+        <select name = "role" class = "form-select me-2" style = "min-width: 200px;">
+            <option value = "">-- Tất cả vai trò --</option>
+            @foreach (var role in ViewBag.Roles as List<string>)
+            {
+                <option value = "@role" selected = "@(role == Context.Request.Query["role"] ? "selected" : null)">
+                    @role
+                </option>
+            }
+        </select>
+        <button type = "submit" class = "btn btn-secondary">Lọc</button>
+    </form>
+
+    <span class = "text-muted fst-italic">
+        Trang @Model.CurrentPage / @Model.TotalPages
+    </span>
     <span class = "text-muted fst-italic">Trang @Model.CurrentPage / @Model.TotalPages</span>
 </div>
 
@@ -44,18 +60,11 @@
                 <td>@user.Email</td>
                 <td>@user.PhoneNumber</td>
                 <td>@user.CreatedDate.ToString("dd/MM/yyyy")</td>
-                <td>
-                    @if (user.IsLocked)
-                    {
-                        <span class = "badge bg-danger">Bị khóa</span>
-                    }
-                    else
-                    {
-                        <span class = "badge bg-success">Hoạt động</span>
-                    }
+                <td id="status-@user.UserName">
+                    <span class="badge bg-secondary">Offline</span>
                 </td>
                 <td>
-                    <span class = "badge bg-info text-dark">@user.Role</span>
+                    <span class="badge bg-info text-dark">@user.Role</span>
                 </td>
                 <td>
                     <a class = "btn btn-sm btn-info" asp-action = "Detail" asp-route-id = "@user.Id">Chi tiết</a>
@@ -72,3 +81,39 @@
     </tbody>
 </table>
 @await Html.PartialAsync("_Paganite", Model)
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/presenceHub")
+            .withAutomaticReconnect()
+            .build();
+
+        // Khi tab mới kết nối, nhận danh sách online hiện tại
+        connection.on("CurrentOnlineUsers", function(users){
+            // Reset tất cả badge về Offline
+            document.querySelectorAll("[id^='status-']").forEach(td => {
+                td.innerHTML = '<span class="badge bg-secondary">Offline</span>';
+            });
+
+            // Update badge Online cho những user online
+            users.forEach(u => {
+                const badge = document.getElementById("status-" + u);
+                if (badge) badge.innerHTML = '<span class="badge bg-success">Online</span>';
+            });
+        });
+
+        connection.on("UserOnline", function(userName){
+            const badge = document.getElementById("status-" + userName);
+            if (badge) badge.innerHTML = '<span class="badge bg-success">Online</span>';
+        });
+
+        connection.on("UserOffline", function(userName){
+            const badge = document.getElementById("status-" + userName);
+            if (badge) badge.innerHTML = '<span class="badge bg-secondary">Offline</span>';
+        });
+
+        connection.start().catch(err => console.error(err.toString()));
+    </script>
+}

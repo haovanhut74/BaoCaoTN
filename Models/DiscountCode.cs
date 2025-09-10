@@ -12,7 +12,7 @@ public class DiscountCode
     public string Code { get; set; }
 
     [Display(Name = "Giảm theo số tiền")]
-    [Range(0, 1000000)]
+    [Range(0, 10000000000)]
     public decimal DiscountAmount { get; set; }
 
     [Display(Name = "Giảm theo phần trăm")]

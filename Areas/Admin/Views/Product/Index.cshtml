@@ -8,12 +8,25 @@
 <div class = "container mt-4">
     <h2 class = "mb-4 text-primary"><i class = "fa fa-boxes me-2"></i>Quản lý sản phẩm</h2>
 
-    <div class = "mb-3 text-end">
-        <a asp-area = "Admin" asp-action = "Create" asp-controller = "Product" class = "btn btn-success">
-            <i class = "fa fa-plus"></i> Thêm sản phẩm
-        </a>
-    </div>
 
+    <div class = "mb-3 text-end">
+        <div class = "mb-3 text-end">
+
+            <a asp-area = "Admin" asp-controller = "Product" asp-action = "ExportCsv" class = "btn btn-outline-primary me-1">
+                <i class = "fa fa-file-csv"></i> Xuất CSV
+            </a>
+            <a asp-area = "Admin" asp-controller = "Product" asp-action = "ExportExcel" class = "btn btn-outline-success me-1">
+                <i class = "fa fa-file-excel"></i> Xuất Excel
+            </a>
+            <a asp-area = "Admin" asp-controller = "Product" asp-action = "ExportPdf" class = "btn btn-outline-danger">
+                <i class = "fa fa-file-pdf"></i> Xuất PDF
+            </a>
+            <a asp-area = "Admin" asp-action = "Create" asp-controller = "Product" class = "btn btn-success">
+                <i class = "fa fa-plus"></i> Thêm sản phẩm
+            </a>
+        </div>
+
+    </div>
     @if (!Model.Products.Any())
     {
         <div class = "alert alert-info text-center">Chưa có sản phẩm nào được thêm.</div>
@@ -21,17 +34,7 @@
     else
     {
         <div class = "table-responsive shadow-sm rounded">
-            <div class = "mb-3 text-end">
-                <a asp-area = "Admin" asp-controller = "Product" asp-action = "ExportCsv" class = "btn btn-outline-primary me-1">
-                    <i class = "fa fa-file-csv"></i> Xuất CSV
-                </a>
-                <a asp-area = "Admin" asp-controller = "Product" asp-action = "ExportExcel" class = "btn btn-outline-success me-1">
-                    <i class = "fa fa-file-excel"></i> Xuất Excel
-                </a>
-                <a asp-area = "Admin" asp-controller = "Product" asp-action = "ExportPdf" class = "btn btn-outline-danger">
-                    <i class = "fa fa-file-pdf"></i> Xuất PDF
-                </a>
-            </div>
+
 
             <table id = "myTable" class = "table table-bordered table-hover align-middle text-center">
                 <thead class = "table-dark">

@@ -19,4 +19,8 @@ public class Contact
     public string Message { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
+    
+    // Thêm phần trả lời
+    public string? Reply { get; set; }
+    public DateTime? ReplyAt { get; set; }
 }

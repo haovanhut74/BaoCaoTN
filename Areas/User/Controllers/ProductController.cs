@@ -205,8 +205,6 @@ public class ProductController : BaseController
     [HttpGet]
     public async Task<IActionResult> ComparePartial(List<Guid> productIds)
     {
-        if (productIds == null && productIds.Count < 2 || productIds.Count > 2)
-            return Content("Vui lòng chọn tối đa 2 sản phẩm");
         var products = await _context.Products
             .Include(p => p.Brand)
             .Include(p => p.Specifications)

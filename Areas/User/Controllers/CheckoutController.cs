@@ -97,7 +97,9 @@ public class CheckoutController : BaseController
                 UserName = User.Identity?.Name ?? "Unknown",
                 OrderDate = DateTime.Now,
                 Status = 1,
+                Address = shipping.City + ", " + shipping.District + ", " + fullAddress,
                 ShippingFee = shippingFee,
+                TotalDiscount = discountAmount,
                 TotalAmount = subtotal + shippingFee - discountAmount,
                 FullAddress = fullAddress,
                 PaymentMethod = paymentMethodDisplay

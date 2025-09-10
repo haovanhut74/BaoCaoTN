@@ -1,60 +1,149 @@
-﻿<nav class = "col-md-2 d-none d-md-block sidebar px-3 py-4">
-    <h4 class = "text-white mb-4"><i class = "fa fa-cogs me-2"></i>Trang quản trị</h4>
-    <ul class = "nav flex-column">
-        <li class = "nav-item mb-2">
-            <a class = "nav-link" asp-controller = "Dashboard" asp-action = "Index"><i class = "fa fa-chart-line me-2"></i>
-                Thống kê</a>
-        </li>
-        <li class = "nav-item mb-2">
-            <a class = "nav-link" asp-controller = "Product" asp-action = "Index"><i class = "fa fa-box me-2"></i>
-                Quản lý sản phẩm
+﻿<link href = "~/css/Admin/AdminUI.css" rel = "stylesheet"/>
+
+<!-- Mobile Toggle Button -->
+<button class = "sidebar-toggle" onclick = "toggleSidebar()">
+    <i class = "fas fa-bars"></i>
+</button>
+
+<!-- Admin Sidebar -->
+<nav class = "admin-sidebar" id = "adminSidebar">
+    <!-- Sidebar Header -->
+    <div class = "sidebar-header">
+        <div class = "user-info">
+            <div class = "user-avatar">
+                <i class = "fas fa-user"></i>
+            </div>
+            <div>
+                <div style = "font-weight: 600; font-size: 0.9rem;"></div>
+                <div style = "font-size: 0.8rem; opacity: 0.8;">@User?.Identity?.Name</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Menu -->
+    <ul class = "sidebar-menu">
+        <li class = "menu-item">
+            <a asp-controller = "Product" asp-action = "Index" asp-area = "Admin" class = "menu-link">
+                <i class = "fas fa-chart-line menu-icon"></i>
+                <span class = "menu-text">Thống kê</span>
             </a>
         </li>
-        <li class = "nav-item mb-2">
-            <a class = "nav-link" asp-controller = "Category" asp-action = "Index"><i class = "fa fa-box me-2"></i>
-                Quản lý danh mục
+        <li class = "menu-item">
+            <a asp-controller = "Product" asp-action = "Index" asp-area = "Admin" class = "menu-link">
+                <i class = "fas fa-box menu-icon"></i>
+                <span class = "menu-text">Quản lý sản phẩm</span>
+                @* <span class = "menu-badge"></span> *@
             </a>
         </li>
-        <li class = "nav-item mb-2">
-            <a class = "nav-link" asp-controller = "Brand" asp-action = "Index"><i class = "fa fa-box me-2"></i>
-                Quản lý thương hiệu
+        <li class = "menu-item">
+            <a asp-controller = "Category" asp-action = "Index" asp-area = "Admin" class = "menu-link">
+                <i class = "fas fa-tags menu-icon"></i>
+                <span class = "menu-text">Quản lý danh mục</span>
             </a>
         </li>
-        <li class = "nav-item mb-2">
-            <a class = "nav-link" asp-controller = "Order" asp-action = "Index"><i class = "fa fa-receipt me-2"></i>
-                Đơn hàng</a>
+        <li class = "menu-item">
+            <a asp-controller = "Brand" asp-action = "Index" asp-area = "Admin" class = "menu-link">
+                <i class = "fas fa-star menu-icon"></i>
+                <span class = "menu-text">Quản lý thương hiệu</span>
+            </a>
         </li>
-        <li class = "nav-item mb-2">
-            <a class = "nav-link" asp-controller = "User" asp-action = "Index"><i class = "fa fa-users me-2"></i>
-                Người dùng</a>
+        <li class = "menu-item">
+            <a asp-controller = "Order" asp-action = "Index" asp-area = "Admin" class = "menu-link">
+                <i class = "fas fa-receipt menu-icon"></i>
+                <span class = "menu-text">Đơn hàng</span>
+                @* <span class = "menu-badge"></span> *@
+            </a>
         </li>
-        <li class = "nav-item mb-2">
-            <a class = "nav-link" asp-controller = "Comment" asp-action = "Index"><i class = "fa fa-users me-2"></i>
-                Bình luận</a>
+        <li class = "menu-item">
+            <a asp-controller = "User" asp-action = "Index" asp-area = "Admin" class = "menu-link">
+                <i class = "fas fa-users menu-icon"></i>
+                <span class = "menu-text">Người dùng</span>
+            </a>
         </li>
-        <li class = "nav-item mb-2">
-            <a class = "nav-link" asp-controller = "Role" asp-action = "Index"><i class = "fa fa-users me-2"></i>
-                Quyền hạn</a>
+        <li class = "menu-item">
+            <a asp-controller = "Comment" asp-action = "Index" asp-area = "Admin" class = "menu-link">
+                <i class = "fas fa-comments menu-icon"></i>
+                <span class = "menu-text">Bình luận</span>
+                @* <span class = "menu-badge"></span> *@
+            </a>
         </li>
-        <li class = "nav-item mb-2">
-            <a class = "nav-link" asp-controller = "Sliders" asp-action = "Index"><i class = "fa fa-users me-2"></i>
-                Slider</a>
+        <li class = "menu-item">
+            <a asp-controller = "Role" asp-action = "Index" asp-area = "Admin" class = "menu-link">
+                <i class = "fas fa-shield-alt menu-icon"></i>
+                <span class = "menu-text">Quyền hạn</span>
+            </a>
         </li>
-        <li class = "nav-item mb-2">
-            <a class = "nav-link" asp-controller = "Contact" asp-action = "Index"><i class = "fa fa-users me-2"></i>
-                Contact</a>
+        <li class = "menu-item">
+            <a asp-controller = "Sliders" asp-action = "Index" asp-area = "Admin" class = "menu-link">
+                <i class = "fas fa-images menu-icon"></i>
+                <span class = "menu-text">Slider</span>
+            </a>
         </li>
-        <li class = "nav-item mb-2">
-            <a class = "nav-link" asp-controller = "Shiping" asp-action = "Index"><i class = "fa fa-users me-2"></i>
-                Phí giao hàng</a>
+        <li class = "menu-item">
+            <a asp-controller = "Contact" asp-action = "Index" asp-area = "Admin" class = "menu-link">
+                <i class = "fas fa-envelope menu-icon"></i>
+                <span class = "menu-text">Liên hệ</span>
+            </a>
         </li>
-        <li class = "nav-item mb-2">
-            <a class = "nav-link" asp-controller = "DiscountCodes" asp-action = "Index"><i class = "fa fa-users me-2"></i>
-                Mã giảm giá</a>
+        <li class = "menu-item">
+            <a asp-controller = "Shiping" asp-action = "Index" asp-area = "Admin" class = "menu-link">
+                <i class = "fas fa-shipping-fast menu-icon"></i>
+                <span class = "menu-text">Phí giao hàng</span>
+            </a>
         </li>
-        <li class = "nav-item mb-2">
-            <a class = "nav-link" asp-controller = "DiscountCodes" asp-action = "Index"><i class = "fa fa-users me-2"></i>
-                Province</a>
+        <li class = "menu-item">
+            <a asp-controller = "DiscountCodes" asp-action = "Index" asp-area = "Admin" class = "menu-link">
+                <i class = "fas fa-percentage menu-icon"></i>
+                <span class = "menu-text">Mã giảm giá</span>
+            </a>
         </li>
     </ul>
+
 </nav>
+
+
+@section Scripts{
+    <script src = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('adminSidebar');
+            sidebar.classList.toggle('show');
+        }
+
+        // Active menu item handling
+        document.querySelectorAll('.menu-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Remove active class from all links
+                document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
+
+                // Add active class to clicked link
+                this.classList.add('active');
+
+                // Close sidebar on mobile after selection
+                if (window.innerWidth <= 768) {
+                    document.getElementById('adminSidebar').classList.remove('show');
+                }
+            });
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function (e) {
+            const sidebar = document.getElementById('adminSidebar');
+            const toggle = document.querySelector('.sidebar-toggle');
+
+            if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                sidebar.classList.remove('show');
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 768) {
+                document.getElementById('adminSidebar').classList.remove('show');
+            }
+        });
+    </script>
+}

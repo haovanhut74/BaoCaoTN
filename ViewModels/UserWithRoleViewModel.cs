@@ -11,4 +11,8 @@ public class UserWithRoleViewModel
     public bool IsLocked { get; set; }
     public string MainAddress { get; set; } = string.Empty;
     public string SubAddress { get; set; } = string.Empty;
+    public DateTime? LastActivity { get; set; }
+
+    public bool IsOnline => LastActivity.HasValue &&
+                            (DateTime.UtcNow - LastActivity.Value).TotalMinutes < 1;
 }

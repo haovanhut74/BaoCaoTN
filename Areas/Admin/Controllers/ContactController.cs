@@ -1,12 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
+using MyWebApp.Interface.Service;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
 public class ContactController : BaseController
 {
-    public ContactController(DataContext context) : base(context) { }
+    private readonly IEmailSender _emailSender;
+
+    public ContactController(DataContext context, IEmailSender emailSender) : base(context)
+    {
+        _emailSender = emailSender;
+    }
 
     // Danh sách liên hệ
     public async Task<IActionResult> Index(string? search, int page = 1, int pageSize = 10)
@@ -52,5 +59,32 @@ public class ContactController : BaseController
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    // GET: Hiển thị form trả lời
+    public async Task<IActionResult> Reply(int id)
+    {
+        var contact = await _context.Contacts.FindAsync(id);
+        if (contact == null) return NotFound();
+        return View(contact);
+    }
+
+    // Gửi trả lời qua email
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Reply(int id, string replyMessage)
+    {
+        var contact = await _context.Contacts.FindAsync(id);
+        if (contact == null) return NotFound();
+
+        // Gửi mail
+        await _emailSender.SendEmailAsync(
+            contact.Email,
+            $"Trả lời liên hệ: {contact.Subject}",
+            replyMessage
+        );
+
+        TempData["Success"] = $"Đã gửi mail trả lời tới {contact.Email}";
+        return RedirectToAction(nameof(Detail), new { id });
     }
 }

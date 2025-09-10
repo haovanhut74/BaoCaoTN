@@ -17,10 +17,17 @@
         </thead>
         <tbody>
         <tr>
-            <td class = "feature">Giá</td>
+            <td class = "feature">Giá gốc</td>
             @foreach (var p in Model)
             {
                 <td class = "value price">@p.Price.ToString("N0") VND</td>
+            }
+        </tr>
+        <tr>
+            <td class = "feature">Giá giảm</td>
+            @foreach (var p in Model)
+            {
+                <td class = "value price">@p.DiscountPrice?.ToString("N0") VND</td>
             }
         </tr>
         <tr>

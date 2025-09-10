@@ -7,4 +7,7 @@ public class ApplicationUser : IdentityUser
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public string MainAddress { get; set; } = "";
     public string SubAddress { get; set; } = "";
+     
+    //
+    // public DateTime? LastActivity { get; set; }
 }

@@ -30,16 +30,34 @@ public class UserController : BaseController
 
     // Trang danh sách người dùng
     [HasPermission("ManageUsers")]
-    public async Task<IActionResult> Index(int page = 1)
+    public async Task<IActionResult> Index(int page = 1, string role = "")
     {
         int pageSize = 10;
-        int totalItems = await _context.Users.CountAsync();
 
-        var users = await _userManager.Users
+        // Lấy danh sách Roles để render filter dropdown
+        var allRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+        ViewBag.Roles = allRoles;
+
+        var query = _userManager.Users.AsQueryable();
+
+        if (!string.IsNullOrEmpty(role))
+        {
+            // Lấy Id user thuộc role này
+            var userIdsInRole = await (from ur in _context.UserRoles
+                join r in _context.Roles on ur.RoleId equals r.Id
+                where r.Name == role
+                select ur.UserId).ToListAsync();
+
+            query = query.Where(u => userIdsInRole.Contains(u.Id));
+        }
+
+        int totalItems = await query.CountAsync();
+
+        var users = await query
             .OrderByDescending(u => u.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync(); // <-- áp dụng phân trang đúng cách
+            .ToListAsync();
 
         var userIds = users.Select(u => u.Id).ToList();
 

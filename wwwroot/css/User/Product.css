@@ -215,7 +215,7 @@ body{
 }
 
 #compareModal .modal-dialog {
-    max-width: 80%;
+    max-width: 100%;
     height: auto;
 }
 
@@ -253,6 +253,6 @@ table.compare-table th, table.compare-table td {
 .fade-in {
     position: relative; /* để không tạo stacking context cao hơn modal */
 }
-.modal-content {
-    margin-top: 200px;
-}
+/*.modal-content {*/
+/*    margin-top: 200px;*/
+/*}*/

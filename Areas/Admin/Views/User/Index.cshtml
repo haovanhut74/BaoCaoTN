@@ -60,11 +60,11 @@
                 <td>@user.Email</td>
                 <td>@user.PhoneNumber</td>
                 <td>@user.CreatedDate.ToString("dd/MM/yyyy")</td>
-                <td id="status-@user.UserName">
-                    <span class="badge bg-secondary">Offline</span>
+                <td id = "status-@user.Id">
+                    <span class = "badge bg-secondary">Offline</span>
                 </td>
                 <td>
-                    <span class="badge bg-info text-dark">@user.Role</span>
+                    <span class = "badge bg-info text-dark">@user.Role</span>
                 </td>
                 <td>
                     <a class = "btn btn-sm btn-info" asp-action = "Detail" asp-route-id = "@user.Id">Chi tiết</a>
@@ -86,34 +86,35 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script>
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/presenceHub")
+            .withUrl("/presenceHub", { withCredentials: true }) // bắt buộc gửi cookie auth
             .withAutomaticReconnect()
             .build();
 
-        // Khi tab mới kết nối, nhận danh sách online hiện tại
-        connection.on("CurrentOnlineUsers", function(users){
-            // Reset tất cả badge về Offline
-            document.querySelectorAll("[id^='status-']").forEach(td => {
-                td.innerHTML = '<span class="badge bg-secondary">Offline</span>';
-            });
-
-            // Update badge Online cho những user online
-            users.forEach(u => {
-                const badge = document.getElementById("status-" + u);
-                if (badge) badge.innerHTML = '<span class="badge bg-success">Online</span>';
-            });
+    // Nhận danh sách online khi connect
+    connection.on("CurrentOnlineUsers", function(userIds){
+        document.querySelectorAll("[id^='status-']").forEach(td => {
+            td.innerHTML = '<span class="badge bg-secondary">Offline</span>';
         });
 
-        connection.on("UserOnline", function(userName){
-            const badge = document.getElementById("status-" + userName);
-            if (badge) badge.innerHTML = '<span class="badge bg-success">Online</span>';
+        userIds.forEach(id => {
+            const badge = document.getElementById("status-" + id);
+            if(badge) badge.innerHTML = '<span class="badge bg-success">Online</span>';
         });
+    });
 
-        connection.on("UserOffline", function(userName){
-            const badge = document.getElementById("status-" + userName);
-            if (badge) badge.innerHTML = '<span class="badge bg-secondary">Offline</span>';
-        });
+    // Cập nhật khi có user online mới
+    connection.on("UserOnline", function(userId){
+        const badge = document.getElementById("status-" + userId);
+        if(badge) badge.innerHTML = '<span class="badge bg-success">Online</span>';
+    });
 
-        connection.start().catch(err => console.error(err.toString()));
-    </script>
+    // Cập nhật khi user offline
+    connection.on("UserOffline", function(userId){
+        const badge = document.getElementById("status-" + userId);
+        if(badge) badge.innerHTML = '<span class="badge bg-secondary">Offline</span>';
+    });
+
+    connection.start().catch(err => console.error(err.toString()));
+</script>
 }
+

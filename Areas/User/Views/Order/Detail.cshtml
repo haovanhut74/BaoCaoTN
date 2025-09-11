@@ -1,44 +1,148 @@
 ﻿@model MyWebApp.Models.Order
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng của bạn";
+    ViewData["col-12"] = true;
+    var statusText = Model.Status switch
+    {
+        1 => "🕐 Chờ xác nhận",
+        2 => "✅ Đã xác nhận",
+        3 => "📦 Đang chuẩn bị",
+        4 => "🚚 Đang giao hàng",
+        5 => "✨ Đã giao thành công",
+        _ => "❌ Đã hủy"
+    };
+}
+<link rel = "stylesheet" href = "~/css/User/OrderDetail.css"/>
+<link href = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel = "stylesheet">
+<link href = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel = "stylesheet">
+<div class = "container my-4">
+    <h2 class = "page-title mb-3">Chi tiết đơn hàng</h2>
 
-<h2>Chi tiết đơn hàng</h2>
+    <!-- Thông tin cơ bản -->
+    <div class = "card mb-4 info-card">
+        <div class = "card-header-custom">
+            <i class = "bi bi-info-circle me-2"></i>Thông tin đơn hàng
+        </div>
+        <div class = "card-body info-grid">
+            <div class = "info-item">
+                <div class = "info-icon" style = "background: rgba(99, 102, 241, 0.1); color: var(--primary-color);">
+                    <i class = "bi bi-hash"></i>
+                </div>
+                <div>
+                    <strong>Mã đơn hàng:</strong><br>
+                    <span class = "text-muted">@Model.OrderCode</span>
+                </div>
+            </div>
 
-<p>Ngày đặt: @Model.OrderDate.Date</p>
-<p>Trạng thái: @(Model.Status switch
-                   {
-                       1 => "Chờ xác nhận",
-                       2 => "Đã xác nhận",
-                       3 => "Đã giao",
-                       _ => "Đã hủy"
-                   })</p>
+            <div class = "info-item">
+                <div class = "info-icon" style = "background: rgba(139, 92, 246, 0.1); color: var(--secondary-color);">
+                    <i class = "bi bi-calendar"></i>
+                </div>
+                <div>
+                    <strong>Ngày đặt:</strong><br>
+                    <span class = "text-muted">@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+            </div>
 
-<table class = "table table-bordered">
-    <thead>
-    <tr>
-        <th>STT</th>
-        <th>Tên sản phẩm</th>
-        <th>Hình ảnh</th>
-        <th>Giá</th>
-        <th>Số lượng</th>
-        <th>Thành tiền</th>
-    </tr>
-    </thead>
-    <tbody>
-    @{
-        int stt = 1;
-        foreach (var item in Model.OrderDetails)
-        {
-            <tr>
-                <td>@stt</td>
-                <td>@item.Product?.Name</td>
-                <td><img src = "/img/product/@item.Product?.MainImage" alt = "@item.Product?.Name" width = "100"/></td>
-                <td>@item.Price.ToString("N0") ₫</td>
-                <td>@item.Quantity</td>
-                <td>@((item.Price * item.Quantity).ToString("N0") )₫</td>
-            </tr>
-            stt++;
-        }
-    }
-    </tbody>
-</table>
+            <div class = "info-item">
+                <div class = "info-icon status-confirmed">
+                    <i class = "bi bi-check-circle"></i>
+                </div>
+                <div>
+                    <strong>Trạng thái:</strong><br>
+                    <span class = "text-muted">@statusText</span>
+                </div>
+            </div>
 
-<p><strong>Tổng tiền: </strong> @Model.OrderDetails.Sum(od => od.Quantity * od.Price).ToString("N0") ₫</p>
+            <div class = "info-item">
+                <div class = "info-icon" style = "background: rgba(16, 185, 129, 0.1); color: var(--success-color);">
+                    <i class = "bi bi-credit-card"></i>
+                </div>
+                <div>
+                    <strong>Thanh toán:</strong><br>
+                    <span class = "text-muted">@Model.PaymentMethod</span>
+                </div>
+            </div>
+
+            <div class = "info-item" style = "grid-column: 1 / -1;">
+                <div class = "info-icon" style = "background: rgba(245, 158, 11, 0.1); color: var(--warning-color);">
+                    <i class = "bi bi-geo-alt"></i>
+                </div>
+                <div>
+                    <strong>Địa chỉ giao hàng:</strong><br>
+                    <span class = "text-muted">@Model.Address</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sách sản phẩm -->
+    <div class = "card mb-4 info-card">
+        <div class = "card-header-custom">
+            <i class = "bi bi-bag me-2"></i>Danh sách sản phẩm
+        </div>
+        <div class = "card-body table-responsive">
+            <table class = "table table-custom align-middle">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Hình ảnh</th>
+                    <th>Sản phẩm</th>
+                    <th>Giá</th>
+                    <th>SL</th>
+                    <th>Thành tiền</th>
+                </tr>
+                </thead>
+                <tbody>
+                @for (int i = 0; i < Model.OrderDetails.Count; i++)
+                {
+                    var item = Model.OrderDetails[i];
+                    <tr>
+                        <td><span class = "fw-bold text-primary">@(i + 1)</span></td>
+                        <td>
+                            <img
+                                src = "~/img/product/@item.Product.MainImage"
+                                alt = "@item.Product.Name"
+                                width = "60"
+                                class = "img-thumbnail product-image"
+                            />
+                        </td>
+                        <td><span class = "product-name">@item.Product?.Name</span></td>
+                        <td><span class = "price-text">@item.Price.ToString("N0") ₫</span></td>
+                        <td><span class = "quantity-badge">@item.Quantity</span></td>
+                        <td><span class = "price-text">@((item.Quantity * item.Price).ToString("N0")) ₫</span></td>
+                    </tr>
+                }
+                </tbody>
+                <tfoot>
+                <tr class = "total-row">
+                    <td colspan = "5" class = "text-end fw-bold">
+                        <i class = "bi bi-truck me-2"></i>Phí vận chuyển:
+                    </td>
+                    <td class = "price-text">@Model.ShippingFee.ToString("N0") ₫</td>
+                </tr>
+                <tr class = "total-row">
+                    <td colspan = "5" class = "text-end fw-bold">
+                        <i class = "bi bi-percent me-2"></i>Giảm giá:
+                    </td>
+                    <td class = "discount-text">-@Model.TotalDiscount.ToString("N0") ₫</td>
+                </tr>
+                <tr class = "final-total border-top fw-bold">
+                    <td colspan = "5" class = "text-end">
+                        <i class = "bi bi-calculator me-2"></i>Tổng thanh toán:
+                    </td>
+                    <td>@Model.TotalAmount.ToString("N0") ₫</td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Nút hành động -->
+    <div class = "d-flex gap-3">
+        <a asp-action = "Index" class = "btn btn-secondary">
+            <i class = "bi bi-arrow-left"></i> Quay lại danh sách đơn
+        </a>
+    </div>
+</div>
+<script src = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>

@@ -87,7 +87,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Map Hub sau khi auth đã sẵn sàng
-app.MapHub<PresenceHub>("/presenceHub");
+app.MapHub<PresenceHub>("/presenceHub").RequireAuthorization();
 
 app.MapStaticAssets();
 

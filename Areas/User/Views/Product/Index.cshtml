@@ -29,11 +29,32 @@
     <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
-            // Bắt sự kiện checkbox lọc thay đổi
-            $('#filterForm input[type="checkbox"]').on('change', function () {
+
+            // ------------------------------
+            // Hàm hiển thị toast
+            // ------------------------------
+            function showToast(message, type) {
+                const toastContainer = document.getElementById("toast-container");
+                const toast = document.createElement("div");
+                toast.className = `toast align-items-center text-white bg-${type} border-0 show`;
+                toast.setAttribute("role", "alert");
+                toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+                toastContainer.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+
+            // ------------------------------
+            // Hàm load danh sách sản phẩm bằng Ajax
+            // ------------------------------
+            function loadProducts() {
                 let form = $('#filterForm');
                 let url = '@Url.Action("FilterPartial", "Product", new { area = "User" })';
-
                 $.ajax({
                     url: url,
                     type: 'GET',
@@ -45,9 +66,32 @@
                         showToast("⚠️ Lọc sản phẩm thất bại!", "danger");
                     }
                 });
-            });
+            }
 
-            // Thêm sản phẩm vào giỏ
+            // ------------------------------
+            // Event lọc giá (input) và checkbox lọc
+            // ------------------------------
+            const minInput = $('#minPriceInput');
+            const maxInput = $('#maxPriceInput');
+
+            function updatePriceRange() {
+                let min = parseInt(minInput.val()) || 0;
+                let max = parseInt(maxInput.val()) || 0;
+
+                if (min > max) [min, max] = [min, max]; // hoán đổi nếu nhập nhầm
+                $('#priceRange').text(min.toLocaleString() + " - " + max.toLocaleString());
+
+                loadProducts();
+            }
+
+            minInput.on('input', updatePriceRange);
+            maxInput.on('input', updatePriceRange);
+
+            $('#filterForm input[type="checkbox"]').on('change', loadProducts);
+
+            // ------------------------------
+            // Event thêm sản phẩm vào giỏ hàng
+            // ------------------------------
             $(document).on('click', '.btn-add-to-cart', function () {
                 const productId = $(this).data('id');
                 const token = $('input[name="__RequestVerificationToken"]').val();
@@ -55,50 +99,60 @@
                 $.ajax({
                     url: '@Url.Action("Add", "Cart", new { area = "User" })',
                     type: 'POST',
-                    data: {
-                        id: productId,
-                        __RequestVerificationToken: token
-                    },
+                    data: {id: productId, __RequestVerificationToken: token},
                     success: function (response) {
                         if (response.success) {
-                            showToast(response.message, "success"); // hiển thị message thành công từ server
-
-                            if (response.cartCount !== undefined) {
-                                $("#cartCount").text(response.cartCount);
-                            }
+                            showToast(response.message, "success");
+                            if (response.cartCount !== undefined) $("#cartCount").text(response.cartCount);
                         } else {
-                            // in ra message chi tiết từ server (hết hàng, số lượng vượt quá, v.v.)
                             showToast(response.message, "danger");
                         }
-
-
                     },
-
                     error: function () {
                         showToast("❌ Có lỗi xảy ra!", "danger");
                     }
                 });
             });
+
+            // ------------------------------
+            // Event nút so sánh
+            // ------------------------------
+            function openCompareModal() {
+                const selectedIds = Array.from(document.querySelectorAll(".compare-checkbox:checked"))
+                    .map(cb => cb.value);
+
+                if (selectedIds.length < 2) {
+                    alert("Vui lòng chọn ít nhất 2 sản phẩm để so sánh.");
+                    return;
+                } else if (selectedIds.length > 3) {
+                    alert("Vui lòng chọn tối đa 3 sản phẩm để so sánh.");
+                    return;
+                }
+
+                fetch('@Url.Action("ComparePartial", "Product", new { area = "User" })?productIds=' + selectedIds.join("&productIds="))
+                    .then(res => res.text())
+                    .then(html => {
+                        $('#compareTableContainer').html(html);
+
+                        const compareModalEl = document.getElementById('compareModal');
+                        const compareModal = new bootstrap.Modal(compareModalEl, {
+                            backdrop: false,
+                            keyboard: true
+                        });
+                        compareModal.show();
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("Có lỗi xảy ra, vui lòng thử lại.");
+                    });
+            }
+
+            $(document).on("click", "#compareBtn", function (e) {
+                e.preventDefault();
+                openCompareModal();
+            });
+
         });
-
-        // Hiển thị toast
-        function showToast(message, type) {
-            const toastContainer = document.getElementById("toast-container");
-
-            const toast = document.createElement("div");
-            toast.className = `toast align-items-center text-white bg-${type} border-0 show`;
-            toast.setAttribute("role", "alert");
-            toast.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">${message}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
-                            data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-            `;
-            toastContainer.appendChild(toast);
-
-            setTimeout(() => toast.remove(), 3000);
-        }
     </script>
 
 }

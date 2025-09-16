@@ -28,6 +28,7 @@ public class DataContext : IdentityDbContext<ApplicationUser>
     public DbSet<DiscountCode> DiscountCodes { get; set; }
     public DbSet<GiftPromotion> GiftPromotions { get; set; }
     public DbSet<News> News { get; set; }
+    public DbSet<ChatMessage> ChatMessages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

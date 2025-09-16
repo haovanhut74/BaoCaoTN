@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
 using MyWebApp.Extensions;
+using MyWebApp.Interface.Hubs;
 using MyWebApp.Interface.Service;
 using MyWebApp.Models;
 using MyWebApp.Repository.Service;
@@ -88,7 +89,7 @@ app.UseAuthorization();
 
 // Map Hub sau khi auth đã sẵn sàng
 app.MapHub<PresenceHub>("/presenceHub").RequireAuthorization();
-
+app.MapHub<ChatHub>("/chatHub");
 app.MapStaticAssets();
 
 app.MapControllerRoute(
@@ -102,7 +103,7 @@ app.MapControllerRoute(
     defaults: new { area = "User" }
 ).WithStaticAssets();
 
-app.MapRazorPages(); 
+app.MapRazorPages();
 
 // Seed database
 using (var scope = app.Services.CreateScope())

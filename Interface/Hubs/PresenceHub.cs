@@ -1,9 +1,9 @@
 ﻿using System.Collections.Concurrent;
-using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 using System.Web.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
-namespace MyWebApp.Interface.Service
+namespace MyWebApp.Interface.Hubs
 {
     [Authorize] // đảm bảo chỉ user đã đăng nhập mới connect
     public class PresenceHub : Hub

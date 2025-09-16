@@ -1,0 +1,187 @@
+﻿@{
+    ViewData["Title"] = "Chat Support";
+}
+<link rel = "stylesheet" href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+
+<div class = "container-fluid">
+    <div class = "row">
+        <!-- Rooms list -->
+        <div class = "col-4 border-end" style = "height:80vh; overflow:auto;">
+            <h5 class = "mt-2">Danh sách khách hàng</h5>
+            <ul id = "roomsList" class = "list-group"></ul>
+        </div>
+
+        <!-- Chat box -->
+        <div class = "col-8" style = "height:80vh; display:flex; flex-direction:column;">
+            <div id = "chatHeader" class = "p-2 border-bottom">
+                <strong id = "currentRoomTitle">Chọn khách để bắt đầu chat</strong>
+            </div>
+            <div id = "messagesContainer" style = "flex:1; overflow:auto; padding:10px;"></div>
+            <div class = "p-2 border-top">
+                <div class = "input-group">
+                    <input type = "text" id = "replyMessage" class = "form-control" placeholder = "Nhập tin nhắn..."/>
+                    <button id = "btnSend" class = "btn btn-primary">Gửi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src = "https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
+<script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    const hubUrl = "/chathub";
+    const adminId = "admin"; // id admin
+    let connection;
+    let currentRoomId = null;
+
+    // Start SignalR connection
+    async function startConnection() {
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl(hubUrl + "?roomId=" + encodeURIComponent(adminId))
+            .withAutomaticReconnect()
+            .build();
+
+        // Nhận tin nhắn
+        connection.on("ReceiveMessage", payload => {
+            const {roomId, senderId, senderName, message, sentAt} = payload;
+
+            // Update room list
+            const li = $(`#room-${roomId}`);
+            if (li.length) {
+                li.find(".small.text-muted").text(message);
+                li.find("small.text-muted").text(
+                    new Date(new Date(sentAt).getTime() + 7 * 60 * 60 * 1000)
+                        .toLocaleString("vi-VN", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour12: false
+                        })
+                );
+
+                if(roomId !== currentRoomId){
+                    $(`#room-${roomId}`).addClass("list-group-item-warning");
+                }
+
+            } else {
+                // room mới -> reload danh sách
+                loadRooms();
+            }
+
+            // Nếu đang mở room đó, append message
+            if (roomId === currentRoomId) {
+                appendMessage(roomId, senderId, senderName, message, sentAt);
+            }
+        });
+
+        await connection.start();
+        console.log("Connected to ChatHub as admin");
+    }
+
+    // Append message vào container
+    function appendMessage(roomId, senderId, senderName, message, sentAt) {
+        const container = $("#messagesContainer");
+        const isAdmin = senderId === adminId;
+
+        const date = new Date(sentAt);
+        const timeStr = new Date(date.getTime() + 7 * 60 * 60 * 1000).toLocaleString("vi-VN", {
+            hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric", hour12: false
+        });
+
+        const msgHtml = `
+    <div class="mb-2 d-flex ${isAdmin ? 'justify-content-end' : ''}">
+        <div style="max-width:70%;">
+            <div class="small text-muted">${senderName ?? senderId} • ${timeStr}</div>
+            <div class="p-2 ${isAdmin ? 'bg-primary text-white rounded' : 'bg-light rounded'}">
+                ${escapeHtml(message)}
+            </div>
+        </div>
+    </div>`;
+        container.append(msgHtml);
+        container.scrollTop(container[0].scrollHeight);
+    }
+
+    // Escape HTML
+    function escapeHtml(unsafe) {
+        return unsafe
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    // Load rooms từ server
+    async function loadRooms() {
+        const res = await fetch('@Url.Action("Rooms", "Chat", new { area = "Admin" })');
+        const rooms = await res.json();
+        const ul = $("#roomsList").empty();
+
+        if (rooms.length === 0) {
+            ul.append('<li class="list-group-item">Chưa có cuộc chat</li>');
+            return;
+        }
+
+        rooms.forEach(r => {
+            const li = $(`
+        <li id="room-${r.roomId}" class="list-group-item d-flex justify-content-between align-items-start" style="cursor:pointer;" data-username="${r.userName}">
+            <div>
+                <div class="fw-bold">${r.userName}</div>
+                <div class="small text-muted">${r.lastMessage ?? ''}</div>
+            </div>
+            <small class="text-muted">
+                ${new Date(new Date(r.lastAt).getTime() + 7 * 60 * 60 * 1000).toLocaleString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour12: false
+            })}
+            </small>
+        </li>
+        `);
+            li.click(() => openRoom(r.roomId, r.userName));
+            ul.append(li);
+        });
+    }
+
+    // Mở room
+    async function openRoom(roomId, userName) {
+        currentRoomId = roomId;
+        $("#currentRoomTitle").text("Chat với: " + (userName?.trim() || "Khách"));
+        $("#messagesContainer").empty();
+        $("#roomsList .list-group-item").removeClass("list-group-item-warning");
+
+        // join room
+        await connection.invoke("JoinRoom", roomId);
+
+        // load tin nhắn cũ
+        const res = await fetch('@Url.Action("Messages", "Chat", new { area = "Admin" })?roomId=' + encodeURIComponent(roomId));
+        const msgs = await res.json();
+        msgs.forEach(m => appendMessage(m.roomId, m.senderId, m.senderName, m.message, m.sentAt));
+    }
+
+    // Gửi tin nhắn
+    async function sendMessage() {
+        const text = $("#replyMessage").val().trim();
+        if (!text || !currentRoomId) return;
+        await connection.invoke("SendMessageToRoom", currentRoomId, adminId, "Admin", text);
+        $("#replyMessage").val("");
+    }
+
+    // Init
+    $(function () {
+        startConnection().catch(err => console.error(err));
+        loadRooms();
+        $("#btnSend").click(sendMessage);
+        $("#replyMessage").keydown(e => {
+            if (e.key === "Enter") sendMessage();
+        });
+    });
+</script>
+

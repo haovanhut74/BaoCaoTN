@@ -29,7 +29,7 @@ public class DiscountCodesController : BaseController
     {
         if (ModelState.IsValid)
         {
-            discountCode.Id = Guid.NewGuid(); 
+            discountCode.Id = Guid.NewGuid();
             _context.DiscountCodes.Add(discountCode);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -68,15 +68,6 @@ public class DiscountCodesController : BaseController
             return RedirectToAction(nameof(Index));
         }
 
-
-        return View(discountCode);
-    }
-
-    // GET: Admin/DiscountCodes/Delete/{id}
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        var discountCode = await _context.DiscountCodes.FindAsync(id);
-        if (discountCode == null) return NotFound();
         return View(discountCode);
     }
 

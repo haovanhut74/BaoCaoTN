@@ -2,7 +2,7 @@
     ViewData["Title"] = "Chat Support";
 }
 <link rel = "stylesheet" href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
-
+<link rel = "stylesheet" href = "/css/Admin/ChatAdmin.css"/>
 <div class = "container-fluid">
     <div class = "row">
         <!-- Rooms list -->
@@ -12,7 +12,7 @@
         </div>
 
         <!-- Chat box -->
-        <div class = "col-8" style = "height:80vh; display:flex; flex-direction:column;">
+        <div class = "col-8" style = "background: #b1d4f3 ;height:80vh; display:flex; flex-direction:column;">
             <div id = "chatHeader" class = "p-2 border-bottom">
                 <strong id = "currentRoomTitle">Chọn khách để bắt đầu chat</strong>
             </div>
@@ -27,7 +27,7 @@
     </div>
 </div>
 
-<script src = "https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"></script>
+<script src = "https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
@@ -43,44 +43,41 @@
             .withAutomaticReconnect()
             .build();
 
-        // Nhận tin nhắn
+        // Bỏ listener cũ (nếu có) để tránh bị trùng
+        connection.off("ReceiveMessage");
+
+        // Đăng ký listener
         connection.on("ReceiveMessage", payload => {
             const {roomId, senderId, senderName, message, sentAt} = payload;
 
-            // Update room list
+            // Append message, update room list
             const li = $(`#room-${roomId}`);
             if (li.length) {
                 li.find(".small.text-muted").text(message);
                 li.find("small.text-muted").text(
                     new Date(new Date(sentAt).getTime() + 7 * 60 * 60 * 1000)
-                        .toLocaleString("vi-VN", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour12: false
-                        })
+                        .toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric", hour12: false })
                 );
 
                 if(roomId !== currentRoomId){
                     $(`#room-${roomId}`).addClass("list-group-item-warning");
                 }
-
             } else {
-                // room mới -> reload danh sách
                 loadRooms();
             }
 
-            // Nếu đang mở room đó, append message
             if (roomId === currentRoomId) {
                 appendMessage(roomId, senderId, senderName, message, sentAt);
             }
         });
 
-        await connection.start();
-        console.log("Connected to ChatHub as admin");
+        // Chỉ start connection 1 lần
+        if (connection.state !== "Connected") {
+            await connection.start();
+            console.log("Connected to ChatHub as admin");
+        }
     }
+
 
     // Append message vào container
     function appendMessage(roomId, senderId, senderName, message, sentAt) {

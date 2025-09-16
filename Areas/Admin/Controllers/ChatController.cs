@@ -25,13 +25,13 @@ public class ChatController : BaseController
             .Select(g => new
             {
                 Id = g.Key,
-                UserName = g.First().SenderName, // hoặc lấy từ bảng User nếu có
+                UserName = g.FirstOrDefault(x => x.SenderId != "admin").SenderName ?? "Khách", 
                 LastMessage = g.OrderByDescending(x => x.SentAt).First().Message,
                 LastAt = g.OrderByDescending(x => x.SentAt).First().SentAt
             })
+            .OrderByDescending(r => r.LastAt) // ← thêm dòng này
             .ToList();
 
-        // decode username để không bị Kh&#xE1;ch
         return Json(rooms.Select(r => new
         {
             roomId = r.Id,
@@ -40,6 +40,7 @@ public class ChatController : BaseController
             lastAt = r.LastAt
         }));
     }
+
 
     // API: Lấy history tin nhắn của room
     [HttpGet]

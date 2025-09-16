@@ -11,7 +11,7 @@ public class ChatHub : Hub
 
     // Map userId -> connectionId (multi connections per user supported with list if muốn)
     // For simplicity, use ConcurrentDictionary<string, string> storing latest connectionId per user
-    private static readonly ConcurrentDictionary<string, string> _connections = new();
+    private static readonly ConcurrentDictionary<string, HashSet<string>> _connections = new();
 
     public ChatHub(DataContext context)
     {
@@ -21,12 +21,12 @@ public class ChatHub : Hub
     public override async Task OnConnectedAsync()
     {
         var http = Context.GetHttpContext();
-        var roomId = http?.Request.Query["roomId"].ToString(); // roomId = userId or "admin"
+        var roomId = http?.Request.Query["roomId"].ToString();
         if (!string.IsNullOrEmpty(roomId))
         {
-            // Save mapping
-            _connections[roomId] = Context.ConnectionId;
-            // Join the group for that room
+            _connections.TryAdd(roomId, new HashSet<string>());
+            _connections[roomId].Add(Context.ConnectionId);
+
             await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
         }
 
@@ -35,27 +35,32 @@ public class ChatHub : Hub
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        // remove mapping(s) that point to this connection
-        var item = _connections.FirstOrDefault(kvp => kvp.Value == Context.ConnectionId);
-        if (!string.IsNullOrEmpty(item.Key))
+        var roomEntry = _connections.FirstOrDefault(kvp => kvp.Value.Contains(Context.ConnectionId));
+        if (!string.IsNullOrEmpty(roomEntry.Key))
         {
-            _connections.TryRemove(item.Key, out _);
+            _connections[roomEntry.Key].Remove(Context.ConnectionId);
+            if (_connections[roomEntry.Key].Count == 0)
+                _connections.TryRemove(roomEntry.Key, out _);
         }
 
         await base.OnDisconnectedAsync(exception);
     }
 
-    // User or Admin calls this to join a room (roomId = userId)
+
     public async Task JoinRoom(string roomId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, roomId);
-        _connections[roomId] = Context.ConnectionId;
+
+        // Tạo HashSet nếu chưa tồn tại
+        _connections.TryAdd(roomId, new HashSet<string>());
+
+        // Thêm connectionId vào set
+        _connections[roomId].Add(Context.ConnectionId);
     }
 
-    // Gửi message trong room -> mọi client join room nhận
+
     public async Task SendMessageToRoom(string roomId, string senderId, string senderName, string message)
     {
-        // Save to DB
         var chat = new ChatMessage
         {
             RoomId = roomId,
@@ -67,7 +72,7 @@ public class ChatHub : Hub
         _context.ChatMessages.Add(chat);
         await _context.SaveChangesAsync();
 
-        // gửi tới group (room)
+        // Gửi tới tất cả trong room (user + admin đã join)
         await Clients.Group(roomId).SendAsync("ReceiveMessage", new
         {
             roomId,
@@ -76,22 +81,25 @@ public class ChatHub : Hub
             message,
             sentAt = chat.SentAt
         });
-        // gửi luôn cho admin
+
         if (roomId != "admin")
         {
-            if (_connections.TryGetValue("admin", out var adminConn))
+            if (_connections.TryGetValue("admin", out var adminConns))
             {
-                await Clients.Client(adminConn).SendAsync("ReceiveMessage", new
+                foreach (var connId in adminConns)
                 {
-                    roomId,
-                    senderId,
-                    senderName,
-                    message,
-                    sentAt = chat.SentAt
-                });
+                    // Kiểm tra connection này có nằm trong room hiện tại không
+                    if (!_connections.TryGetValue(roomId, out var roomConns) || !roomConns.Contains(connId))
+                    {
+                        await Clients.Client(connId).SendAsync("ReceiveMessage",
+                            new { roomId, senderId, senderName, message, sentAt = chat.SentAt });
+                    }
+                }
             }
         }
+
     }
+
 
     // Tùy chọn: Admin có thể gửi trực tiếp tới connectionId nếu cần
     public async Task SendDirect(string connectionId, string senderName, string message)

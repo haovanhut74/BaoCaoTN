@@ -3,19 +3,21 @@
 }
 <link rel = "stylesheet" href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
 <link rel = "stylesheet" href = "/css/Admin/ChatAdmin.css"/>
+
 <div class = "container-fluid">
-    <div class = "row">
+    <div class = "row" style = "height:80vh;">
         <!-- Rooms list -->
-        <div class = "col-4 border-end" style = "height:80vh; overflow:auto;">
-            <h5 class = "mt-2">Danh sách khách hàng</h5>
-            <ul id = "roomsList" class = "list-group"></ul>
+        <div class = "col-4 border-end d-flex flex-column">
+            <div class = "p-3 border-bottom bg-white"><h5>Danh sách khách hàng</h5></div>
+            <div style = "flex:1; overflow-y:auto;">
+                <ul id = "roomsList" class = "list-group list-group-flush"></ul>
+            </div>
         </div>
 
         <!-- Chat box -->
-        <div class = "col-8" style = "background: #b1d4f3 ;height:80vh; display:flex; flex-direction:column;">
-            <div id = "chatHeader" class = "p-2 border-bottom">
-                <strong id = "currentRoomTitle">Chọn khách để bắt đầu chat</strong>
-            </div>
+        <div class = "col-8 d-flex flex-column" style = "background: #b1d4f3;">
+            <div id = "chatHeader" class = "p-2 border-bottom"><strong id = "currentRoomTitle">Chọn khách để bắt đầu
+                    chat</strong></div>
             <div id = "messagesContainer" style = "flex:1; overflow:auto; padding:10px;"></div>
             <div class = "p-2 border-top">
                 <div class = "input-group">
@@ -32,7 +34,7 @@
 
 <script>
     const hubUrl = "/chathub";
-    const adminId = "admin"; // id admin
+    const adminId = "admin";
     let connection;
     let currentRoomId = null;
 
@@ -43,76 +45,82 @@
             .withAutomaticReconnect()
             .build();
 
-        // Bỏ listener cũ (nếu có) để tránh bị trùng
-        connection.off("ReceiveMessage");
-
-        // Đăng ký listener
         connection.on("ReceiveMessage", payload => {
             const {roomId, senderId, senderName, message, sentAt} = payload;
+            let li = $(`#room-${roomId}`);
 
-            // Append message, update room list
-            const li = $(`#room-${roomId}`);
-            if (li.length) {
+            if (li.length === 0) {
+                // Room mới → tự thêm + highlight
+                li = $(/* ... */);
+                li.click(() => openRoom(roomId, senderName));
+                $("#roomsList").prepend(li); // room mới → prepend
+            } else {
+                // Room cũ → cập nhật last message
                 li.find(".small.text-muted").text(message);
                 li.find("small.text-muted").text(
                     new Date(new Date(sentAt).getTime() + 7 * 60 * 60 * 1000)
-                        .toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric", hour12: false })
+                        .toLocaleString("vi-VN", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour12: false
+                        })
                 );
 
-                if(roomId !== currentRoomId){
-                    $(`#room-${roomId}`).addClass("list-group-item-warning");
+                if (roomId !== currentRoomId) {
+                    li.addClass("list-group-item-warning"); // highlight
                 }
-            } else {
-                loadRooms();
+
+                // **Điều quan trọng: đưa lên đầu**
+                li.prependTo("#roomsList"); // hoặc $("#roomsList").prepend(li);
             }
 
+
+            // Append message vào chat box nếu đang mở
             if (roomId === currentRoomId) {
                 appendMessage(roomId, senderId, senderName, message, sentAt);
             }
         });
 
-        // Chỉ start connection 1 lần
-        if (connection.state !== "Connected") {
-            await connection.start();
-            console.log("Connected to ChatHub as admin");
-        }
+        await connection.start();
+        console.log("Connected to ChatHub as admin");
     }
 
-
-    // Append message vào container
+    // Append message
     function appendMessage(roomId, senderId, senderName, message, sentAt) {
         const container = $("#messagesContainer");
         const isAdmin = senderId === adminId;
-
         const date = new Date(sentAt);
-        const timeStr = new Date(date.getTime() + 7 * 60 * 60 * 1000).toLocaleString("vi-VN", {
-            hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric", hour12: false
-        });
+        const timeStr = new Date(date.getTime() + 7 * 60 * 60 * 1000)
+            .toLocaleString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour12: false
+            });
 
         const msgHtml = `
-    <div class="mb-2 d-flex ${isAdmin ? 'justify-content-end' : ''}">
-        <div style="max-width:70%;">
-            <div class="small text-muted">${senderName ?? senderId} • ${timeStr}</div>
-            <div class="p-2 ${isAdmin ? 'bg-primary text-white rounded' : 'bg-light rounded'}">
-                ${escapeHtml(message)}
+        <div class="mb-2 d-flex ${isAdmin ? 'justify-content-end' : ''}">
+            <div style="max-width:70%;">
+                <div class="small text-muted">${senderName ?? senderId} • ${timeStr}</div>
+                <div class="p-2 ${isAdmin ? 'bg-primary text-white rounded' : 'bg-light rounded'}">${escapeHtml(message)}</div>
             </div>
-        </div>
-    </div>`;
+        </div>`;
         container.append(msgHtml);
         container.scrollTop(container[0].scrollHeight);
     }
 
-    // Escape HTML
     function escapeHtml(unsafe) {
-        return unsafe
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
+        return unsafe.replaceAll("&", "&amp;").replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;").replaceAll('"', "&quot;")
             .replaceAll("'", "&#039;");
     }
 
-    // Load rooms từ server
+    // Load rooms
     async function loadRooms() {
         const res = await fetch('@Url.Action("Rooms", "Chat", new { area = "Admin" })');
         const rooms = await res.json();
@@ -124,46 +132,43 @@
         }
 
         rooms.forEach(r => {
-            const li = $(`
-        <li id="room-${r.roomId}" class="list-group-item d-flex justify-content-between align-items-start" style="cursor:pointer;" data-username="${r.userName}">
+            const li = $(`<li id="room-${r.roomId}" class="list-group-item d-flex justify-content-between align-items-start" style="cursor:pointer;" data-username="${r.userName}">
             <div>
                 <div class="fw-bold">${r.userName}</div>
                 <div class="small text-muted">${r.lastMessage ?? ''}</div>
             </div>
-            <small class="text-muted">
-                ${new Date(new Date(r.lastAt).getTime() + 7 * 60 * 60 * 1000).toLocaleString("vi-VN", {
-                hour: "2-digit",
-                minute: "2-digit",
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour12: false
-            })}
-            </small>
-        </li>
-        `);
+            <small class="text-muted">${new Date(new Date(r.lastAt).getTime() + 7 * 60 * 60 * 1000)
+                .toLocaleString("vi-VN", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour12: false
+                })}</small>
+        </li>`);
             li.click(() => openRoom(r.roomId, r.userName));
             ul.append(li);
         });
     }
 
-    // Mở room
+    // Open room
     async function openRoom(roomId, userName) {
         currentRoomId = roomId;
         $("#currentRoomTitle").text("Chat với: " + (userName?.trim() || "Khách"));
         $("#messagesContainer").empty();
-        $("#roomsList .list-group-item").removeClass("list-group-item-warning");
 
-        // join room
+        // Remove highlight
+        $(`#room-${roomId}`).removeClass("list-group-item-warning");
+
         await connection.invoke("JoinRoom", roomId);
 
-        // load tin nhắn cũ
         const res = await fetch('@Url.Action("Messages", "Chat", new { area = "Admin" })?roomId=' + encodeURIComponent(roomId));
         const msgs = await res.json();
         msgs.forEach(m => appendMessage(m.roomId, m.senderId, m.senderName, m.message, m.sentAt));
     }
 
-    // Gửi tin nhắn
+    // Send message
     async function sendMessage() {
         const text = $("#replyMessage").val().trim();
         if (!text || !currentRoomId) return;
@@ -181,4 +186,3 @@
         });
     });
 </script>
-

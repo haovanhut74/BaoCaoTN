@@ -2,7 +2,7 @@
 
 <link rel = "stylesheet" href = "~/css/User/Product.css"/>
 
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4">
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 g-4">
 
     @if (!Model.Any())
     {
@@ -142,42 +142,3 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const compareBtn = document.getElementById("compareBtn");
-        if (!compareBtn) return;
-
-        compareBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-
-            const selectedIds = Array.from(document.querySelectorAll(".compare-checkbox:checked"))
-                .map(cb => cb.value);
-
-            if (selectedIds.length < 2) {
-                alert("Vui lòng chọn ít nhất 2 sản phẩm để so sánh.");
-                return;
-            } else if (selectedIds.length > 3) {
-                alert("Vui lòng chọn tối đa 3 sản phẩm để so sánh.");
-                return;
-            }
-
-            fetch('@Url.Action("ComparePartial", "Product", new { area = "User" })?productIds=' + selectedIds.join("&productIds="))
-                .then(res => res.text())
-                .then(html => {
-                    document.getElementById("compareTableContainer").innerHTML = html;
-
-                    // Hiển thị modal
-                    const compareModalEl = document.getElementById('compareModal');
-                    const compareModal = new bootstrap.Modal(compareModalEl, {
-                        backdrop: false,
-                        keyboard: true
-                    });
-                    compareModal.show();
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("Có lỗi xảy ra, vui lòng thử lại.");
-                });
-        });
-    });
-</script>

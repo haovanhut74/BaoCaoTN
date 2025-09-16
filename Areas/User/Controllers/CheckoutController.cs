@@ -21,7 +21,7 @@ public class CheckoutController : BaseController
 
     [HttpPost]
     public async Task<IActionResult> Checkout(Guid shipingId, string discountCode, string fullAddress,
-        string PaymentMethod)
+        string PaymentMethod, string PhoneNumber)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
@@ -102,7 +102,8 @@ public class CheckoutController : BaseController
                 TotalDiscount = discountAmount,
                 TotalAmount = subtotal + shippingFee - discountAmount,
                 FullAddress = fullAddress,
-                PaymentMethod = paymentMethodDisplay
+                PaymentMethod = paymentMethodDisplay,
+                PhoneNumber = PhoneNumber
             };
 
             _context.Orders.Add(order);
@@ -238,7 +239,8 @@ public class CheckoutController : BaseController
     }
 
     [HttpGet]
-    public async Task<IActionResult> CreateMomoPayment(string FullAddress, Guid shipingId, string discountCode)
+    public async Task<IActionResult> CreateMomoPayment(string FullAddress, Guid shipingId, string discountCode,
+        string phone)
     {
         if (string.IsNullOrEmpty(FullAddress))
         {
@@ -290,11 +292,13 @@ public class CheckoutController : BaseController
             OrderCode = orderCode,
             UserName = User.Identity?.Name ?? "Unknown",
             OrderDate = DateTime.Now,
+            Address = shipping?.City + ", " + shipping?.District + ", " + FullAddress,
             Status = 0, // Chưa thanh toán
             ShippingFee = shippingFee,
             TotalAmount = totalAmountLong, // max là 50 củ, kiểu long
             FullAddress = FullAddress,
-            PaymentMethod = "MOMO"
+            PaymentMethod = "MOMO",
+            PhoneNumber = phone
         };
         _context.Orders.Add(order);
         await _context.SaveChangesAsync();

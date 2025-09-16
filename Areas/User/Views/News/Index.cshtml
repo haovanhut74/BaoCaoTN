@@ -1,0 +1,25 @@
+﻿@model IEnumerable<MyWebApp.Models.News>
+@using MyWebApp.Extensions.Helpers
+
+@{
+    ViewData["col-12"] = true;
+}
+<h2>Tin tức mới nhất</h2>
+<hr/>
+@foreach (var item in Model)
+{
+    <div class = "card mb-3">
+        <div class = "card-body">
+            <h4>
+                <a href = "@Url.Action("Details", "News", new { id = item.Id })">
+                    @item.Title
+                </a>
+            </h4>
+            <p>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+            <p>@StringHelper.ToPlainText(item.Content)</p>
+
+            <a class = "btn btn-sm btn-primary" href = "@Url.Action("Details", "News", new { id = item.Id })">Đọc
+                thêm</a>
+        </div>
+    </div>
+}

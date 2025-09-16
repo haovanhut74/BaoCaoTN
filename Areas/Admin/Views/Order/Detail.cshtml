@@ -5,12 +5,12 @@
 
     var options = new List<SelectListItem>
     {
-        new SelectListItem { Value = "1", Text = "🕐 Chờ xác nhận", Selected = Model.Status == 1 },
-        new SelectListItem { Value = "2", Text = "✅ Đã xác nhận", Selected = Model.Status == 2 },
-        new SelectListItem { Value = "3", Text = "📦 Đang chuẩn bị", Selected = Model.Status == 3 },
-        new SelectListItem { Value = "4", Text = "🚚 Đang giao hàng", Selected = Model.Status == 4 },
-        new SelectListItem { Value = "5", Text = "✨ Đã giao thành công", Selected = Model.Status == 5 },
-        new SelectListItem { Value = "0", Text = "❌ Đã hủy", Selected = Model.Status == 0 },
+        new() { Value = "1", Text = "🕐 Chờ xác nhận", Selected = Model.Status == 1 },
+        new() { Value = "2", Text = "✅ Đã xác nhận", Selected = Model.Status == 2 },
+        new() { Value = "3", Text = "📦 Đang chuẩn bị", Selected = Model.Status == 3 },
+        new() { Value = "4", Text = "🚚 Đang giao hàng", Selected = Model.Status == 4 },
+        new() { Value = "5", Text = "✨ Đã giao thành công", Selected = Model.Status == 5 },
+        new() { Value = "0", Text = "❌ Đã hủy", Selected = Model.Status == 0 },
     };
 
     var statusText = Model.Status switch
@@ -101,7 +101,14 @@
                     </div>
                     <div class = "info-value">@Model.PaymentMethod</div>
                 </div>
-
+                <div class = "info-card" style = "grid-column: span 2;">
+                    <div class = "info-label">
+                        <i class = "bi bi-geo-alt text-danger"></i>
+                        Số điện thoại giao hàng
+                    </div>
+                    <div class = "info-value">@Model.PhoneNumber</div>
+                </div>
+                
                 <div class = "info-card" style = "grid-column: span 2;">
                     <div class = "info-label">
                         <i class = "bi bi-geo-alt text-danger"></i>
@@ -109,6 +116,8 @@
                     </div>
                     <div class = "info-value">@Model.Address</div>
                 </div>
+
+
             </div>
         </div>
 

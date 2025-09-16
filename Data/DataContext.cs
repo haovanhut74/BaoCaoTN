@@ -26,6 +26,8 @@ public class DataContext : IdentityDbContext<ApplicationUser>
     public DbSet<SpecificationName> SpecificationNames { get; set; }
     public DbSet<ProductImage> ProductImages { get; set; }
     public DbSet<DiscountCode> DiscountCodes { get; set; }
+    public DbSet<GiftPromotion> GiftPromotions { get; set; }
+    public DbSet<News> News { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -36,5 +38,16 @@ public class DataContext : IdentityDbContext<ApplicationUser>
             .WithMany(c => c.Replies)
             .HasForeignKey(c => c.ParentCommentId)
             .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<GiftPromotion>()
+            .HasOne(g => g.RequiredProduct)
+            .WithMany()
+            .HasForeignKey(g => g.RequiredProductId)
+            .OnDelete(DeleteBehavior.Restrict); // Không cascade
+
+        modelBuilder.Entity<GiftPromotion>()
+            .HasOne(g => g.GiftProduct)
+            .WithMany()
+            .HasForeignKey(g => g.GiftProductId)
+            .OnDelete(DeleteBehavior.Restrict); // Không cascade
     }
 }

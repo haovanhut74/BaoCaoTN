@@ -9,5 +9,6 @@ public class CartItemDisplayViewModel
     public decimal Price { get; set; }
     public decimal? DiscountPrice { get; set; }  // Giá giảm
     public int Quantity { get; set; }
+
     public decimal FinalPrice => (DiscountPrice ?? Price) * Quantity;
 }

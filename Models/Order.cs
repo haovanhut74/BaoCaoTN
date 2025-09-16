@@ -21,4 +21,10 @@ public class Order
 
     [Display(Name = "Phương thức thanh toán")]
     public string PaymentMethod { get; set; }
+
+    [Required]
+    [Phone]
+    [StringLength(11, MinimumLength = 10)]
+    [Display(Name = "Số điện thoại")]
+    public string PhoneNumber { get; set; } = string.Empty;
 }

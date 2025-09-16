@@ -87,7 +87,7 @@ public class CartController : BaseController
                 ImageUrl = ci.Product.MainImage,
                 Quantity = ci.Quantity,
                 Price = ci.Price, // giá gốc
-                DiscountPrice = ci.Product.DiscountPrice // thêm giá giảm
+                DiscountPrice = ci.Product.DiscountPrice,
             }).ToList(),
 
             TotalPrice = cart.CartItems.Sum(ci =>

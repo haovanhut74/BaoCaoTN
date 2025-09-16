@@ -3,7 +3,7 @@
 
 @{
     ViewData["Title"] = "Chi tiết sản phẩm - " + Model.Name;
-
+    ViewData["col-12"] = true;
     // Gom tất cả ảnh: ảnh chính + ảnh phụ
     var allImages = new List<string>();
     if (!string.IsNullOrEmpty(Model.MainImage)) allImages.Add(Model.MainImage);
@@ -18,9 +18,9 @@
 
 <div class = "container my-5">
     @Html.AntiForgeryToken()
-    <div class = "row g-4">
+    <div class = "row g-4" style = "margin-bottom: 2rem;">
         <!-- Hình ảnh sản phẩm -->
-        <div class = "col-lg-6">
+        <div class = "col-lg-5">
             <div class = "product-images-container animate-fade-in">
                 <!-- Carousel chính -->
                 <div id = "productCarousel" class = "carousel slide mb-3" data-bs-ride = "carousel">
@@ -61,23 +61,23 @@
         </div>
 
         <!-- Thông tin sản phẩm -->
-        <div class = "col-lg-6">
+        <div class = "col-lg-4">
             <div class = "product-info-container animate-fade-in">
                 <h1 class = "product-title">@Model.Name</h1>
 
                 <div class = "price-section">
                     @if (@Model.DiscountPercent is > 0)
                     {
-                        <p class="text-decoration-line-through">@Model.Price.ToString("N0") VND</p>
+                        <p class = "text-decoration-line-through">@Model.Price.ToString("N0") VND</p>
                         <p>
-                            <strong><span class="text-danger">@Model.DiscountPrice?.ToString("N0") VND</span></strong>
+                            <strong><span class = "text-danger">@Model.DiscountPrice?.ToString("N0") VND</span></strong>
                             (<span>-@Model.DiscountPercent %</span>)
                         </p>
                     }
                     else
                     {
                         <p>
-                            <strong><span class="text-danger">@Model.Price.ToString("N0") VND</span></strong>
+                            <strong><span class = "text-danger">@Model.Price.ToString("N0") VND</span></strong>
                         </p>
                     }
                     <small class = "text-muted">Đã bao gồm VAT</small>
@@ -130,6 +130,69 @@
                     </button>
                 }
             </div>
+        </div>
+        <div class = "col-lg-3">
+            <div class = "content-section animate-fade-in">
+                <h5 class = "text-dark mb-3"><i class = "fa fa-gift me-2 text-danger"></i>Khuyến mãi tặng quà</h5>
+
+                @if (ViewBag.ActivePromotions != null && ((List<GiftPromotion>)ViewBag.ActivePromotions).Any())
+                {
+                    <div class = "list-group">
+                        @foreach (var promo in (List<GiftPromotion>)ViewBag.ActivePromotions)
+                        {
+                            <div class = "promo-card">
+                                <div class = "promo-header">
+                                    <div class = "promo-badge">Hot Deal</div>
+                                </div>
+
+                                <div class = "promo-details">
+                                    <div class = "promo-offer">
+                                        <div class = "offer-section buy-section">
+                                            <i class = "fas fa-shopping-cart"></i>
+                                            <span>Mua <span class = "quantity">@promo.QuantityRequired</span></span>
+                                            @if (promo.RequiredProduct != null)
+                                            {
+                                                <span>@promo.RequiredProduct.Name</span>
+                                            }
+                                        </div>
+
+                                        <div class = "arrow-icon">
+                                            <i class = "fas fa-arrow-right"></i>
+                                        </div>
+
+                                        <div class = "offer-section gift-section">
+                                            <i class = "fas fa-gift"></i>
+                                            <span>Tặng <span class = "quantity">@promo.QuantityGift</span></span>
+                                            @if (promo.GiftProduct != null)
+                                            {
+                                                <span>@promo.GiftProduct.Name</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class = "promo-footer">
+                                    <div class = "date-range">
+                                        <i class = "fas fa-calendar-alt"></i>
+                                        <span>@promo.StartDate.ToString("dd/MM/yyyy") - @promo.EndDate.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                    <div class = "status-indicator">
+                                        <i class = "fas fa-check-circle"></i>
+                                        Đang áp dụng
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class = "alert alert-info p-2">
+                        <i class = "fa fa-info-circle me-2"></i>Không có khuyến mãi hiện tại.
+                    </div>
+                }
+            </div>
+
         </div>
     </div>
 
@@ -427,7 +490,7 @@
                     container?.classList.toggle("d-none");
                 });
             });
-            
+
 
         });
     </script>

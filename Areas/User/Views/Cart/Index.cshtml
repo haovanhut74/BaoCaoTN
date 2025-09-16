@@ -157,8 +157,16 @@
                             </div>
                             <div class = "mb-3">
                                 <label class = "form-label fw-semibold">Địa chỉ chi tiết</label>
-                                <input name = "FullAddress" class = "form-control modern-form-control" placeholder = "Số nhà, tên đường, phường/xã..." required/>
+                                <input id = "FullAddressInput" name = "FullAddress" class = "form-control modern-form-control" placeholder = "Số nhà, tên đường, phường/xã..." required/>
                             </div>
+                            <div class = "mb-3">
+                                <label class = "form-label fw-semibold">Số điện thoại</label>
+                                <input
+                                    id = "PhoneNumberInput" name = "PhoneNumber" type = "tel" class = "form-control modern-form-control"
+                                    placeholder = "Nhập số điện thoại của bạn" required pattern = "[0-9]{10,11}"
+                                />
+                            </div>
+
                         </form>
                     </div>
                 </div>
@@ -205,6 +213,7 @@
                         <input type = "hidden" id = "discountCodeHidden" name = "discountCode"/>
                         <input type = "hidden" id = "fullAddressHidden" name = "FullAddress"/>
                         <input type = "hidden" id = "paymentMethodHidden" name = "PaymentMethod"/>
+                        <input type = "hidden" id = "phoneHidden" name = "PhoneNumber"/>
                         <button type = "submit" class = "modern-btn modern-btn-success modern-btn-lg">
                             <i class = "fas fa-lock me-1"></i> Thanh toán an toàn
                         </button>
@@ -250,6 +259,9 @@
                 $("#District").val($("#quan option:selected").text());
                 updateShippingFee();
             });
+
+            let fullAddr = $("#FullAddressInput").val().trim();
+            $("#fullAddressHidden").val(fullAddr);
 
             // --- Áp dụng mã giảm giá ---
             $("#discountForm").submit(function (e) {
@@ -384,20 +396,21 @@
                 let fullAddr = $("input[name='FullAddress']").val().trim(),
                     shippingId = $("#shipingId").val(),
                     discountCode = $("#discountCodeHidden").val(),
-                    paymentMethod = $("input[name='PaymentMethod']:checked").val();
-
-                if (!fullAddr || !shippingId) {
+                    paymentMethod = $("input[name='PaymentMethod']:checked").val(),
+                    phone = $("#PhoneNumberInput").val().trim();
+                if (!fullAddr || !shippingId || !phone) {
                     e.preventDefault();
-                    alert("Vui lòng chọn địa chỉ giao hàng và phí vận chuyển.");
+                    alert("Vui lòng nhập đầy đủ địa chỉ và số điện thoại.");
                     return;
                 }
-
+                $("#phoneHidden").val(phone);
                 $("#fullAddressHidden").val(fullAddr);
                 $("#paymentMethodHidden").val(paymentMethod);
 
                 if (paymentMethod === "Momo") {
                     e.preventDefault();
-                    window.location.href = `/User/Checkout/CreateMomoPayment?FullAddress=${encodeURIComponent(fullAddr)}&shipingId=${encodeURIComponent(shippingId)}&discountCode=${encodeURIComponent(discountCode || "")}`;
+                    window.location.href = `/User/Checkout/CreateMomoPayment?FullAddress=${
+                        encodeURIComponent(fullAddr)}&shipingId=${encodeURIComponent(shippingId)}&discountCode=${encodeURIComponent(discountCode || "")}&phone=${encodeURIComponent(phone)}`;
                 }
             });
 

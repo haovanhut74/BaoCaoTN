@@ -1,0 +1,10 @@
+﻿@model MyWebApp.Models.GiftPromotion
+
+<h2>Xóa khuyến mãi</h2>
+<p>Bạn có chắc chắn muốn xóa khuyến mãi <b>@Model.GiftName</b> không?</p>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

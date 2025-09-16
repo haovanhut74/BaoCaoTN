@@ -1,0 +1,35 @@
+﻿@model IEnumerable<MyWebApp.Models.GiftPromotion>
+
+<h2>Danh sách khuyến mãi tặng quà</h2>
+<a class = "btn btn-primary" asp-action = "Create">+ Thêm khuyến mãi</a>
+
+<table class = "table table-bordered mt-3">
+    <thead>
+    <tr>
+        <th>Tên</th>
+        <th>Sản phẩm yêu cầu</th>
+        <th>Quà tặng</th>
+        <th>Số lượng</th>
+        <th>Thời gian</th>
+        <th>Kích hoạt</th>
+        <th>Hành động</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var promo in Model)
+    {
+        <tr>
+            <td>@promo.GiftName</td>
+            <td>@promo.RequiredProduct?.Name</td>
+            <td>@promo.GiftProduct?.Name</td>
+            <td>Mua @promo.QuantityRequired → Tặng @promo.QuantityGift</td>
+            <td>@promo.StartDate.ToShortDateString() - @promo.EndDate.ToShortDateString()</td>
+            <td>@(promo.IsActive ? "✔️" : "❌")</td>
+            <td>
+                <a asp-controller="GiftPromotion" asp-action = "Edit" asp-route-id = "@promo.Id" class = "btn btn-sm btn-warning">Sửa</a>
+                <a asp-action = "Delete" asp-route-id = "@promo.Id" class = "btn btn-sm btn-danger">Xóa</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

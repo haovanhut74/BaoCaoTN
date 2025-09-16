@@ -38,7 +38,9 @@
             <option value = "">-- Tất cả --</option>
             <option value = "1" selected = "@(status == "1" ? "selected" : null)">Chờ xác nhận</option>
             <option value = "2" selected = "@(status == "2" ? "selected" : null)">Đã xác nhận</option>
-            <option value = "3" selected = "@(status == "3" ? "selected" : null)">Đã giao</option>
+            <option value = "3" selected = "@(status == "3" ? "selected" : null)">Đang chuẩn bị</option>
+            <option value = "4" selected = "@(status == "5" ? "selected" : null)">Đang giao hàng</option>
+            <option value = "5" selected = "@(status == "5" ? "selected" : null)">Đã giao thành công</option>
             <option value = "0" selected = "@(status == "0" ? "selected" : null)">Đã hủy</option>
         </select>
     </div>
@@ -104,18 +106,23 @@
         {
             string statusLabel = order.Status switch
             {
+               
                 1 => "Chờ xác nhận",
                 2 => "Đã xác nhận",
-                3 => "Đã giao",
+                3 => "Đang chuẩn bị đơn hàng",
+                4 => "Đang giao hàng",
+                5 => "Đã giao thành công",
                 _ => "Đã hủy"
             };
 
             string badgeClass = order.Status switch
             {
-                1 => "badge bg-warning text-dark",
-                2 => "badge bg-primary",
-                3 => "badge bg-success",
-                _ => "badge bg-danger"
+                1 => "status-badge status-pending",
+                2 => "status-badge status-confirmed",
+                3 => "status-badge status-preparing",
+                4 => "status-badge status-shipping",
+                5 => "status-badge status-success",
+                _ => "status-badge status-cancelled"
             };
 
             <tr>

@@ -85,6 +85,16 @@ public class ProductController : BaseController
             .Include(c => c.Replies)
             .ToListAsync();
 
+        // Lấy các khuyến mãi hiện hành liên quan đến sản phẩm
+        var activePromotions = await _context.GiftPromotions
+            .Include(p => p.RequiredProduct)
+            .Include(p => p.GiftProduct)
+            .Where(p => p.RequiredProductId == product.Id
+                        && p.StartDate <= DateTime.Now
+                        && p.EndDate >= DateTime.Now)
+            .ToListAsync();
+
+        ViewBag.ActivePromotions = activePromotions;
         // Lấy danh sách sản phẩm liên quan (cùng danh mục)
         var relatedProducts = await _context.Products
             .Include(p => p.Category)

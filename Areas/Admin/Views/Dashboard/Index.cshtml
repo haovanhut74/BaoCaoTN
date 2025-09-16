@@ -1,0 +1,191 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<link rel = "stylesheet" href = "~/css/Admin/DashBoar.css">
+
+<div class = "container mt-4">
+    <!-- Tổng quan -->
+    <div class = "row g-4 mb-5">
+        <div class = "col-md-3">
+            <div class = "glass-card stat-card">
+                <div class = "stat-icon primary"><i class = "fas fa-users"></i></div>
+                <div class = "stat-value">@ViewBag.TotalUsers</div>
+                <div class = "stat-label">Người dùng</div>
+            </div>
+        </div>
+        <div class = "col-md-3">
+            <div class = "glass-card stat-card">
+                <div class = "stat-icon success"><i class = "fas fa-shopping-cart"></i></div>
+                <div class = "stat-value">@ViewBag.TotalOrders</div>
+                <div class = "stat-label">Đơn hàng</div>
+            </div>
+        </div>
+        <div class = "col-md-3">
+            <div class = "glass-card stat-card">
+                <div class = "stat-icon warning"><i class = "fas fa-dollar-sign"></i></div>
+                <div class = "stat-value">@ViewBag.TotalRevenue.ToString("N0") VNĐ</div>
+                <div class = "stat-label">Doanh thu</div>
+            </div>
+        </div>
+        <div class = "col-md-3">
+            <div class = "glass-card stat-card">
+                <div class = "stat-icon danger"><i class = "fas fa-box"></i></div>
+                <div class = "stat-value">@ViewBag.TotalProducts</div>
+                <div class = "stat-label">Sản phẩm</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top 5 sản phẩm bán chạy + Biểu đồ -->
+    <div class = "row g-4 mb-5">
+        <div class = "col-md-12">
+            <div class = "glass-card p-4">
+                <h5 class = "text-white mb-3">🔥 Top 5 Sản phẩm Bán Chạy</h5>
+                <table class = "table table-striped table-modern">
+                    <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Hình ảnh</th>
+                        <th>Số lượng bán</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var item in ViewBag.BestSellingProducts)
+                    {
+                        <tr>
+                            <td>@item.ProductName</td>
+                            <td>
+                                <img src = "~/img/product/@item.Image" class = "img-fluid rounded" style = "width: 100px; height: 100px"/>
+                            </td>
+                            <td>@item.Quantity</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class = "row mt-4">
+            @foreach (var category in ViewBag.BestSellingByCategory)
+            {
+                <div class = "col-md-12">
+                    <div class = "card mb-3">
+                        <div class = "card-body">
+                            <h5 class = "card-title">🔥 Top sản phẩm bán chạy - @category.CategoryName</h5>
+                            <table class = "table table-striped">
+                                <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Hình ảnh</th>
+                                    <th>Số lượng bán</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var product in category.Products)
+                                {
+                                    <tr>
+                                        <td>@product.ProductName</td>
+                                        <td>
+                                            <img src = "~/img/product/@product.Image" class = "img-fluid rounded" style = "width: 100px; height: 100px"/>
+                                        </td>
+                                        <td class = "text-center">@product.Quantity</td>
+                                    </tr>
+                                }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <!-- Biểu đồ doanh thu -->
+        <div class = "col-md-12">
+            <div class = "glass-card p-4">
+                <h5 class = "text-white mb-3">💰 Doanh thu</h5>
+                <div class = "btn-group mb-3">
+                    <button class = "btn btn-primary" onclick = "loadRevenue('day')">Theo ngày</button>
+                    <button class = "btn btn-success" onclick = "loadRevenue('month')">Theo tháng</button>
+                    <button class = "btn btn-warning" onclick = "loadRevenue('year')">Theo năm</button>
+                </div>
+                <canvas id = "revenueChart" style = "height:300px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src = "https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let chart;
+
+        async function loadRevenue(type) {
+            let url = '';
+            let label = '';
+
+            if (type === 'day') {
+                url = '@Url.Action("GetRevenueByDay", "Dashboard", new { area = "Admin" })';
+                label = "Doanh thu theo giờ hôm nay";
+            } else if (type === 'month') {
+                url = '@Url.Action("GetRevenueByMonth", "Dashboard", new { area = "Admin" })';
+                label = "Doanh thu theo tháng " + new Date().getFullYear();
+            } else {
+                url = '@Url.Action("GetRevenueByYear", "Dashboard", new { area = "Admin" })';
+                label = "Doanh thu theo năm";
+            }
+
+            const response = await fetch(url);
+            const data = await response.json();
+
+            let labels, revenues;
+            if (type === 'day') {
+                labels = data.map(x => x.hour + "h");
+                revenues = data.map(x => x.revenue);
+            } else if (type === 'month') {
+                labels = data.map(x => "Tháng " + x.month);
+                revenues = data.map(x => x.revenue);
+            } else {
+                labels = data.map(x => x.year);
+                revenues = data.map(x => x.revenue);
+            }
+
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            if (chart) chart.destroy();
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: revenues,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {display: true, position: 'top'},
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return context.raw.toLocaleString("vi-VN") + " VNĐ";
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {beginAtZero: true, ticks: {callback: val => val.toLocaleString("vi-VN") + " đ"}}
+                    }
+                }
+            });
+        }
+
+        loadRevenue('month'); // default load
+    </script>
+}

@@ -1,0 +1,69 @@
+﻿@model IEnumerable<News>
+
+@{
+    ViewData["Title"] = "Quản lý tin tức";
+}
+
+<h2 class = "mb-3">Quản lý tin tức</h2>
+
+<p>
+    <a asp-action = "Create" class = "btn btn-primary">➕ Đăng tin mới</a>
+</p>
+
+<table class = "table table-bordered table-striped">
+    <thead>
+    <tr>
+        <th>Tiêu đề</th>
+        <th>Tác giả</th>
+        <th>Ngày tạo</th>
+        <th>Ngày cập nhật</th>
+        <th>Ảnh đại diện</th>
+        <th style = "width:150px;">Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Title</td>
+            <td>@item.Author</td>
+            <td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>
+                @if (!string.IsNullOrEmpty(item.ThumbnailUrl))
+                {
+                    <img src = "@item.ThumbnailUrl" alt = "thumb" width = "80"/>
+                }
+            </td>
+            <td>
+                <a asp-action = "Edit" asp-route-id = "@item.Id" class = "btn btn-sm btn-warning">✏️ Sửa</a>
+                <button type = "button" class = "btn btn-sm btn-danger" onclick = "deleteNews('@item.Id', this)">🗑 Xóa
+                </button>
+            </td>
+
+        </tr>
+    }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+    async function deleteNews(id, btn) {
+        if (!confirm("Bạn có chắc chắn muốn xóa tin này?")) return;
+
+        const response = await fetch(`/Admin/News/Delete/${id}`, {
+            method: "POST",
+            headers: {
+                "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+            }
+        });
+
+        if (response.ok) {
+            // Xóa luôn hàng trong bảng
+            $(btn).closest("tr").remove();
+        } else {
+            alert("Lỗi khi xóa tin tức!");
+        }
+    }
+</script>
+}

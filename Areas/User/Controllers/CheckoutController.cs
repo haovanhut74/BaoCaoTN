@@ -13,10 +13,11 @@ namespace MyWebApp.Areas.User.Controllers;
 public class CheckoutController : BaseController
 {
     private readonly IEmailSender _emailSender;
-
-    public CheckoutController(DataContext context, IEmailSender emailSender) : base(context)
+    private readonly IGhnService _ghnService;
+    public CheckoutController(DataContext context, IEmailSender emailSender, IGhnService ghnService) : base(context)
     {
         _emailSender = emailSender;
+        _ghnService = ghnService;
     }
 
     [HttpPost]
@@ -129,6 +130,18 @@ public class CheckoutController : BaseController
                     item.Product.Quantity = 0;
 
                 _context.Products.Update(item.Product);
+            }
+
+            // Sau khi lưu order + orderDetails vào DB
+            await _context.SaveChangesAsync();
+
+            // --- Gọi GHN API tối giản ---
+            var ghnOrderCode = await _ghnService.CreateOrderAsync(order);
+            if (!string.IsNullOrEmpty(ghnOrderCode))
+            {
+                order.GHNOrderCode = ghnOrderCode;
+                _context.Orders.Update(order);
+                await _context.SaveChangesAsync();
             }
 
             // Xóa giỏ hàng sau khi đặt thành công
@@ -295,12 +308,30 @@ public class CheckoutController : BaseController
             Address = shipping?.City + ", " + shipping?.District + ", " + FullAddress,
             Status = 0, // Chưa thanh toán
             ShippingFee = shippingFee,
+            TotalDiscount = discountAmount,
             TotalAmount = totalAmountLong, // max là 50 củ, kiểu long
             FullAddress = FullAddress,
             PaymentMethod = "MOMO",
             PhoneNumber = phone
         };
         _context.Orders.Add(order);
+        foreach (var item in cart.CartItems)
+        {
+            var orderDetail = new OrderDetail
+            {
+                OrderDetailId = Guid.NewGuid(),
+                OrderId = order.OrderId,
+                OrderCode = orderCode,
+                UserName = order.UserName,
+                ProductId = item.ProductId,
+                Product = item.Product,
+                Price = item.Product.DiscountPrice ?? item.Product.Price,
+                Quantity = item.Quantity
+            };
+            _context.OrderDetails.Add(orderDetail);
+            _context.Products.Update(item.Product);
+        }
+
         await _context.SaveChangesAsync();
 
         // Thông tin MoMo
@@ -372,9 +403,40 @@ public class CheckoutController : BaseController
             return NotFound();
 
         if (errorCode == "0") // Thanh toán thành công
+        {
             order.Status = 1;
+
+            var orderDetails = _context.OrderDetails
+                .Include(od => od.Product)
+                .Where(od => od.OrderId == order.OrderId)
+                .ToList();
+
+            foreach (var detail in orderDetails)
+            {
+                detail.Product.Quantity -= detail.Quantity;
+                detail.Product.Sold += detail.Quantity;
+                if (detail.Product.Quantity < 0)
+                    detail.Product.Quantity = 0;
+
+                _context.Products.Update(detail.Product);
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // Xoá giỏ hàng
+            var cart = await _context.Carts
+                .Include(c => c.CartItems)
+                .ThenInclude(ci => ci.Product)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+            if (cart != null)
+            {
+                _context.CartItems.RemoveRange(cart.CartItems);
+                _context.Carts.Remove(cart);
+            }
+        }
         else
-            order.Status = -1;
+        {
+            order.Status = -1; // thất bại
+        }
 
         _context.Orders.Update(order);
         await _context.SaveChangesAsync();

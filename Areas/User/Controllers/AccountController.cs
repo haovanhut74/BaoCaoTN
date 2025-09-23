@@ -101,6 +101,13 @@ public class AccountController : Controller
                 }
             }
 
+            if (user != null && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
+            {
+                TempData["Error"] = "Tài khoản của bạn đã bị khóa., vui lòng liên hệ với quản trị viên.";
+                return RedirectToAction("Login");
+            }
+
+
             ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng");
         }
 

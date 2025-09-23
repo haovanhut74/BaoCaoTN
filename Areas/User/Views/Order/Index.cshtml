@@ -3,53 +3,117 @@
 @{
     ViewData["Title"] = "Tra cứu đơn hàng";
     ViewData["col-12"] = true;
-    uint STT = (uint)((Model.CurrentPage - 1) * 10 + 1); // Bắt đầu theo page
+    uint STT = (uint)((Model.CurrentPage - 1) * 10 + 1);
 }
 
-<h2>Tra cứu đơn hàng</h2>
+<link href = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel = "stylesheet">
+<link href = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel = "stylesheet">
 
-<form asp-action = "Search" method = "post" class = "form-inline mb-3">
-    <input type = "text" name = "orderCode" class = "form-control mr-2" placeholder = "Mã đơn hàng"/>
-    <div>
-        <button type = "submit" class = "btn btn-primary">Tìm kiếm</button>
-    </div>
-</form>
+<div class = "container my-4">
+    <h2 class = "text-center text-primary mb-4">🔎 Tra cứu đơn hàng</h2>
 
-@if (Model != null)
-{
-    <table class = "table table-bordered table-striped">
-        <thead>
-        <tr>
-            <th>Ngày đặt</th>
-            <th>Trạng thái</th>
-            <th>Số sản phẩm</th>
-            <th>Tổng tiền</th>
-            <th>Chi tiết</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var order in Model.Orders)
-        {
-            <tr>
-                <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
-                <td>@(order.Status switch
+    <!-- Form tìm kiếm -->
+    <form asp-action = "Search" method = "post" class = "row g-3 mb-4 shadow-sm bg-light p-3 rounded">
+        <div class = "col-md-6">
+            <label class = "form-label">Mã đơn hàng</label>
+            <input type = "text" name = "orderCode" class = "form-control" placeholder = "VD: DH12345"/>
+        </div>
+        <div class = "col-md-2 align-self-end">
+            <button type = "submit" class = "btn btn-primary w-100">
+                <i class = "bi bi-search"></i> Tìm kiếm
+            </button>
+        </div>
+    </form>
+
+    @if (Model != null && Model.Orders.Any())
+    {
+        <div class = "table-responsive">
+            <table class = "table table-bordered table-hover shadow-sm rounded">
+                <thead class = "table-primary text-center">
+                <tr>
+                    <th>#</th>
+                    <th>Mã đơn hàng</th>
+                    <th>Ngày đặt</th>
+                    <th>Trạng thái</th>
+                    <th>Số sản phẩm</th>
+                    <th>Tổng tiền</th>
+                    <th>Chi tiết</th>
+                </tr>
+                </thead>
+                <tbody class = "align-middle text-center">
+                @foreach (var order in Model.Orders)
+                {
+                    string statusLabel = order.Status switch
                     {
-                        1 => "Chờ xác nhận",
-                        2 => "Đã xác nhận",
-                        3 => "Đã giao",
-                        _ => "Đã hủy"
-                    })</td>
-                <td>@order.OrderDetails.Count</td>
-                <td>@order.OrderDetails.Sum(od => od.Quantity * od.Price).ToString("N0") ₫</td>
-                <td><a asp-action = "Detail" asp-route-id = "@order.OrderId" class = "btn btn-sm btn-info">Xem</a></td>
-            </tr>
-            STT++;
+                        1 => "🕐 Chờ xác nhận",
+                        2 => "✅ Đã xác nhận",
+                        3 => "📦 Đang chuẩn bị",
+                        4 => "🚚 Đang giao hàng",
+                        5 => "✨ Đã giao thành công",
+                        _ => "❌ Đã hủy"
+                    };
+
+                    string badgeClass = order.Status switch
+                    {
+                        1 => "badge bg-warning text-dark",
+                        2 => "badge bg-info",
+                        3 => "badge bg-primary",
+                        4 => "badge bg-secondary",
+                        5 => "badge bg-success",
+                        _ => "badge bg-danger"
+                    };
+
+                    <tr>
+                        <td>@STT</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(order.GHNOrderCode))
+                            {
+                                <a href = "https://tracking.ghn.dev/?order_code=@order.GHNOrderCode" target = "_blank" class = "text-decoration-none fw-bold">
+                                    @order.GHNOrderCode
+                                </a>
+                            }
+                            else
+                            {
+                                <span class = "text-muted">N/A</span>
+                            }
+                        </td>
+                        <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td><span class = "@badgeClass">@statusLabel</span></td>
+                        <td>@(order.OrderDetails?.Count() ?? 0)</td>
+                        <td>@order.OrderDetails.Sum(od => od.Quantity * od.Price).ToString("N0") ₫</td>
+                        <td>
+                            <a asp-action = "Detail" asp-route-id = "@order.OrderId" class = "btn btn-sm btn-outline-info">
+                                <i class = "bi bi-eye"></i> Xem
+                            </a>
+                        </td>
+                    </tr>
+                    STT++;
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Phân trang -->
+        @if (Model.TotalPages > 1)
+        {
+            <nav aria-label = "Page navigation" class = "mt-4">
+                <ul class = "pagination justify-content-center">
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class = "page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class = "page-link" asp-action = "Index" asp-route-page = "@i">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
         }
-        </tbody>
-    </table>
-    @await Html.PartialAsync("_Paganite", Model)
-}
-else
-{
-    <p>Chưa có đơn hàng hoặc không tìm thấy.</p>
-}
+    }
+    else
+    {
+        <div class = "alert alert-warning text-center">
+            <i class = "bi bi-exclamation-circle"></i> Chưa có đơn hàng hoặc không tìm thấy.
+        </div>
+    }
+</div>
+
+<script src = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>

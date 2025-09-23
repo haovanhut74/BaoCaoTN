@@ -1,90 +1,92 @@
-﻿@model MyWebApp.ViewModels.ProductFilterViewModel
+﻿@model MyWebApp.ViewModels.HomeViewModel
 @{
     ViewData["Title"] = "Danh sách sản phẩm";
+    ViewData["col-12"] = true;
+    ViewData["HideLayoutPart"] = true;
 }
-<style>
-    #productSlider {
-        max-height: 400px;
-        overflow: hidden;
-    }
-
-    #productSlider img {
-        object-fit: cover;
-        height: 400px;
-    }
-</style>
-<!-- Slider -->
-@if (Model.Sliders != null && Model.Sliders.Any())
-{
-    <div id = "homeSlider" class = "carousel slide mb-4" data-bs-ride = "carousel">
-        <div class = "carousel-inner rounded shadow">
-            @for (int i = 0; i < Model.Sliders.Count; i++)
-            {
-                var slider = Model.Sliders[i];
-                <div class = "carousel-item @(i == 0 ? "active" : "")">
-                    <img src = "~/img/slider/@slider.Image" class = "d-block w-100" alt = "@slider.Title" style = "height: 400px; object-fit: cover;"/>
-                </div>
-            }
-        </div>
-        <button class = "carousel-control-prev" type = "button" data-bs-target = "#homeSlider" data-bs-slide = "prev">
-            <span class = "carousel-control-prev-icon" aria-hidden = "true"></span>
-            <span class = "visually-hidden">Trước</span>
-        </button>
-        <button class = "carousel-control-next" type = "button" data-bs-target = "#homeSlider" data-bs-slide = "next">
-            <span class = "carousel-control-next-icon" aria-hidden = "true"></span>
-            <span class = "visually-hidden">Tiếp</span>
-        </button>
+<link rel = "stylesheet" href = "~/css/User/HomeIndex.css"/>
+<div class="main-container">
+    <!-- Welcome Section -->
+    <div class="welcome-section fade-in-up">
+        <h1 class="welcome-title">🛍️ Chào mừng đến với cửa hàng</h1>
+        <p class="welcome-subtitle">Khám phá những sản phẩm tuyệt vời với giá tốt nhất</p>
     </div>
-}
 
-<!-- Hiển thị sản phẩm -->
-<div class = "row">
-    <div class = "col-md-12">
-        <h2 class = "mb-4 text-primary fw-bold">Danh sách sản phẩm</h2>
-        <div class = "row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
-            @foreach (var item in Model.Products)
-            {
-                <div class = "col">
-                    <div class = "card h-100 shadow-sm border-0 product-card">
-                        <a asp-controller = "Product" asp-action = "Detail" asp-route-id = "@item.Id">
-                            <img src = "~/img/product/@item.MainImage" class = "card-img-top img-fluid" alt = "@item.Name" style = "height: 220px; object-fit: cover;"/>
-                        </a>
-                        <div class = "card-body d-flex flex-column">
-                            <h5 class = "card-title text-dark fw-semibold">@item.Name</h5>
-                            <p class = "card-text text-secondary mb-1">
-                                <i class = "fa fa-tag me-1"></i> @item.Category?.Name</p>
-                            <p class = "card-text text-secondary mb-1">
-                                <i class = "fa fa-copyright me-1"></i> @item.Brand?.Name</p>
-                            <p class = "card-text text-muted small mb-3"><i class = "fa fa-calendar me-1"></i> Đăng
-                                bán: @item.CreatedAt.ToString("dd/MM/yyyy")</p>
-                            <div class = "mt-auto">
-                                <p class = "fw-bold text-danger fs-5">@item.Price.ToString("N0") ₫</p>
-
-                                <div class = "d-grid gap-2">
-                                    <a
-                                        asp-area = "User"
-                                        asp-controller = "Product"
-                                        asp-action = "Detail"
-                                        asp-route-categorySlug = "@item.Category?.Slug"
-                                        asp-route-brandSlug = "@item.Brand?.Slug"
-                                        asp-route-productSlug = "@item.Slug" class = "btn btn-outline-primary"
-                                    >
-                                        <i class = "fa fa-eye me-1"></i> Xem chi tiết
-                                    </a>
-                                    <form asp-controller = "Cart" asp-action = "Add" asp-route-id = "@item.Id" method = "post" class = "d-grid">
-                                        <button type = "submit" class = "btn btn-success mt-2">
-                                            <i class = "fa fa-cart-plus me-1"></i> Thêm vào giỏ hàng
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+    <!-- Hero Slider -->
+    @if (Model.Sliders != null && Model.Sliders.Any())
+    {
+        <div id="homeSlider" class="carousel slide hero-slider fade-in-up" data-bs-ride="carousel" data-bs-interval="5000">
+            <div class="carousel-indicators">
+                @for (int i = 0; i < Model.Sliders.Count; i++)
+                {
+                    <button type="button" data-bs-target="#homeSlider" data-bs-slide-to="@i" 
+                            class="@(i == 0 ? "active" : "")" aria-label="Slide @(i + 1)"></button>
+                }
+            </div>
+            
+            <div class="carousel-inner">
+                @for (int i = 0; i < Model.Sliders.Count; i++)
+                {
+                    var slider = Model.Sliders[i];
+                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                        <img src="~/img/slider/@slider.Image" 
+                             class="d-block w-100" 
+                             alt="@slider.Title"
+                             loading="@(i == 0 ? "eager" : "lazy")"/>
                     </div>
-                </div>
-            }
+                }
+            </div>
+            
+            <button class="carousel-control-prev" type="button" data-bs-target="#homeSlider" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Trước</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#homeSlider" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Tiếp</span>
+            </button>
         </div>
-    </div>
+    }
+
+    <!-- Product Sections -->
+    <!-- Top Sale -->
+    <section class="products-section fade-in-up">
+        <div class="section-header">
+            <h2 class="section-title top-sale">🔥 Top Sale 🔥</h2>
+            <p class="section-subtitle">Những sản phẩm giảm giá hot nhất</p>
+        </div>
+        @await Html.PartialAsync("_ProductListHome", Model.TopSale)
+    </section>
+
+    <!-- Most Bought -->
+    <section class="products-section fade-in-up">
+        <div class="section-header">
+            <h2 class="section-title most-bought">🛒 Mua nhiều 🛒</h2>
+            <p class="section-subtitle">Sản phẩm được yêu thích nhất</p>
+        </div>
+        @await Html.PartialAsync("_ProductListHome", Model.MostBought)
+    </section>
+
+    <!-- Newest -->
+    <section class="products-section fade-in-up">
+        <div class="section-header">
+            <h2 class="section-title newest">✨ Mới đăng bán ✨</h2>
+            <p class="section-subtitle">Những sản phẩm mới nhất vừa ra mắt</p>
+        </div>
+        @await Html.PartialAsync("_ProductListHome", Model.Newest)
+    </section>
+
+    <!-- Most Reviewed -->
+    <section class="products-section fade-in-up">
+        <div class="section-header">
+            <h2 class="section-title most-reviewed">⭐ Nhiều review ⭐</h2>
+            <p class="section-subtitle">Sản phẩm có nhiều đánh giá tốt nhất</p>
+        </div>
+        @await Html.PartialAsync("_ProductListHome", Model.MostReviewed)
+    </section>
+    
 </div>
+
 <!-- Bootstrap CSS -->
 <link href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel = "stylesheet"/>
 

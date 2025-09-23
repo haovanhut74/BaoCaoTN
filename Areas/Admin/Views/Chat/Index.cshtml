@@ -132,11 +132,13 @@
         }
 
         rooms.forEach(r => {
-            const li = $(`<li id="room-${r.roomId}" class="list-group-item d-flex justify-content-between align-items-start" style="cursor:pointer;" data-username="${r.userName}">
-            <div>
-                <div class="fw-bold">${r.userName}</div>
-                <div class="small text-muted">${r.lastMessage ?? ''}</div>
-            </div>
+            const li = $(`
+    <li id="room-${r.roomId}" class="list-group-item d-flex justify-content-between align-items-start" style="cursor:pointer;" data-username="${r.userName}">
+        <div>
+            <div class="fw-bold">${r.userName}</div>
+            <div class="small text-muted">${r.lastMessage ?? ''}</div>
+        </div>
+        <div>
             <small class="text-muted">${new Date(new Date(r.lastAt).getTime() + 7 * 60 * 60 * 1000)
                 .toLocaleString("vi-VN", {
                     hour: "2-digit",
@@ -146,10 +148,36 @@
                     year: "numeric",
                     hour12: false
                 })}</small>
-        </li>`);
-            li.click(() => openRoom(r.roomId, r.userName));
+            <button class="btn btn-sm btn-danger ms-2 btnDeleteRoom">Xóa</button>
+        </div>
+    </li>`);
+
+            li.click(e => {
+                if (!$(e.target).hasClass("btnDeleteRoom")) openRoom(r.roomId, r.userName);
+            });
+
+            // Xử lý click xóa
+            li.find(".btnDeleteRoom").click(async e => {
+                e.stopPropagation(); // ngăn click mở room
+                if (!confirm(`Bạn có chắc muốn xóa toàn bộ chat với ${r.userName}?`)) return;
+
+                const res = await fetch(`/Admin/Chat/DeleteRoom?roomId=${encodeURIComponent(r.roomId)}`, {method: 'DELETE'});
+                if (res.ok) {
+                    li.remove();
+                    if (currentRoomId === r.roomId) {
+                        currentRoomId = null;
+                        $("#currentRoomTitle").text("Chọn khách để bắt đầu chat");
+                        $("#messagesContainer").empty();
+                    }
+                    alert("Đã xóa chat!");
+                } else {
+                    alert("Xóa thất bại.");
+                }
+            });
+
             ul.append(li);
         });
+
     }
 
     // Open room

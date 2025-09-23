@@ -35,14 +35,15 @@
             </div>
 
             <div class = "mb-3 form-check">
-                <input type = "checkbox" class = "form-check-input" name = "RememberMe" id = "rememberMe"/>
-                <label class = "form-check-label" for = "rememberMe">Ghi nhớ đăng nhập</label>
+                <input asp-for = "RememberMe" class = "form-check-input"/>
+                <label asp-for = "RememberMe" class = "form-check-label">Ghi nhớ đăng nhập</label>
             </div>
+
 
             <button type = "submit" class = "btn btn-primary w-100">
                 <i class = "fa-solid fa-arrow-right-to-bracket me-2"></i> Đăng nhập
             </button>
-            
+
             <div class = "mt-3 text-center">
                 <a asp-action = "ForgotPassword" class = "btn btn-link">Quên mật khẩu?</a>
             </div>
@@ -57,41 +58,41 @@
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
-    
+
     <script>
         function toggleForm() {
             const loginForm = document.getElementById('login-form');
-            
+
             if (loginForm.classList.contains('active')) {
                 showRegister();
             } else {
                 showLogin();
             }
         }
-        
+
         function showLogin() {
             document.getElementById('login-form').classList.add('active');
         }
-        
+
         function showRegister() {
             document.getElementById('login-form').classList.remove('active');
             document.getElementById('toggle-text').textContent = 'Chuyển sang Đăng nhập';
         }
-        
+
         // Add smooth focus animations
         document.querySelectorAll('.form-control').forEach(input => {
-            input.addEventListener('focus', function() {
+            input.addEventListener('focus', function () {
                 this.parentElement.style.transform = 'scale(1.02)';
             });
-            
-            input.addEventListener('blur', function() {
+
+            input.addEventListener('blur', function () {
                 this.parentElement.style.transform = 'scale(1)';
             });
         });
-        
+
         // Add button click effects
         document.querySelectorAll('.btn-primary').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 let ripple = document.createElement('div');
                 ripple.style.position = 'absolute';
                 ripple.style.borderRadius = '50%';
@@ -102,9 +103,9 @@
                 ripple.style.top = e.offsetY - 10 + 'px';
                 ripple.style.width = '20px';
                 ripple.style.height = '20px';
-                
+
                 this.appendChild(ripple);
-                
+
                 setTimeout(() => {
                     ripple.remove();
                 }, 600);

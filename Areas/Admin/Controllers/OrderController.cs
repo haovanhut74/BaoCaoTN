@@ -94,7 +94,7 @@ public class OrderController : BaseController
 
         return RedirectToAction("Detail", new { id });
     }
-    
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission("ManageOrders")] // hoặc quyền phù hợp
@@ -339,4 +339,5 @@ public class OrderController : BaseController
         3 => "Đã giao",
         _ => "Đã hủy"
     };
+    
 }

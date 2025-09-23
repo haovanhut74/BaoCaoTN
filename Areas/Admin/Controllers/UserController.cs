@@ -78,7 +78,7 @@ public class UserController : BaseController
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 CreatedDate = user.CreatedDate,
-                IsLocked = user.LockoutEnabled && user.LockoutEnd > DateTimeOffset.Now,
+                IsLocked = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.Now,
                 Role = roleName
             };
         }).ToList();
@@ -230,31 +230,36 @@ public class UserController : BaseController
         return View(model);
     }
 
-    // Xóa người dùng theo id
+    // Khóa tài khoản
+    // Khóa tài khoản
     [HttpGet]
-    [HasPermission("DeleteUser")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Lock(string id)
     {
-        if (id == Guid.Empty) return NotFound();
-
-        // Tìm người dùng theo id
-        var user = await _userManager.FindByIdAsync(id.ToString());
+        var user = await _userManager.FindByIdAsync(id);
         if (user == null) return NotFound();
 
-        // Thực hiện xóa
-        var result = await _userManager.DeleteAsync(user);
-        if (result.Succeeded)
-        {
-            TempData["Success"] = "Xóa người dùng thành công.";
-        }
-        else
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error.Description);
-            }
-        }
+        user.LockoutEnabled = true; // Bật khóa
+        user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100); // Khóa dài hạn
+        await _userManager.UpdateAsync(user);
 
+        TempData["Success"] = "Tài khoản đã bị khóa.";
+        return RedirectToAction("Index");
+    }
+
+
+    // Mở khóa tài khoản
+    // Mở khóa tài khoản
+    [HttpGet]
+    public async Task<IActionResult> Unlock(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null) return NotFound();
+
+        user.LockoutEnabled = false;
+        user.LockoutEnd = null;
+        await _userManager.UpdateAsync(user);
+
+        TempData["Success"] = "Tài khoản đã được mở khóa.";
         return RedirectToAction("Index");
     }
 }

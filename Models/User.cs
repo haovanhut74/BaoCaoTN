@@ -7,6 +7,7 @@ public class User
     public Guid Id { get; set; }
 
     [Required(ErrorMessage = "Tên người dùng là bắt buộc")]
+    [MaxLength(40)]
     public string UserName { get; set; }
 
     [Required(ErrorMessage = "Email là bắt buộc"),

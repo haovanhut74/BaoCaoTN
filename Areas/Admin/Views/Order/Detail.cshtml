@@ -108,7 +108,7 @@
                     </div>
                     <div class = "info-value">@Model.PhoneNumber</div>
                 </div>
-                
+
                 <div class = "info-card" style = "grid-column: span 2;">
                     <div class = "info-label">
                         <i class = "bi bi-geo-alt text-danger"></i>
@@ -189,32 +189,42 @@
         <!-- Actions Section -->
         <div class = "action-section animate-fade-up" style = "animation-delay: 0.5s">
             <div class = "update-form">
-                <h5 class = "mb-4">
-                    <i class = "bi bi-gear me-2 text-primary"></i>
-                    Cập nhật trạng thái đơn hàng
-                </h5>
 
-                <form asp-action = "UpdateStatus" method = "post" class = "row g-3 align-items-end">
-                    @Html.AntiForgeryToken()
-                    <input type = "hidden" name = "id" value = "@Model.OrderId"/>
-                    <div class = "col-md-8">
-                        <label class = "form-label fw-semibold">Trạng thái mới:</label>
-                        <select name = "newStatus" id = "statusSelect" class = "form-select form-select-modern">
-                            @foreach (var option in options)
-                            {
-                                <option value = "@option.Value" selected = "@(option.Selected ? "selected" : null)">
-                                    @option.Text
-                                </option>
-                            }
-                        </select>
-                    </div>
-                    <div class = "col-md-4">
-                        <button type = "submit" class = "btn btn-success-modern btn-modern w-100">
-                            <i class = "bi bi-check-circle-fill me-2"></i>
-                            Cập nhật
-                        </button>
-                    </div>
-                </form>
+                @if (Model.Status != 0 && Model.Status != 5)
+                {
+                    <h5 class = "mb-4">
+                        <i class = "bi bi-gear me-2 text-primary"></i>
+                        Cập nhật trạng thái đơn hàng
+                    </h5>
+                    <form asp-action = "UpdateStatus" method = "post" class = "row g-3 align-items-end">
+                        @Html.AntiForgeryToken()
+                        <input type = "hidden" name = "id" value = "@Model.OrderId"/>
+                        <div class = "col-md-8">
+                            <label class = "form-label fw-semibold">Trạng thái mới:</label>
+                            <select name = "newStatus" id = "statusSelect" class = "form-select form-select-modern">
+                                @foreach (var option in options)
+                                {
+                                    <option value = "@option.Value" selected = "@(option.Selected ? "selected" : null)">
+                                        @option.Text
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class = "col-md-4">
+                            <button type = "submit" class = "btn btn-success-modern btn-modern w-100">
+                                <i class = "bi bi-check-circle-fill me-2"></i>
+                                Cập nhật
+                            </button>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <h5 class = "mb-4">
+                        <i class = "bi bi-gear me-2 text-primary"></i>
+                        Đơn hàng không thể cập nhật trạng thái.
+                    </h5>
+                }
             </div>
 
             <div class = "d-flex gap-3 justify-content-center mt-4">

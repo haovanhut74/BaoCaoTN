@@ -53,4 +53,5 @@ public class Product
     public IFormFile? ImageFile { get; set; }
 
     [NotMapped] public string? ImageUrl { get; set; }
+    
 }

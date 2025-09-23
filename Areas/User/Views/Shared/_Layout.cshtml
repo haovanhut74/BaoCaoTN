@@ -173,7 +173,58 @@
         });
     })();
 </script>
+<script>
+    $(document).ready(function () {
+        let $searchBox = $("#searchInput"); // <-- fix: đúng id
+        let $suggestions = $("#searchSuggestions");
 
+        $searchBox.on("keyup", function () {
+            let query = $(this).val();
+
+            if (query.length < 2) {
+                $suggestions.hide().empty();
+                return;
+            }
+
+            $.ajax({
+                url: '/User/Product/Search',
+                type: 'GET',
+                data: {searchTerm: query, suggest: true},
+                success: function (res) {
+                    $suggestions.empty();
+
+                    if (res.products.length === 0 && res.keywords.length === 0) {
+                        $suggestions.hide();
+                        return;
+                    }
+
+                    // Gợi ý sản phẩm
+                    res.products.forEach(p => {
+                        $suggestions.append(`
+                       <a href="/User/Product/Detail/${p.categorySlug}/${p.brandSlug}/${p.slug}" 
+                       class="list-group-item list-group-item-action d-flex align-items-center">
+                       <img src="/img/product/${p.mainImage}" width="35" height="35" class="me-2 rounded"/>
+                       <span>${p.name}</span>
+                       <span class="ms-auto text-danger fw-bold">${p.price.toLocaleString()} ₫</span>
+                    </a>
+
+
+                    `);
+                    });
+
+                    $suggestions.show();
+                }
+            });
+        });
+
+        // Ẩn box khi click ra ngoài
+        $(document).click(function (e) {
+            if (!$(e.target).closest('form').length) {
+                $suggestions.hide();
+            }
+        });
+    });
+</script>
 <script src = "~/js/presence.js"></script>
 @await RenderSectionAsync("Scripts", required: false)
 @await RenderSectionAsync("FloatingButton", required: false)

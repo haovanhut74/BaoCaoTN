@@ -18,7 +18,7 @@ public class ProductController : BaseController
         List<string> selectedSlugBrands,
         List<string> selectedSlugCategories,
         decimal? minPrice,
-        decimal? maxPrice)
+        decimal? maxPrice, int page = 1)
     {
         var categories = await _context.Categories.ToListAsync();
         var brands = await _context.Brands.ToListAsync();
@@ -39,7 +39,14 @@ public class ProductController : BaseController
         if (maxPrice.HasValue)
             productsQuery = productsQuery.Where(p => p.Price <= maxPrice.Value);
 
-        var products = await productsQuery.OrderByDescending(p => p.Id).ToListAsync();
+
+        int pageSize = 12; // số sản phẩm trên 1 trang
+        int totalItems = await productsQuery.CountAsync();
+        int totalPages = (int)Math.Ceiling((decimal)totalItems / pageSize);
+        var products = await productsQuery.OrderByDescending(p => p.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
 
         var vm = new ProductFilterViewModel
         {
@@ -49,13 +56,64 @@ public class ProductController : BaseController
             SelectedSlugCategories = selectedSlugCategories ?? new List<string>(),
             SelectedSlugBrands = selectedSlugBrands ?? new List<string>(),
             MinPrice = minPrice,
-            MaxPrice = maxPrice
+            MaxPrice = maxPrice,
+            CurrentPage = page,
+            TotalPages = totalPages
         };
+
 
         return View(vm);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> FilterPartial(
+        List<string> selectedSlugBrands,
+        List<string> selectedSlugCategories,
+        decimal? minPrice,
+        decimal? maxPrice,
+        int page = 1,
+        int pageSize = 12)
+    {
+        IQueryable<Product> productsQuery = _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Brand);
 
+        if (selectedSlugCategories?.Count > 0)
+            productsQuery = productsQuery.Where(p => selectedSlugCategories.Contains(p.Category.Slug));
+
+        if (selectedSlugBrands?.Count > 0)
+            productsQuery = productsQuery.Where(p => selectedSlugBrands.Contains(p.Brand.Slug));
+
+        if (minPrice.HasValue)
+            productsQuery = productsQuery.Where(p => p.Price >= minPrice.Value);
+
+        if (maxPrice.HasValue)
+            productsQuery = productsQuery.Where(p => p.Price <= maxPrice.Value);
+
+        int totalItems = await productsQuery.CountAsync();
+        int totalPages = (int)Math.Ceiling((decimal)totalItems / pageSize);
+
+        var products = await productsQuery
+            .OrderByDescending(p => p.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var vm = new ProductFilterViewModel
+        {
+            Products = products,
+            SelectedSlugCategories = selectedSlugCategories ?? new List<string>(),
+            SelectedSlugBrands = selectedSlugBrands ?? new List<string>(),
+            MinPrice = minPrice,
+            MaxPrice = maxPrice,
+            CurrentPage = page,
+            TotalPages = totalPages
+        };
+
+        return PartialView("_ProductWithPaginationPartial", vm);
+    }
+
+    [HttpGet]
     [Route("{categorySlug}/{brandSlug}/{productSlug}")]
     public async Task<IActionResult> Detail(string categorySlug, string brandSlug, string productSlug)
     {
@@ -110,45 +168,61 @@ public class ProductController : BaseController
     }
 
 
+    // Dùng 1 action cho cả Search & Suggestion
     [HttpGet]
-    public async Task<IActionResult> FilterPartial(
-        List<string> selectedSlugBrands,
-        List<string> selectedSlugCategories,
-        decimal? minPrice,
-        decimal? maxPrice)
+    public async Task<IActionResult> Search(string searchTerm, bool suggest = false)
     {
-        IQueryable<Product> productsQuery = _context.Products
-            .Include(p => p.Category)
-            .Include(p => p.Brand);
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            if (suggest)
+                return Json(new { products = new List<object>(), keywords = new List<string>() });
 
-        if (selectedSlugCategories?.Count > 0)
-            productsQuery = productsQuery.Where(p => selectedSlugCategories.Contains(p.Category.Slug));
+            return View(new List<Product>());
+        }
 
-        if (selectedSlugBrands?.Count > 0)
-            productsQuery = productsQuery.Where(p => selectedSlugBrands.Contains(p.Brand.Slug));
-
-        if (minPrice.HasValue)
-            productsQuery = productsQuery.Where(p => p.Price >= minPrice.Value);
-
-        if (maxPrice.HasValue)
-            productsQuery = productsQuery.Where(p => p.Price <= maxPrice.Value);
-
-        var products = await productsQuery.OrderByDescending(p => p.Id).ToListAsync();
-
-        return PartialView("_ProductListPartial", products);
-    }
-
-
-    [HttpPost]
-    public async Task<IActionResult> Search(string searchTerm)
-    {
-        var products = await _context.Products
+        // Query chung
+        var query = _context.Products
             .Include(p => p.Category)
             .Include(p => p.Brand)
-            .Where(p => p.Name.Contains(searchTerm) || p.Description.Contains(searchTerm))
-            .ToListAsync();
-        ViewBag.SearchTerm = searchTerm;
-        return View(products);
+            .Where(p => p.Name.Contains(searchTerm));
+
+        if (suggest)
+        {
+            // Trả JSON cho auto-suggest
+            var products = await query
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(5)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Name,
+                    p.Slug,
+                    CategorySlug = p.Category.Slug,
+                    BrandSlug = p.Brand.Slug,
+                    p.MainImage,
+                    p.Price
+                })
+                .ToListAsync();
+
+            var keywords = await _context.Products
+                .Where(p => p.Name.Contains(searchTerm))
+                .Select(p => p.Name)
+                .Distinct()
+                .Take(5)
+                .ToListAsync();
+
+            return Json(new { products, keywords });
+        }
+        else
+        {
+            // Trả View kết quả tìm kiếm
+            var products = await query
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+
+            ViewBag.SearchTerm = searchTerm;
+            return View(products);
+        }
     }
 
     [HttpPost]

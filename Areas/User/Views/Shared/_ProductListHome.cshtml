@@ -1,11 +1,11 @@
 ﻿@model IEnumerable<MyWebApp.Models.Product>
-<link rel = "stylesheet" href = "~/css/User/Product.css"/>
+<link rel = "stylesheet" href = "~/css/User/HomeIndex.css"/>
 
 <div class = "row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4">
 
     @if (!Model.Any())
     {
-        <div class = "col-12" style = "width: 100%;">
+        <div class = "col-12">
             <div class = "empty-state fade-in">
                 <div class = "empty-state-icon">
                     <i class = "fas fa-search"></i>
@@ -90,59 +90,12 @@
                             >
                                 <i class = "fas fa-eye me-1"></i> Xem chi tiết
                             </a>
-
-                            @if (item.Quantity > 0)
-                            {
-                                <button
-                                    type = "button"
-                                    class = "btn btn-success-modern btn-modern mt-2 btn-add-to-cart w-100"
-                                    data-id = "@item.Id"
-                                >
-                                    Thêm Giỏ hàng
-                                </button>
-                            }
-                            else
-                            {
-                                <button
-                                    type = "button"
-                                    class = "btn btn-disabled btn-modern mt-2 w-100"
-                                    disabled
-                                >
-                                    <i class = "fas fa-ban me-1"></i> Hết hàng
-                                </button>
-                            }
-                        </div>
-                        <div class = "form-check mt-2">
-                            <input class = "form-check-input compare-checkbox" type = "checkbox" value = "@item.Id" id = "compare-@item.Id">
-                            <label class = "form-check-label" for = "compare-@item.Id">So sánh</label>
                         </div>
                     </div>
                 </div>
             </div>
         }
     }
-</div>
-<!-- Nút So sánh duy nhất -->
-<div class = "mt-3 text-center">
-    <button id = "compareBtn" class = "btn btn-primary">
-        <i class = "fas fa-balance-scale me-1"></i> So sánh
-    </button>
-</div>
-
-<!-- Modal So sánh -->
-<div class = "modal fade" id = "compareModal" tabindex = "-1" aria-labelledby = "compareModalLabel" aria-hidden = "true">
-    <div class = "modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
-        <div class = "modal-content">
-            <div class = "modal-header">
-                <h5 class = "modal-title" id = "compareModalLabel">So sánh sản phẩm</h5>
-                <button type = "button" class = "btn-close" data-bs-dismiss = "modal" aria-label = "Close"></button>
-            </div>
-
-            <div class = "modal-body">
-                <div id = "compareTableContainer" class = "table-responsive"></div>
-            </div>
-        </div>
-    </div>
 </div>
 
 

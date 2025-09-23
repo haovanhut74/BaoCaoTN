@@ -49,7 +49,13 @@
                 @foreach (var p in Model)
                 {
                     var spec = p.Specifications.FirstOrDefault(s => (s.SpecName?.Name ?? s.Key) == specName);
-                    <td class = "value">@(spec?.Value ?? "-")</td>
+                    <td class = "value">
+                        <div
+                            class = "spec-value" style = "white-space: pre-line;word-break: break-word;overflow-wrap: anywhere;"
+                        >
+                            @Html.Raw(spec?.Value ?? "-")
+                        </div>
+                    </td>
                 }
             </tr>
         }

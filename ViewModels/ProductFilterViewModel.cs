@@ -10,7 +10,8 @@ public class ProductFilterViewModel
     public List<Guid> SelectedCategoryIds { get; set; } = new();
     public List<Guid> SelectedBrandIds { get; set; } = new();
     public List<string> SelectedSlugCategories { get; set; } = new();
-
+    public int CurrentPage { get; set; }
+    public int TotalPages { get; set; }
     public List<string> SelectedSlugBrands { get; set; } = new();
 
     // Thêm:

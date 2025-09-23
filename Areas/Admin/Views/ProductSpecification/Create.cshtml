@@ -25,17 +25,27 @@
 
         <div class = "mb-3">
             <label asp-for = "Value" class = "form-label fw-bold"></label>
-            <input asp-for = "Value" class = "form-control"/>
+            <textarea asp-for = "Value" class = "form-control"></textarea>
             <span asp-validation-for = "Value" class = "text-danger"></span>
         </div>
-        
+
         <div class = "mb-3">
             <label class = "form-label fw-bold">Thời gian bảo hành (tháng)</label>
             <input asp-for = "WarrantyMonths" type = "number" min = "0" class = "form-control"/>
             <span asp-validation-for = "WarrantyMonths" class = "text-danger"></span>
         </div>
-        
+
         <button type = "submit" class = "btn btn-success"><i class = "fa fa-save"></i> Lưu</button>
         <a asp-action = "Index" asp-route-productId = "@Model.ProductId" class = "btn btn-secondary">Hủy</a>
     </form>
 </div>
+
+@section Scripts {
+    <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src = "https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    <script>
+        // CKEditor khởi tạo
+        CKEDITOR.replace('Description');
+    </script>
+}

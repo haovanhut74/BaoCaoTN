@@ -6,6 +6,7 @@ using MyWebApp.Data;
 using MyWebApp.Models;
 using MyWebApp.ViewModels;
 using System.Security.Claims;
+using MyWebApp.Interface.Service;
 
 namespace MyWebApp.Areas.User.Controllers;
 
@@ -13,7 +14,12 @@ namespace MyWebApp.Areas.User.Controllers;
 [Authorize]
 public class CartController : BaseController
 {
-    public CartController(DataContext context) : base(context) { }
+    private readonly IGhnService _ghnService;
+
+    public CartController(DataContext context, IGhnService ghnService) : base(context)
+    {
+        _ghnService = ghnService;
+    }
 
     private string GetUserId()
     {

@@ -196,19 +196,6 @@
         </div>
     </div>
 
-    <!-- Mô tả sản phẩm -->
-    <div class = "content-section animate-fade-in">
-        <div class = "section-header">
-            <div class = "section-icon">
-                <i class = "fa fa-file-alt"></i>
-            </div>
-            <h3 class = "section-title">Mô tả sản phẩm</h3>
-        </div>
-        <div class = "product-description">
-            @Html.Raw(Model.Description)
-        </div>
-    </div>
-
     <!-- Thông số kỹ thuật sản phẩm -->
     @if (Model.Specifications != null && Model.Specifications.Any())
     {
@@ -226,7 +213,13 @@
                 {
                     <tr>
                         <td>@(spec.SpecName?.Name ?? spec.Key)</td>
-                        <td>@spec.Value</td>
+                        <td>
+                            <div
+                                class = "spec-value" style = "white-space: pre-line;word-break: break-word;overflow-wrap: anywhere;"
+                            >
+                                @Html.Raw(spec.Value)
+                            </div>
+                        </td>
                         @if (spec.WarrantyMonths is null or 0)
                         {
                             <td></td>
@@ -241,6 +234,19 @@
             </table>
         </div>
     }
+    <!-- Mô tả sản phẩm -->
+    <div class = "content-section animate-fade-in">
+        <div class = "section-header">
+            <div class = "section-icon">
+                <i class = "fa fa-file-alt"></i>
+            </div>
+            <h3 class = "section-title">Mô tả sản phẩm</h3>
+        </div>
+        <div class = "product-description">
+            @Html.Raw(Model.Description)
+        </div>
+    </div>
+
 
     <!-- Đánh giá & Bình luận -->
     <div class = "review-section animate-fade-in">

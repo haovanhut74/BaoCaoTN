@@ -34,10 +34,17 @@
                     </a>
                 </li>
             </ul>
-            <form asp-area = "User" class = "d-flex" asp-controller = "Product" asp-action = "Search" method = "post">
-                <input name = "searchTerm" class = "form-control me-2" type = "search" placeholder = "Tìm Laptop, PC..."/>
-                <button class = "btn btn-outline-success" type = "submit">Tìm</button>
+            <!-- Ô tìm kiếm -->
+            <form method = "get" asp-area = "User" asp-controller = "Product" asp-action = "Search" class = "d-flex position-relative w-50 mx-auto">
+                <input type = "text" name = "searchTerm" id = "searchInput" class = "form-control" placeholder = "🔍 Tìm sản phẩm..." autocomplete = "off"/>
+                <div
+                    id = "searchSuggestions"
+                    class = "list-group position-absolute w-100 shadow-sm"
+                    style = "z-index:999; display:none; max-height:300px; overflow-y:auto; position: absolute;top:37px"
+                >
+                </div>
             </form>
         </div>
     </div>
 </nav>
+

@@ -21,41 +21,42 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index(List<string> selectedSlugBrands, List<string> selectedSlugCategories)
     {
-        var categories = await _context.Categories.ToListAsync();
-        var brands = await _context.Brands.ToListAsync();
-
-        IQueryable<Product> productsQuery = _context.Products
-            .Include(p => p.Category)
-            .Include(p => p.Brand);
-
-        if (selectedSlugCategories is { Count: > 0 })
-            productsQuery = productsQuery.Where(p => selectedSlugCategories.Contains(p.Category.Slug));
-
-        if (selectedSlugBrands is { Count: > 0 })
-            productsQuery = productsQuery.Where(p => selectedSlugBrands.Contains(p.Brand.Slug));
-
-        var products = await productsQuery.OrderByDescending(p => p.Id).ToListAsync();
-
-        // Lấy slider hiển thị
         var sliders = await _context.Sliders.Where(s => s.Status == 1).ToListAsync();
 
-        var vm = new ProductFilterViewModel
+        var topSale = await _context.Products
+            .Where(p => p.DiscountPercent.HasValue && p.DiscountPercent > 0)
+            .OrderByDescending(p => p.DiscountPercent)
+            .Take(8)
+            .Include(p => p.Category).Include(p => p.Brand)
+            .ToListAsync();
+
+        var mostBought = await _context.Products
+            .OrderByDescending(p => p.Sold) // bạn cần có cột SoldQuantity
+            .Take(8)
+            .Include(p => p.Category).Include(p => p.Brand)
+            .ToListAsync();
+
+        var newest = await _context.Products
+            .OrderByDescending(p => p.CreatedAt) // cần cột CreatedAt
+            .Take(8)
+            .Include(p => p.Category).Include(p => p.Brand)
+            .ToListAsync();
+
+        var mostReviewed = await _context.Products
+            .OrderByDescending(p => p.Comments.Count) // cần cột ReviewCount
+            .Take(8)
+            .Include(p => p.Category).Include(p => p.Brand)
+            .ToListAsync();
+
+        var vm = new HomeViewModel
         {
-            Products = products,
-            Categories = categories,
-            Brands = brands,
-            SelectedSlugCategories = selectedSlugCategories.Count > 0 ? selectedSlugCategories : new List<string>(),
-            SelectedSlugBrands = selectedSlugBrands.Count > 0 ? selectedSlugBrands : new List<string>(),
-            Sliders = sliders
+            Sliders = sliders,
+            TopSale = topSale,
+            MostBought = mostBought,
+            Newest = newest,
+            MostReviewed = mostReviewed
         };
-
         return View(vm);
-    }
-
-
-    public IActionResult Privacy()
-    {
-        return View();
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -54,4 +54,23 @@ public class ChatController : BaseController
             .ToListAsync();
         return Ok(msgs);
     }
+    
+    // API: Xóa toàn bộ chat của 1 room
+    [HttpDelete]
+    public async Task<IActionResult> DeleteRoom(string roomId)
+    {
+        if (string.IsNullOrEmpty(roomId)) return BadRequest();
+
+        var messages = await _context.ChatMessages
+            .Where(m => m.RoomId == roomId)
+            .ToListAsync();
+
+        if (!messages.Any()) return NotFound();
+
+        _context.ChatMessages.RemoveRange(messages);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Đã xóa tất cả tin nhắn của room." });
+    }
+
 }

@@ -13,7 +13,7 @@
 
     <div class="mb-3">
         <label asp-for="Value" class="form-label">Value</label>
-        <input asp-for="Value" class="form-control" />
+        <textarea asp-for="Value" class="form-control"></textarea>
     </div>
 
     <div class="mb-3">
@@ -23,3 +23,12 @@
 
     <button type="submit" class="btn btn-primary">Save</button>
 </form>
+@section Scripts {
+    <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src = "https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    <script>
+        // CKEditor khởi tạo
+        CKEDITOR.replace('Description');
+    </script>
+}

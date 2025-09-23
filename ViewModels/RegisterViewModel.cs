@@ -5,6 +5,7 @@ namespace MyWebApp.ViewModels;
 public class RegisterViewModel
 {
     [Required(ErrorMessage = "Tên người dùng là bắt buộc")]
+    [MaxLength(30)]
     public string UserName { get; set; }
 
     [Required(ErrorMessage = "Email là bắt buộc")]

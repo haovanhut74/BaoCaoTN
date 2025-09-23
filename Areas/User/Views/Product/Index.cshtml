@@ -6,22 +6,21 @@
 }
 <link rel = "stylesheet" href = "~/css/User/ProductIndex.css"/>
 <!-- AntiForgery hidden form -->
-<form id = "antiForgeryForm" >
+<form id = "antiForgeryForm">
     @Html.AntiForgeryToken()
 </form>
 
 <div class = "main-container">
-    <form method = "get" asp-action = "Index">
+    <form method = "get" asp-action = "Index" id = "filterForm">
         <div class = "row">
             <div class = "col-md-12">
                 <div id = "product-list-container">
-                    @await Html.PartialAsync("_ProductListPartial", Model.Products)
+                    @await Html.PartialAsync("_ProductWithPaginationPartial", Model)
                 </div>
             </div>
         </div>
     </form>
 </div>
-
 <!-- Toast Container -->
 <div id = "toast-container" style = "position: fixed; top: 1rem; right: 1rem; z-index: 1055;"></div>
 
@@ -154,6 +153,25 @@
 
         });
     </script>
+    <script>
+        $(document).on("click", ".pagination a", function (e) {
+            e.preventDefault();
+            const url = $(this).attr("href");
 
+            // Lấy toàn bộ filter form và thêm page
+            let form = $('#filterForm');
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: form.serialize(),
+                success: function (html) {
+                    $("#product-list-container").html(html);
+                }
+            });
+        });
+
+
+
+    </script>
 }
 

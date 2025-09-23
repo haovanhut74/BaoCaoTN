@@ -63,3 +63,12 @@
         </table>
     }
 </div>
+@section Scripts {
+    <script src = "https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src = "https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    <script>
+        // CKEditor khởi tạo
+        CKEDITOR.replace('Description');
+    </script>
+}

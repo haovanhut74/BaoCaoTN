@@ -50,5 +50,36 @@ public class DataContext : IdentityDbContext<ApplicationUser>
             .WithMany()
             .HasForeignKey(g => g.GiftProductId)
             .OnDelete(DeleteBehavior.Restrict); // Không cascade
+        modelBuilder.Entity<DiscountCode>()
+            .Property(d => d.DiscountAmount)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Order>()
+            .Property(o => o.ShippingFee)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Order>()
+            .Property(o => o.TotalAmount)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Order>()
+            .Property(o => o.TotalDiscount)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<OrderDetail>()
+            .Property(od => od.Price)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Product>()
+            .Property(p => p.Price)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Product>()
+            .Property(p => p.DiscountPrice)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Shiping>()
+            .Property(s => s.Price)
+            .HasPrecision(18, 2);
     }
 }

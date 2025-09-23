@@ -13,12 +13,9 @@ public class Shiping
     [Required]
     [Display(Name = "Quận/Huyện")]
     public string District { get; set; }
-    
 
     [Required]
     [Range(0, 1000000)]
     [Display(Name = "Phí vận chuyển")]
     public decimal Price { get; set; }
-    
-    
 }

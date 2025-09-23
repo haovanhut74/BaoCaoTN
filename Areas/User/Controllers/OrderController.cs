@@ -54,7 +54,7 @@ public class OrderController : BaseController
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(orderCode))
-            query = query.Where(o => o.OrderCode.Contains(orderCode));
+            query = query.Where(o => o.GHNOrderCode.Contains(orderCode));
 
         if (!string.IsNullOrWhiteSpace(status) && int.TryParse(status, out int s))
             query = query.Where(o => o.Status == s);

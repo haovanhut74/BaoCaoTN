@@ -20,6 +20,7 @@ namespace MyWebApp.Areas.Admin.Controllers
             // Top 5 sản phẩm bán chạy
             var bestSellingProducts = _context.OrderDetails
                 .Include(d => d.Product)
+                .Where(d => d.Order.Status == 5)
                 .GroupBy(d => d.Product)
                 .Select(g => new
                 {
@@ -36,6 +37,7 @@ namespace MyWebApp.Areas.Admin.Controllers
             var bestSellingByCategory = _context.OrderDetails
                 .Include(d => d.Product)
                 .ThenInclude(p => p.Category)
+                .Where(d => d.Order.Status == 5)
                 .GroupBy(d => new { d.Product.CategoryId, d.Product.Category.Name })
                 .Select(g => new
                 {

@@ -79,18 +79,5 @@ namespace MyWebApp.Areas.Admin.Controllers
             ViewBag.GiftProducts = new SelectList(_context.Products, "Id", "Name", promotion.GiftProductId);
             return View(promotion);
         }
-
-
-        // POST: Delete Confirm
-        [HttpPost, ActionName("Delete")]
-        public IActionResult DeleteConfirmed(Guid id)
-        {
-            var promo = _context.GiftPromotions.Find(id);
-            if (promo == null) return NotFound();
-
-            _context.GiftPromotions.Remove(promo);
-            _context.SaveChanges();
-            return RedirectToAction("Index");
-        }
     }
 }

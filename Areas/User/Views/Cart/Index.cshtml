@@ -49,7 +49,40 @@
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach (var item in Model.CartItems)
+                            @* @foreach (var item in Model.CartItems) *@
+                            @* { *@
+                            @*     <tr> *@
+                            @*         <td> *@
+                            @*             <div class = "d-flex align-items-center gap-5"> *@
+                            @*                 <img src = "~/img/product/@item.ImageUrl" class = "product-image" alt = "@item.ProductName"/> *@
+                            @*                 <div> *@
+                            @*                     <div class = "product-name">@item.ProductName</div> *@
+                            @*                 </div> *@
+                            @*             </div> *@
+                            @*         </td> *@
+                            @*         <td> *@
+                            @*             <div class = "quantity-controls"> *@
+                            @*                 <button class = "quantity-btn decrease-btn" data-id = "@item.CartItemId">− *@
+                            @*                 </button> *@
+                            @*                 <span class = "quantity">@item.Quantity</span> *@
+                            @*                 <button class = "quantity-btn increase-btn" data-id = "@item.CartItemId">+ *@
+                            @*                 </button> *@
+                            @*             </div> *@
+                            @*             @if (TempData["ErrorProductId"]?.ToString() == item.CartItemId.ToString()) *@
+                            @*             { *@
+                            @*                 <div class = "text-danger small text-center mt-1">@TempData["Error"]</div> *@
+                            @*             } *@
+                            @*         </td> *@
+                            @*         <td class = "subtotal">@(((item.DiscountPrice ?? item.Price) * item.Quantity).ToString("N0")) ₫</td> *@
+                            @* *@
+                            @*         <td> *@
+                            @*             <button class = "remove-btn btn btn-link text-danger" data-id = "@item.CartItemId"> *@
+                            @*                 <i class = "fas fa-trash-alt"></i> *@
+                            @*             </button> *@
+                            @*         </td> *@
+                            @*     </tr> *@
+                            @* } *@
+                            @foreach (var item in Model.CartItems.Where(ci => !ci.IsGift))
                             {
                                 <tr>
                                     <td>
@@ -74,13 +107,48 @@
                                         }
                                     </td>
                                     <td class = "subtotal">@(((item.DiscountPrice ?? item.Price) * item.Quantity).ToString("N0")) ₫</td>
-
                                     <td>
                                         <button class = "remove-btn btn btn-link text-danger" data-id = "@item.CartItemId">
                                             <i class = "fas fa-trash-alt"></i>
                                         </button>
                                     </td>
                                 </tr>
+                            }
+
+                            @if (Model.CartItems.Any(ci => ci.IsGift))
+                            {
+                                <tr class = "gift-section">
+                                    <td colspan = "4" class = "text-center py-3">
+                                        <div class = "alert alert-success d-flex align-items-center justify-content-center">
+                                            <i class = "fas fa-gift me-2"></i>
+                                            <strong>🎁 Quà tặng đặc biệt cho bạn!</strong>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                @foreach (var gift in Model.CartItems.Where(ci => ci.IsGift))
+                                {
+                                    <tr class = "table-success" data-id = "@gift.CartItemId">
+                                        <td>
+                                            <div class = "d-flex align-items-center gap-3">
+                                                <img src = "~/img/product/@gift.ImageUrl" alt = "@gift.ProductName" width = "60" class = "rounded"/>
+                                                <div>
+                                                    <div class = "product-name small">@gift.ProductName</div>
+                                                    <span class = "badge bg-success">🎁 Quà tặng</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class = "small">@gift.Quantity x</span>
+                                        </td>
+                                        <td>
+                                            <span class = "text-success small">0 ₫</span>
+                                        </td>
+                                        <td>
+                                            <span class = "text-muted small">—</span>
+                                        </td>
+                                    </tr>
+                                }
                             }
                             </tbody>
                         </table>
@@ -99,7 +167,6 @@
                             <span class = "summary-label">Tổng tiền sản phẩm:</span>
                             <span id = "cartTotal" class = "summary-value">@Model.TotalPrice.ToString("N0") ₫</span>
                         </div>
-
                         <div class = "summary-row">
                             <span class = "summary-label">Phí vận chuyển:</span>
                             <span id = "shippingFee" class = "summary-value">0 ₫</span>
@@ -292,6 +359,7 @@
             // --- Tăng/Giảm/Xóa sản phẩm ---
             $(document).on("click", ".increase-btn", function () {
                 updateCart("Increase", $(this).data("id"), $(this).closest("tr"));
+
             });
 
             $(document).on("click", ".decrease-btn", function () {
@@ -306,42 +374,94 @@
                 });
             });
 
+            function refreshGiftItems() {
+                $.post('/User/Cart/RefreshGiftItems', function(res) {
+                    if (res.success) {
+                        // Xóa các hàng quà tặng hiện tại
+                        $('tr.table-success').remove();
+                        $('tr.gift-section').remove();
+
+                        // Nếu có quà tặng, thêm tiêu đề và các hàng quà tặng
+                        if (res.hasGifts) {
+                            // Thêm tiêu đề quà tặng
+                            $('table.modern-table tbody').append(`
+                    <tr class="gift-section">
+                        <td colspan="4" class="text-center py-3">
+                            <div class="alert alert-success d-flex align-items-center justify-content-center">
+                                <i class="fas fa-gift me-2"></i>
+                                <strong>🎁 Quà tặng đặc biệt cho bạn!</strong>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+
+                            // Thêm các hàng quà tặng
+                            res.giftItems.forEach(function(gift) {
+                                $('table.modern-table tbody').append(`
+                        <tr class="table-success" data-id="${gift.cartItemId}">
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="/img/product/${gift.imageUrl}" alt="${gift.productName}" width="60" class="rounded"/>
+                                    <div>
+                                        <div class="product-name small">${gift.productName}</div>
+                                        <span class="badge bg-success">🎁 Quà tặng</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="small">${gift.quantity} x</span>
+                            </td>
+                            <td>
+                                <span class="text-success small">0 ₫</span>
+                            </td>
+                            <td>
+                                <span class="text-muted small">—</span>
+                            </td>
+                        </tr>
+                    `);
+                            });
+                        }
+
+                        // Cập nhật tổng tiền
+                        $("#cartTotal").text(res.newTotalPrice.toLocaleString() + ' ₫');
+                        recalcDiscount();
+                    }
+                });
+            }
+
             function updateCart(action, id, row) {
                 $.post(`/User/Cart/${action}`, {id}, function (res) {
                     if (res.success) {
-
                         // Giỏ hàng trống
                         if (res.cartEmpty) {
                             $(".cart-table-container, .cart-summary, .discount-section, .info-section, .action-buttons").remove();
                             $(".cart-container .container").append(`
-                                <div class="empty-cart fade-in text-center">
-                                    <div class="empty-cart-icon"><i class="fas fa-shopping-cart"></i></div>
-                                    <h3 class="mb-3">Giỏ hàng của bạn đang trống</h3>
-                                    <p class="text-muted mb-4">Khám phá các sản phẩm laptop và PC tuyệt vời của chúng tôi</p>
-                                    <a href="${'@Url.Action("Index", "Product")'}" class="modern-btn modern-btn-lg">
-                                        <i class="fas fa-arrow-left"></i> Bắt đầu mua sắm
-                                    </a>
-                                </div>
-                            `);
+                    <div class="empty-cart fade-in text-center">
+                        <div class="empty-cart-icon"><i class="fas fa-shopping-cart"></i></div>
+                        <h3 class="mb-3">Giỏ hàng của bạn đang trống</h3>
+                        <p class="text-muted mb-4">Khám phá các sản phẩm laptop và PC tuyệt vời của chúng tôi</p>
+                        <a href="${'@Url.Action("Index", "Product")'}" class="modern-btn modern-btn-lg">
+                            <i class="fas fa-arrow-left"></i> Bắt đầu mua sắm
+                        </a>
+                    </div>
+                `);
                             return;
                         }
 
                         // Xử lý xóa hoặc thay đổi số lượng
                         if (action === "Remove" || res.removed) {
-                            row.remove();
+                            if (!row.hasClass('table-success')) {
+                                row.fadeOut(300, function () {
+                                    $(this).remove();
+                                });
+                            }
                         } else {
                             row.find(".quantity").text(res.newQuantity);
                             row.find(".subtotal").text(res.newSubtotal.toLocaleString() + ' ₫');
                         }
 
-                        // Cập nhật tổng tiền
-                        if (res.newTotalPrice !== undefined) {
-                            $("#cartTotal").text(res.newTotalPrice.toLocaleString() + ' ₫');
-                        }
-
-                        // Cập nhật giảm giá và grand total
-                        recalcDiscount();
-
+                        // Cập nhật quà tặng
+                        refreshGiftItems();
                     } else {
                         alert(res.message || 'Có lỗi xảy ra');
                     }

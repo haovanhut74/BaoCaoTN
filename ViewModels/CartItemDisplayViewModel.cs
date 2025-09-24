@@ -11,4 +11,9 @@ public class CartItemDisplayViewModel
     public int Quantity { get; set; }
 
     public decimal FinalPrice => (DiscountPrice ?? Price) * Quantity;
+    public bool IsGift { get; set; } = false;
+    
+        
+    // Nếu muốn trace promotion
+    public Guid? GiftPromotionId { get; set; }
 }

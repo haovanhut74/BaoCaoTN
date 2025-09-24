@@ -14,6 +14,7 @@ public class CheckoutController : BaseController
 {
     private readonly IEmailSender _emailSender;
     private readonly IGhnService _ghnService;
+
     public CheckoutController(DataContext context, IEmailSender emailSender, IGhnService ghnService) : base(context)
     {
         _emailSender = emailSender;
@@ -60,7 +61,9 @@ public class CheckoutController : BaseController
         decimal shippingFee = shipping.Price;
 
         var orderCode = Guid.NewGuid().ToString();
-        var subtotal = cart.CartItems.Sum(i => (i.Product.DiscountPrice ?? i.Product.Price) * i.Quantity);
+        var subtotal = cart.CartItems
+            .Where(ci => !ci.IsGift)
+            .Sum(i => (i.Product.DiscountPrice ?? i.Product.Price) * i.Quantity);
         // Kiểm tra mã giảm giá
         decimal discountAmount = 0;
         if (!string.IsNullOrEmpty(discountCode))
@@ -119,15 +122,26 @@ public class CheckoutController : BaseController
                     UserName = order.UserName,
                     ProductId = item.ProductId,
                     Product = item.Product,
-                    Price = item.Product.DiscountPrice ?? item.Product.Price,
-                    Quantity = item.Quantity
+                    Price = item.IsGift ? 0 : (item.Product.DiscountPrice ?? item.Product.Price),
+                    Quantity = item.Quantity,
+                    IsGift = item.IsGift
                 };
                 _context.OrderDetails.Add(orderDetail);
 
-                item.Product.Quantity -= item.Quantity;
-                item.Product.Sold += item.Quantity;
-                if (item.Product.Quantity < 0)
-                    item.Product.Quantity = 0;
+                if (item.IsGift)
+                {
+                    item.Product.Quantity -= item.Quantity;
+                    if (item.Product.Quantity < 0)
+                        item.Product.Quantity = 0;
+                }
+
+                if (!item.IsGift)
+                {
+                    item.Product.Quantity -= item.Quantity;
+                    item.Product.Sold += item.Quantity;
+                    if (item.Product.Quantity < 0)
+                        item.Product.Quantity = 0;
+                }
 
                 _context.Products.Update(item.Product);
             }
@@ -191,14 +205,14 @@ public class CheckoutController : BaseController
                                                           </tr>
                                                       </thead>
                                                       <tbody>
-                                                          {{{{string.Join("", order.OrderDetails.Select(d => $"""
-                                                                   <tr>
-                                                                       <td style='border: 1px solid #ddd;'>{d.Product.Name}</td>
-                                                                       <td align='center' style='border: 1px solid #ddd;'>{d.Quantity}</td>
-                                                                       <td align='right' style='border: 1px solid #ddd;'>{d.Price:C0}</td>
-                                                                       <td align='right' style='border: 1px solid #ddd;'>{(d.Quantity * d.Price):C0}</td>
-                                                                   </tr>
-                                                               """))}}}}
+                                                          {{{{string.Join("", order.OrderDetails.Select(d => $$"""
+                                                                    <tr>
+                                                                        <td style='border: 1px solid #ddd;'>{{d.Product.Name}}{{(d.IsGift ? " <span style='color: green;'>(Quà tặng)</span>" : "")}}</td>
+                                                                        <td align='center' style='border: 1px solid #ddd;'>{{d.Quantity}}</td>
+                                                                        <td align='right' style='border: 1px solid #ddd;'>{{d.Price:C0}}</td>
+                                                                        <td align='right' style='border: 1px solid #ddd;'>{{(d.Quantity * d.Price):C0}}</td>
+                                                                    </tr>
+                                                                """))}}}}
                                                           <tr>
                                                               <td colspan="3" align="right" style="border: 1px solid #ddd;">Phí vận chuyển</td>
                                                               <td align="right" style="border: 1px solid #ddd;">{{{{order.ShippingFee:C0}}}}</td>

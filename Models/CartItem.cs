@@ -20,4 +20,9 @@ public class CartItem
     [Column(TypeName = "decimal(18,2)")] public decimal Price { get; set; }
 
     [NotMapped] public decimal TotalPrice => Price * Quantity;
+    
+    public bool IsGift { get; set; } = false;
+    
+    // Nếu muốn trace promotion
+    public Guid? GiftPromotionId { get; set; }
 }

@@ -27,7 +27,6 @@
             <td>@(promo.IsActive ? "✔️" : "❌")</td>
             <td>
                 <a asp-controller="GiftPromotion" asp-action = "Edit" asp-route-id = "@promo.Id" class = "btn btn-sm btn-warning">Sửa</a>
-                <a asp-action = "Delete" asp-route-id = "@promo.Id" class = "btn btn-sm btn-danger">Xóa</a>
             </td>
         </tr>
     }

@@ -149,7 +149,8 @@ public class ProductController : BaseController
             .Include(p => p.GiftProduct)
             .Where(p => p.RequiredProductId == product.Id
                         && p.StartDate <= DateTime.Now
-                        && p.EndDate >= DateTime.Now)
+                        && p.EndDate >= DateTime.Now
+                        && p.IsActive)
             .ToListAsync();
 
         ViewBag.ActivePromotions = activePromotions;

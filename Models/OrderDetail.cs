@@ -14,4 +14,5 @@ public class OrderDetail
 
     // 👇 Thêm navigation tới Order
     public Order Order { get; set; }
+    public bool IsGift { get; set; }
 }

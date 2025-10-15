@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 using MyWebApp.Interface.Service;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
+[HasPermission("ManageContact")]
 public class ContactController : BaseController
 {
     private readonly IEmailSender _emailSender;
@@ -48,6 +50,7 @@ public class ContactController : BaseController
 
     // Xóa liên hệ
     [HttpPost]
+    [HasPermission("DeleteContact")]
     public async Task<IActionResult> Delete(int id)
     {
         var contact = await _context.Contacts.FindAsync(id);
@@ -61,6 +64,7 @@ public class ContactController : BaseController
     }
 
     // GET: Hiển thị form trả lời
+    [HasPermission("ReplyContact")]
     public async Task<IActionResult> Reply(int id)
     {
         var contact = await _context.Contacts.FindAsync(id);

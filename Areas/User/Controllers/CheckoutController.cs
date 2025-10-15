@@ -71,7 +71,7 @@ public class CheckoutController : BaseController
             var now = DateTime.Now;
             var discount = await _context.DiscountCodes
                 .FirstOrDefaultAsync(d =>
-                    d.Code == discountCode && d.IsActive && d.StartDate <= now && d.EndDate >= now);
+                    d.Code == discountCode && d.IsActive && d.StartDate <= now && d.EndDate.AddDays(1) >= now);
 
             if (discount != null)
             {

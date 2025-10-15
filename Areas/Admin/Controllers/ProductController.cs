@@ -24,16 +24,48 @@ public class ProductController : BaseController
         _env = env;
     }
 
-    public async Task<IActionResult> Index(int page = 1)
+    public async Task<IActionResult> Index(
+        string? productName,
+        Guid? categoryId,
+        Guid? brandId,
+        decimal? minPrice,
+        decimal? maxPrice,
+        int? minQuantity,
+        int? maxQuantity,
+        int page = 1)
     {
-        int pageSize = 10; // Số sản phẩm hiển thị trên mỗi trang
+        int pageSize = 10;
 
-        var totalItems = await _context.Products.CountAsync();
-
-        var products = await _context.Products
+        var query = _context.Products
             .Include(p => p.Category)
             .Include(p => p.Brand)
             .Include(p => p.Images)
+            .AsQueryable();
+
+        // Áp dụng bộ lọc
+        if (!string.IsNullOrWhiteSpace(productName))
+            query = query.Where(p => p.Name.ToLower().Contains(productName.Trim().ToLower()));
+
+        if (categoryId.HasValue)
+            query = query.Where(p => p.CategoryId == categoryId.Value);
+
+        if (brandId.HasValue)
+            query = query.Where(p => p.BrandId == brandId.Value);
+
+        if (minPrice.HasValue)
+            query = query.Where(p => p.Price >= minPrice.Value);
+
+        if (maxPrice.HasValue)
+            query = query.Where(p => p.Price <= maxPrice.Value);
+
+        if (minQuantity.HasValue)
+            query = query.Where(p => p.Quantity >= minQuantity.Value);
+
+        if (maxQuantity.HasValue)
+            query = query.Where(p => p.Quantity <= maxQuantity.Value);
+
+        int totalItems = await query.CountAsync();
+        var products = await query
             .OrderByDescending(p => p.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -43,7 +75,16 @@ public class ProductController : BaseController
         {
             Products = products,
             CurrentPage = page,
-            TotalPages = (int)Math.Ceiling((double)totalItems / pageSize)
+            TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
+            ProductName = productName,
+            CategoryId = categoryId,
+            BrandId = brandId,
+            MinPrice = minPrice,
+            MaxPrice = maxPrice,
+            MinQuantity = minQuantity,
+            MaxQuantity = maxQuantity,
+            Categories = await _context.Categories.ToListAsync(),
+            Brands = await _context.Brands.ToListAsync()
         };
 
         return View(viewModel);
@@ -111,6 +152,7 @@ public class ProductController : BaseController
             ModelState.AddModelError("", "Sản phẩm đã có trong Data");
             return View(product);
         }
+
         if (ModelState.IsValid)
         {
             // Tính giá sau giảm
@@ -248,7 +290,7 @@ public class ProductController : BaseController
                 else
                     product.DiscountPrice = product.Price;
 
-                _context.Products.Update(product); 
+                _context.Products.Update(product);
                 await _context.SaveChangesAsync();
                 TempData["message"] = "Thêm mới thành công";
                 return RedirectToAction("Index");
@@ -293,6 +335,7 @@ public class ProductController : BaseController
     }
 
     [HttpPost]
+    [HasPermission("CreateProduct")]
     public async Task<IActionResult> AddImage(Guid productId, IFormFile? imageFile, string? imageUrl)
     {
         if ((imageFile == null || imageFile.Length == 0) && string.IsNullOrEmpty(imageUrl))
@@ -348,7 +391,7 @@ public class ProductController : BaseController
     }
 
     [HttpPost]
-    [HasPermission("ManageProducts")]
+    [HasPermission("DeleteProduct")]
     public async Task<IActionResult> DeleteImage(Guid imageId)
     {
         var img = await _context.ProductImages.FindAsync(imageId);

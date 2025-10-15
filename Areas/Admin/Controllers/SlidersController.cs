@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 using MyWebApp.Models;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
+[HasPermission("ManageSlider")]
 public class SlidersController : BaseController
 {
     public SlidersController(DataContext context, IWebHostEnvironment env) : base(context)
@@ -22,6 +24,7 @@ public class SlidersController : BaseController
 
     // GET: Tạo mới
     [HttpGet]
+    [HasPermission("CreateSlider")]
     public IActionResult Create()
     {
         return View();
@@ -30,6 +33,7 @@ public class SlidersController : BaseController
     // POST: Tạo mới
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("CreateSlider")]
     public IActionResult Create(Sliders slider)
     {
         if (ModelState.IsValid)
@@ -60,6 +64,7 @@ public class SlidersController : BaseController
 
     // GET: Sửa
     [HttpGet]
+    [HasPermission("EditSlider")]
     public IActionResult Edit(Guid id)
     {
         var slider = _context.Sliders.Find(id);
@@ -70,6 +75,7 @@ public class SlidersController : BaseController
     // POST: Sửa
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("EditSlider")]
     public IActionResult Edit(Guid id, Sliders slider)
     {
         if (id != slider.Id) return NotFound();
@@ -108,6 +114,7 @@ public class SlidersController : BaseController
 
     // POST: Xóa
     [HttpPost]
+    [HasPermission("DeleteSlider")]
     public IActionResult Delete(Guid id)
     {
         var slider = _context.Sliders.Find(id);

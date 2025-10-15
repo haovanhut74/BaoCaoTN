@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 using MyWebApp.Models;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
+[HasPermission("ManageNews")]
 public class NewsController : BaseController
 {
     public NewsController(DataContext context) : base(context) { }
@@ -16,9 +18,11 @@ public class NewsController : BaseController
     }
 
     // Thêm mới
+    [HttpGet]
     public IActionResult Create() => View();
 
     [HttpPost]
+    [HasPermission("CreateNews")]
     public async Task<IActionResult> Create(News model)
     {
         if (ModelState.IsValid)
@@ -34,6 +38,7 @@ public class NewsController : BaseController
     }
 
     // Sửa
+    [HasPermission("EditNews")]
     public async Task<IActionResult> Edit(Guid id)
     {
         var news = await _context.News.FindAsync(id);
@@ -41,6 +46,7 @@ public class NewsController : BaseController
     }
 
     [HttpPost]
+    [HasPermission("EditNews")]
     public async Task<IActionResult> Edit(Guid id, News model)
     {
         if (id != model.Id) return NotFound();
@@ -57,6 +63,7 @@ public class NewsController : BaseController
 
     // Xóa
     [HttpPost]
+    [HasPermission("DeleteNews")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var news = await _context.News.FindAsync(id);

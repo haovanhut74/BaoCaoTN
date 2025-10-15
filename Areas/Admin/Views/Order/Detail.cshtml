@@ -10,7 +10,8 @@
         new() { Value = "3", Text = "📦 Đang chuẩn bị", Selected = Model.Status == 3 },
         new() { Value = "4", Text = "🚚 Đang giao hàng", Selected = Model.Status == 4 },
         new() { Value = "5", Text = "✨ Đã giao thành công", Selected = Model.Status == 5 },
-        new() { Value = "0", Text = "❌ Đã hủy", Selected = Model.Status == 0 },
+        new() { Value = "0", Text = "⏳ Chờ hoàn lại sản phẩm", Selected = Model.Status == 0 },
+        new() { Value = "6", Text = "❌ Hoàn lại sản phẩm thành công", Selected = Model.Status == 6 }
     };
 
     var statusText = Model.Status switch
@@ -20,7 +21,9 @@
         3 => "Đang chuẩn bị đơn hàng",
         4 => "Đang giao hàng",
         5 => "Đã giao thành công",
-        _ => "Đã hủy"
+        0 => "Chờ hoàn lại sản phẩm",
+        6 => "Hoàn lại sản phẩm thành công",
+        _ => "Không xác định"
     };
 
     var statusClass = Model.Status switch
@@ -30,189 +33,179 @@
         3 => "status-badge status-preparing",
         4 => "status-badge status-shipping",
         5 => "status-badge status-success",
-        _ => "status-badge status-cancelled"
+        0 => "status-badge status-pending-cancel",
+        6 => "status-badge status-cancelled",
+        _ => "status-badge status-unknown"
     };
 }
 
-<link href = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel = "stylesheet">
-<link href = "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel = "stylesheet">
-<link href = "/css/Admin/Order.css" rel = "stylesheet">
-<div class = "main-content">
-    <div class = "container">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="/css/Admin/Order.css" rel="stylesheet">
+
+<div class="main-content">
+    <div class="container">
         <!-- Order Header -->
-        <div class = "card-modern animate-fade-up" style = "animation-delay: 0.1s">
-            <div class = "gradient-header">
-                <div class = "order-header-content d-flex justify-content-between align-items-center flex-wrap">
+        <div class="card-modern animate-fade-up" style="animation-delay: 0.1s">
+            <div class="gradient-header">
+                <div class="order-header-content d-flex justify-content-between align-items-center flex-wrap">
                     <div>
-                        <h1 class = "order-title">
-                            <i class = "bi bi-receipt me-3"></i>
+                        <h1 class="order-title">
+                            <i class="bi bi-receipt me-3"></i>
                             Chi tiết đơn hàng
                         </h1>
                     </div>
-                    <div class = "order-code">
-                        <i class = "bi bi-qr-code me-2"></i>
+                    <div class="order-code">
+                        <i class="bi bi-qr-code me-2"></i>
                         <span>@Model.OrderCode</span>
                     </div>
                 </div>
-                <a
-                    asp-action = "PrintOrder" asp-route-id = "@Model.OrderId" target = "_blank"
-                    class = "btn btn-light btn-modern print-btn"
-                >
-                    <i class = "bi bi-printer me-2"></i>
+                <a asp-action="PrintOrder" asp-route-id="@Model.OrderId" target="_blank"
+                   class="btn btn-light btn-modern print-btn">
+                    <i class="bi bi-printer me-2"></i>
                     In đơn hàng
                 </a>
             </div>
 
             <!-- Order Information -->
-            <div class = "info-grid">
-                <div class = "info-card">
-                    <div class = "info-label">
-                        <i class = "bi bi-person-circle text-primary"></i>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-label">
+                        <i class="bi bi-person-circle text-primary"></i>
                         Người đặt hàng
                     </div>
-                    <div class = "info-value">@Model.UserName</div>
+                    <div class="info-value">@Model.UserName</div>
                 </div>
-
-                <div class = "info-card">
-                    <div class = "info-label">
-                        <i class = "bi bi-calendar-event text-success"></i>
+                <div class="info-card">
+                    <div class="info-label">
+                        <i class="bi bi-calendar-event text-success"></i>
                         Ngày đặt hàng
                     </div>
-                    <div class = "info-value">@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
+                    <div class="info-value">@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
                 </div>
-
-                <div class = "info-card">
-                    <div class = "info-label">
-                        <i class = "bi bi-truck text-info"></i>
+                <div class="info-card">
+                    <div class="info-label">
+                        <i class="bi bi-truck text-info"></i>
                         Trạng thái
                     </div>
-                    <div class = "info-value">
-                        <span class = "@statusClass">
-                            <i class = "bi bi-box-seam me-2"></i>
+                    <div class="info-value">
+                        <span class="@statusClass">
+                            <i class="bi bi-box-seam me-2"></i>
                             @statusText
                         </span>
                     </div>
                 </div>
-
-                <div class = "info-card">
-                    <div class = "info-label">
-                        <i class = "bi bi-credit-card text-warning"></i>
+                <div class="info-card">
+                    <div class="info-label">
+                        <i class="bi bi-credit-card text-warning"></i>
                         Thanh toán
                     </div>
-                    <div class = "info-value">@Model.PaymentMethod</div>
+                    <div class="info-value">@Model.PaymentMethod</div>
                 </div>
-                <div class = "info-card" style = "grid-column: span 2;">
-                    <div class = "info-label">
-                        <i class = "bi bi-geo-alt text-danger"></i>
+                <div class="info-card" style="grid-column: span 2;">
+                    <div class="info-label">
+                        <i class="bi bi-geo-alt text-danger"></i>
                         Số điện thoại giao hàng
                     </div>
-                    <div class = "info-value">@Model.PhoneNumber</div>
+                    <div class="info-value">@Model.PhoneNumber</div>
                 </div>
-
-                <div class = "info-card" style = "grid-column: span 2;">
-                    <div class = "info-label">
-                        <i class = "bi bi-geo-alt text-danger"></i>
+                <div class="info-card" style="grid-column: span 2;">
+                    <div class="info-label">
+                        <i class="bi bi-geo-alt text-danger"></i>
                         Địa chỉ giao hàng
                     </div>
-                    <div class = "info-value">@Model.Address</div>
+                    <div class="info-value">@Model.Address</div>
                 </div>
-
-
             </div>
         </div>
 
         <!-- Products Section -->
-        <div class = "card-modern mt-4 animate-fade-up" style = "animation-delay: 0.3s">
-            <div class = "section-header">
-                <i class = "bi bi-bag-check me-3"></i>
+        <div class="card-modern mt-4 animate-fade-up" style="animation-delay: 0.3s">
+            <div class="section-header">
+                <i class="bi bi-bag-check me-3"></i>
                 Danh sách sản phẩm
             </div>
-
-            <div class = "products-section">
-                <table class = "table modern-table">
+            <div class="products-section">
+                <table class="table modern-table">
                     <thead>
-                    <tr>
-                        <th width = "5%">#</th>
-                        <th width = "15%">Hình ảnh</th>
-                        <th width = "35%">Sản phẩm</th>
-                        <th width = "15%">Đơn giá</th>
-                        <th width = "10%">SL</th>
-                        <th width = "20%">Thành tiền</th>
-                    </tr>
+                        <tr>
+                            <th width="5%">#</th>
+                            <th width="15%">Hình ảnh</th>
+                            <th width="35%">Sản phẩm</th>
+                            <th width="15%">Đơn giá</th>
+                            <th width="10%">SL</th>
+                            <th width="20%">Thành tiền</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    @for (int i = 0; i < Model.OrderDetails.Count; i++)
-                    {
-                        var item = Model.OrderDetails[i];
-                        <tr>
-                            <td class = "text-center fw-bold">@(i + 1)</td>
-                            <td class = "text-center">
-                                <img
-                                    src = "~/img/product/@item.Product.MainImage"
-                                    alt = "@item.Product.Name"
-                                    class = "product-image" width = "60" height = "60"
-                                >
-                            </td>
-                            <td>
-                                <div class = "fw-bold">@item.Product?.Name</div>
-                            </td>
-                            <td class = "text-center price-text">@item.Price.ToString("n0")₫</td>
-                            <td class = "text-center fw-bold">@item.Quantity</td>
-                            <td class = "text-center price-text">@((item.Quantity * item.Price).ToString("n0"))₫</td>
-                        </tr>
-                    }
+                        @for (int i = 0; i < Model.OrderDetails.Count; i++)
+                        {
+                            var item = Model.OrderDetails[i];
+                            <tr>
+                                <td class="text-center fw-bold">@(i + 1)</td>
+                                <td class="text-center">
+                                    <img src="~/img/product/@item.Product.MainImage" alt="@item.Product.Name"
+                                         class="product-image" width="60" height="60">
+                                </td>
+                                <td>
+                                    <div class="fw-bold">@item.Product?.Name</div>
+                                </td>
+                                <td class="text-center price-text">@item.Price.ToString("n0")₫</td>
+                                <td class="text-center fw-bold">@item.Quantity</td>
+                                <td class="text-center price-text">@((item.Quantity * item.Price).ToString("n0"))₫</td>
+                            </tr>
+                        }
                     </tbody>
-                    <tfoot class = "total-section">
-                    <tr>
-                        <td colspan = "5" class = "text-end total-row">
-                            <i class = "bi bi-truck me-2"></i>Phí vận chuyển:
-                        </td>
-                        <td class = "text-center total-row price-text">@Model.ShippingFee.ToString("n0") ₫</td>
-                    </tr>
-                    <tr>
-                        <td colspan = "5" class = "text-end total-row">
-                            <i class = "bi bi-percent me-2"></i>Giảm giá:
-                        </td>
-                        <td class = "text-center total-row text-success">-@Model.TotalDiscount.ToString("n0") ₫</td>
-                    </tr>
-                    <tr class = "border-top border-3">
-                        <td colspan = "5" class = "text-end final-total">
-                            <i class = "bi bi-cash-stack me-2"></i>Tổng thanh toán:
-                        </td>
-                        <td class = "text-center final-total">@Model.TotalAmount.ToString("n0") ₫</td>
-                    </tr>
+                    <tfoot class="total-section">
+                        <tr>
+                            <td colspan="5" class="text-end total-row">
+                                <i class="bi bi-truck me-2"></i>Phí vận chuyển:
+                            </td>
+                            <td class="text-center total-row price-text">@Model.ShippingFee.ToString("n0") ₫</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="text-end total-row">
+                                <i class="bi bi-percent me-2"></i>Giảm giá:
+                            </td>
+                            <td class="text-center total-row text-success">-@Model.TotalDiscount.ToString("n0") ₫</td>
+                        </tr>
+                        <tr class="border-top border-3">
+                            <td colspan="5" class="text-end final-total">
+                                <i class="bi bi-cash-stack me-2"></i>Tổng thanh toán:
+                            </td>
+                            <td class="text-center final-total">@Model.TotalAmount.ToString("n0") ₫</td>
+                        </tr>
                     </tfoot>
                 </table>
             </div>
         </div>
 
         <!-- Actions Section -->
-        <div class = "action-section animate-fade-up" style = "animation-delay: 0.5s">
-            <div class = "update-form">
-
-                @if (Model.Status != 0 && Model.Status != 5)
+        <div class="action-section animate-fade-up" style="animation-delay: 0.5s">
+            <div class="update-form">
+                @if (Model.Status != 5 && Model.Status != 6) // Không cho phép cập nhật nếu đã giao hoặc hoàn lại thành công
                 {
-                    <h5 class = "mb-4">
-                        <i class = "bi bi-gear me-2 text-primary"></i>
+                    <h5 class="mb-4">
+                        <i class="bi bi-gear me-2 text-primary"></i>
                         Cập nhật trạng thái đơn hàng
                     </h5>
-                    <form asp-action = "UpdateStatus" method = "post" class = "row g-3 align-items-end">
+                    <form asp-action="UpdateStatus" method="post" class="row g-3 align-items-end">
                         @Html.AntiForgeryToken()
-                        <input type = "hidden" name = "id" value = "@Model.OrderId"/>
-                        <div class = "col-md-8">
-                            <label class = "form-label fw-semibold">Trạng thái mới:</label>
-                            <select name = "newStatus" id = "statusSelect" class = "form-select form-select-modern">
+                        <input type="hidden" name="id" value="@Model.OrderId"/>
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">Trạng thái mới:</label>
+                            <select name="newStatus" id="statusSelect" class="form-select form-select-modern">
                                 @foreach (var option in options)
                                 {
-                                    <option value = "@option.Value" selected = "@(option.Selected ? "selected" : null)">
+                                    <option value="@option.Value" selected="@(option.Selected ? "selected" : null)">
                                         @option.Text
                                     </option>
                                 }
                             </select>
                         </div>
-                        <div class = "col-md-4">
-                            <button type = "submit" class = "btn btn-success-modern btn-modern w-100">
-                                <i class = "bi bi-check-circle-fill me-2"></i>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-success-modern btn-modern w-100">
+                                <i class="bi bi-check-circle-fill me-2"></i>
                                 Cập nhật
                             </button>
                         </div>
@@ -220,20 +213,19 @@
                 }
                 else
                 {
-                    <h5 class = "mb-4">
-                        <i class = "bi bi-gear me-2 text-primary"></i>
+                    <h5 class="mb-4">
+                        <i class="bi bi-gear me-2 text-primary"></i>
                         Đơn hàng không thể cập nhật trạng thái.
                     </h5>
                 }
             </div>
-
-            <div class = "d-flex gap-3 justify-content-center mt-4">
-                <a asp-action = "Index" class = "btn btn-secondary-modern btn-modern">
-                    <i class = "bi bi-arrow-left-circle me-2"></i>
+            <div class="d-flex gap-3 justify-content-center mt-4">
+                <a asp-action="Index" class="btn btn-secondary-modern btn-modern">
+                    <i class="bi bi-arrow-left-circle me-2"></i>
                     Quay lại danh sách
                 </a>
-                <button class = "btn btn-primary-modern btn-modern">
-                    <i class = "bi bi-envelope me-2"></i>
+                <button class="btn btn-primary-modern btn-modern">
+                    <i class="bi bi-envelope me-2"></i>
                     Gửi email khách hàng
                 </button>
             </div>

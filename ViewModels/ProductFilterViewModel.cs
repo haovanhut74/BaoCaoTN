@@ -14,6 +14,8 @@ public class ProductFilterViewModel
     public int TotalPages { get; set; }
     public List<string> SelectedSlugBrands { get; set; } = new();
 
+    public string SortOrder { get; set; }
+
     // Thêm:
     public List<Sliders> Sliders { get; set; } = new();
 

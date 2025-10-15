@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 using MyWebApp.Models;
 using MyWebApp.ViewModels;
@@ -7,6 +8,8 @@ using MyWebApp.ViewModels;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
+[Area("Admin")]
+[HasPermission("ManageComment")]
 public class CommentController : BaseController
 {
     public CommentController(DataContext context) : base(context) { }
@@ -35,6 +38,7 @@ public class CommentController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("ApproveComment")]
     public async Task<IActionResult> Approve(Guid id)
     {
         var comment = await _context.Comments.FindAsync(id);
@@ -50,6 +54,7 @@ public class CommentController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("HidenComment")]
     public async Task<IActionResult> Hide(Guid id)
     {
         var comment = await _context.Comments.FindAsync(id);
@@ -65,6 +70,7 @@ public class CommentController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("DeleteComment")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var comment = await _context.Comments

@@ -233,6 +233,7 @@ public class UserController : BaseController
     // Khóa tài khoản
     // Khóa tài khoản
     [HttpGet]
+    [HasPermission("LockUser")]   
     public async Task<IActionResult> Lock(string id)
     {
         var user = await _userManager.FindByIdAsync(id);
@@ -250,6 +251,7 @@ public class UserController : BaseController
     // Mở khóa tài khoản
     // Mở khóa tài khoản
     [HttpGet]
+    [HasPermission("LockUser")]  
     public async Task<IActionResult> Unlock(string id)
     {
         var user = await _userManager.FindByIdAsync(id);

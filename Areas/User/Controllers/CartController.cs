@@ -142,7 +142,7 @@ public class CartController : BaseController
             .Where(g => g.RequiredProductId == id &&
                         g.IsActive &&
                         g.StartDate <= DateTime.Now &&
-                        g.EndDate >= DateTime.Now)
+                        g.EndDate.AddDays(1) >= DateTime.Now)
             .ToListAsync();
 
         foreach (var promo in promotions)
@@ -223,7 +223,7 @@ public class CartController : BaseController
         var promotions = await _context.GiftPromotions
             .Include(p => p.RequiredProduct)
             .Include(p => p.GiftProduct)
-            .Where(p => p.IsActive && p.StartDate <= DateTime.Now && p.EndDate >= DateTime.Now)
+            .Where(p => p.IsActive && p.StartDate <= DateTime.Now && p.EndDate.AddDays(1) >= DateTime.Now)
             .ToListAsync();
 
         var cartItems = await _context.CartItems
@@ -385,7 +385,7 @@ public class CartController : BaseController
 
         var now = DateTime.Now;
         var discount = await _context.DiscountCodes
-            .FirstOrDefaultAsync(d => d.Code == code && d.IsActive && d.StartDate <= now && d.EndDate >= now);
+            .FirstOrDefaultAsync(d => d.Code == code && d.IsActive && d.StartDate <= now && d.EndDate.AddDays(1) >= now);
 
         if (discount == null)
             return Json(new { success = false, message = "Mã giảm giá không hợp lệ hoặc hết hạn" });

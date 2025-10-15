@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace MyWebApp.Models;
 
@@ -27,7 +28,7 @@ public class Order
     [StringLength(11, MinimumLength = 10)]
     [Display(Name = "Số điện thoại")]
     public string PhoneNumber { get; set; } = string.Empty;
-    
+
     // Nếu bạn muốn lưu raw response JSON của GHN
     public string? GhnResponse { get; set; }
     public string? GHNOrderCode { get; set; } // mã đơn GHN (VD: L3EVY8)

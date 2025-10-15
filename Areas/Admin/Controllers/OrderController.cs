@@ -84,10 +84,28 @@ public class OrderController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("UpdateStatusOrder")]
     public async Task<IActionResult> UpdateStatus(Guid id, int newStatus)
     {
-        var order = await _context.Orders.FindAsync(id);
+        var order = await _context.Orders
+            .Include(o => o.OrderDetails)
+            .ThenInclude(od => od.Product)
+            .FirstOrDefaultAsync(o => o.OrderId == id);
+
         if (order == null) return NotFound();
+
+        // Nếu chuyển sang trạng thái "Hoàn lại sản phẩm thành công" (status = 6)
+        if (newStatus == 6 && order.Status != 6)
+        {
+            foreach (var detail in order.OrderDetails)
+            {
+                var product = await _context.Products.FindAsync(detail.ProductId);
+                if (product != null)
+                {
+                    product.Quantity += detail.Quantity; // Cộng lại số lượng sản phẩm
+                }
+            }
+        }
 
         order.Status = newStatus;
         await _context.SaveChangesAsync();
@@ -121,6 +139,7 @@ public class OrderController : BaseController
     }
 
     [HttpGet]
+    [HasPermission("ExportFileOrder")]
     public async Task<IActionResult> ExportCsv(string? orderCode, string? userName, string? status, string? dateFrom,
         string? dateTo)
     {
@@ -145,6 +164,7 @@ public class OrderController : BaseController
     }
 
     [HttpGet]
+    [HasPermission("ExportFileOrder")]
     public async Task<IActionResult> ExportExcel(string? orderCode, string? userName, string? status, string? dateFrom,
         string? dateTo)
     {
@@ -184,6 +204,7 @@ public class OrderController : BaseController
     }
 
     [HttpGet]
+    [HasPermission("ExportFileOrder")]
     public async Task<IActionResult> ExportPdf(string? orderCode, string? userName, string? status, string? dateFrom,
         string? dateTo)
     {
@@ -262,7 +283,7 @@ public class OrderController : BaseController
     }
 
     [HttpGet]
-    [HasPermission("ViewOrder")] // hoặc permission phù hợp
+    [HasPermission("ExportFileOrder")] // hoặc permission phù hợp
     public async Task<IActionResult> PrintOrder(Guid id)
     {
         var order = await _context.Orders
@@ -339,5 +360,4 @@ public class OrderController : BaseController
         3 => "Đã giao",
         _ => "Đã hủy"
     };
-    
 }

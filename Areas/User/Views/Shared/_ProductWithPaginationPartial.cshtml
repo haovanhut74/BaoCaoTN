@@ -1,20 +1,17 @@
 ﻿@model MyWebApp.ViewModels.ProductFilterViewModel
 
 <!-- Danh sách sản phẩm -->
-
 @await Html.PartialAsync("_ProductListPartial", Model.Products)
-
-
 
 <!-- Pagination -->
 @if (Model.TotalPages > 1)
 {
-    <nav aria-label = "Page navigation" class = "mt-4">
-        <ul class = "pagination justify-content-center">
-            <li class = "page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
                 <a
-                    class = "page-link"
-                    href = "@Url.Action("FilterPartial", "Product", new { area = "User", page = Model.CurrentPage - 1 })"
+                    class="page-link"
+                    href="@Url.Action("FilterPartial", "Product", new { area = "User", page = Model.CurrentPage - 1, selectedSlugCategories = Model.SelectedSlugCategories, selectedSlugBrands = Model.SelectedSlugBrands, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = Model.SortOrder })"
                 >
                     Trước
                 </a>
@@ -22,28 +19,29 @@
 
             @for (int i = 1; i <= Model.TotalPages; i++)
             {
-                <li class = "page-item @(i == Model.CurrentPage ? "active" : "")">
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
                     <a
-                        class = "page-link"
-                        href = "@Url.Action("FilterPartial", "Product", new
-                                {
-                                    area = "User", page = i,
-                                    selectedSlugCategories = Model.SelectedSlugCategories,
-                                    selectedSlugBrands = Model.SelectedSlugBrands,
-                                    minPrice = Model.MinPrice,
-                                    maxPrice = Model.MaxPrice
-                                })"
+                        class="page-link"
+                        href="@Url.Action("FilterPartial", "Product", new
+                        {
+                            area = "User",
+                            page = i,
+                            selectedSlugCategories = Model.SelectedSlugCategories,
+                            selectedSlugBrands = Model.SelectedSlugBrands,
+                            minPrice = Model.MinPrice,
+                            maxPrice = Model.MaxPrice,
+                            sortOrder = Model.SortOrder
+                        })"
                     >
                         @i
                     </a>
-
                 </li>
             }
 
-            <li class = "page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+            <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
                 <a
-                    class = "page-link"
-                    href = "@Url.Action("FilterPartial", "Product", new { area = "User", page = Model.CurrentPage + 1 })"
+                    class="page-link"
+                    href="@Url.Action("FilterPartial", "Product", new { area = "User", page = Model.CurrentPage + 1, selectedSlugCategories = Model.SelectedSlugCategories, selectedSlugBrands = Model.SelectedSlugBrands, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = Model.SortOrder })"
                 >
                     Sau
                 </a>

@@ -147,12 +147,12 @@ public class RoleController : BaseController
         return Json(new { success = false, message = errorMessage });
     }
 
-    [HttpGet]
     [HasPermission("AssignRoles")]
     public async Task<IActionResult> Detail(string id)
     {
         var role = await _roleManager.FindByIdAsync(id);
-        if (role == null) return NotFound();
+        if (role == null)
+            return NotFound();
 
         var allPermissions = await _context.Permissions.ToListAsync();
         var grantedPermissions = await _context.RolePermissions
@@ -163,7 +163,7 @@ public class RoleController : BaseController
         var viewModel = new RolePermissionViewModel
         {
             RoleId = role.Id,
-            RoleName = role.Name!,
+            RoleName = role.Name,
             Permissions = allPermissions.Select(p => new PermissionItem
             {
                 PermissionId = p.Id,

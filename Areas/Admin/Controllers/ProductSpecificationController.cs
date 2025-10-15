@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 using MyWebApp.Models;
 using MyWebApp.ViewModels;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
+[HasPermission("ManageProducts")]
 public class ProductSpecificationController : BaseController
 {
     public ProductSpecificationController(DataContext context) : base(context) { }
@@ -31,6 +33,7 @@ public class ProductSpecificationController : BaseController
     }
 
     [HttpGet]
+    [HasPermission("CreateProduct")]
     public async Task<IActionResult> Create(Guid productId)
     {
         ViewBag.Product = await _context.Products.FindAsync(productId);
@@ -49,6 +52,7 @@ public class ProductSpecificationController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("CreateProduct")]
     public async Task<IActionResult> Create(ProductSpecification model)
     {
         if (model.SpecNameId == null && string.IsNullOrWhiteSpace(model.Key))
@@ -89,6 +93,7 @@ public class ProductSpecificationController : BaseController
 
 
     [HttpGet]
+    [HasPermission("CreateProduct")]
     public async Task<IActionResult> Edit(Guid id)
     {
         var spec = await _context.ProductSpecifications.FindAsync(id);
@@ -113,6 +118,7 @@ public class ProductSpecificationController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("CreateProduct")]
     public async Task<IActionResult> Edit(ProductSpecificationEditViewModel model)
     {
         if (!ModelState.IsValid)
@@ -152,6 +158,7 @@ public class ProductSpecificationController : BaseController
 
     // Xóa thông số
     [HttpGet]
+    [HasPermission("DeleteProduct")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var spec = await _context.ProductSpecifications.FindAsync(id);

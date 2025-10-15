@@ -18,7 +18,9 @@ public class ProductController : BaseController
         List<string> selectedSlugBrands,
         List<string> selectedSlugCategories,
         decimal? minPrice,
-        decimal? maxPrice, int page = 1)
+        decimal? maxPrice,
+        string sortOrder = "desc",
+        int page = 1)
     {
         var categories = await _context.Categories.ToListAsync();
         var brands = await _context.Brands.ToListAsync();
@@ -39,11 +41,19 @@ public class ProductController : BaseController
         if (maxPrice.HasValue)
             productsQuery = productsQuery.Where(p => p.Price <= maxPrice.Value);
 
+        // Áp dụng sắp xếp
+        productsQuery = sortOrder switch
+        {
+            "asc" => productsQuery.OrderBy(p => p.Price),
+            "newest" => productsQuery.OrderByDescending(p => p.CreatedAt),
+            "oldest" => productsQuery.OrderBy(p => p.CreatedAt),
+            _ => productsQuery.OrderByDescending(p => p.Price) // Mặc định giảm dần
+        };
 
-        int pageSize = 12; // số sản phẩm trên 1 trang
+        int pageSize = 12;
         int totalItems = await productsQuery.CountAsync();
         int totalPages = (int)Math.Ceiling((decimal)totalItems / pageSize);
-        var products = await productsQuery.OrderByDescending(p => p.Id)
+        var products = await productsQuery
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -58,9 +68,9 @@ public class ProductController : BaseController
             MinPrice = minPrice,
             MaxPrice = maxPrice,
             CurrentPage = page,
-            TotalPages = totalPages
+            TotalPages = totalPages,
+            SortOrder = sortOrder
         };
-
 
         return View(vm);
     }
@@ -71,6 +81,7 @@ public class ProductController : BaseController
         List<string> selectedSlugCategories,
         decimal? minPrice,
         decimal? maxPrice,
+        string sortOrder = "desc",
         int page = 1,
         int pageSize = 12)
     {
@@ -90,11 +101,19 @@ public class ProductController : BaseController
         if (maxPrice.HasValue)
             productsQuery = productsQuery.Where(p => p.Price <= maxPrice.Value);
 
+        // Áp dụng sắp xếp
+        productsQuery = sortOrder switch
+        {
+            "asc" => productsQuery.OrderBy(p => p.Price),
+            "newest" => productsQuery.OrderByDescending(p => p.CreatedAt),
+            "oldest" => productsQuery.OrderBy(p => p.CreatedAt),
+            _ => productsQuery.OrderByDescending(p => p.Price) // Mặc định giảm dần
+        };
+
         int totalItems = await productsQuery.CountAsync();
         int totalPages = (int)Math.Ceiling((decimal)totalItems / pageSize);
 
         var products = await productsQuery
-            .OrderByDescending(p => p.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -107,7 +126,8 @@ public class ProductController : BaseController
             MinPrice = minPrice,
             MaxPrice = maxPrice,
             CurrentPage = page,
-            TotalPages = totalPages
+            TotalPages = totalPages,
+            SortOrder = sortOrder
         };
 
         return PartialView("_ProductWithPaginationPartial", vm);
@@ -149,7 +169,7 @@ public class ProductController : BaseController
             .Include(p => p.GiftProduct)
             .Where(p => p.RequiredProductId == product.Id
                         && p.StartDate <= DateTime.Now
-                        && p.EndDate >= DateTime.Now
+                        && p.EndDate.AddDays(1) >= DateTime.Now
                         && p.IsActive)
             .ToListAsync();
 
@@ -181,11 +201,24 @@ public class ProductController : BaseController
             return View(new List<Product>());
         }
 
+        // Chuẩn hóa và tách từ khóa
+        searchTerm = searchTerm.Trim().ToLower();
+        var keywords = searchTerm.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
         // Query chung
         var query = _context.Products
             .Include(p => p.Category)
             .Include(p => p.Brand)
-            .Where(p => p.Name.Contains(searchTerm));
+            .AsQueryable();
+
+        // Áp dụng tìm kiếm cho từng từ khóa
+        foreach (var keyword in keywords)
+        {
+            query = query.Where(p =>
+                p.Name.ToLower().Contains(keyword) ||
+                p.Category.Name.ToLower().Contains(keyword) ||
+                p.Brand.Name.ToLower().Contains(keyword));
+        }
 
         if (suggest)
         {
@@ -205,14 +238,17 @@ public class ProductController : BaseController
                 })
                 .ToListAsync();
 
-            var keywords = await _context.Products
-                .Where(p => p.Name.Contains(searchTerm))
+            var keywordsList = await _context.Products
+                .Where(p => keywords.Any(k =>
+                    p.Name.ToLower().Contains(k) ||
+                    p.Category.Name.ToLower().Contains(k) ||
+                    p.Brand.Name.ToLower().Contains(k)))
                 .Select(p => p.Name)
                 .Distinct()
                 .Take(5)
                 .ToListAsync();
 
-            return Json(new { products, keywords });
+            return Json(new { products, keywords = keywordsList });
         }
         else
         {

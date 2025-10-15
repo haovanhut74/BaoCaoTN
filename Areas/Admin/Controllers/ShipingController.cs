@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 using MyWebApp.Models;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
-[Area("Admin")]
+[HasPermission("ManageShiping")]
 public class ShipingController : BaseController
 {
     public ShipingController(DataContext context) : base(context) { }
@@ -19,6 +20,7 @@ public class ShipingController : BaseController
 
     // Hiển thị form tạo mới
     [HttpGet]
+    [HasPermission("CreateShiping")]
     public IActionResult Create()
     {
         return View();
@@ -27,6 +29,7 @@ public class ShipingController : BaseController
     // Lưu phí ship mới
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("CreateShiping")]
     public async Task<IActionResult> Create(Shiping shiping)
     {
         if (!ModelState.IsValid)
@@ -46,6 +49,7 @@ public class ShipingController : BaseController
 
 
     // GET: Edit
+    [HasPermission("EditShiping")]
     public IActionResult Edit(Guid id)
     {
         var shiping = _context.Shipings.Find(id);
@@ -56,6 +60,7 @@ public class ShipingController : BaseController
     // POST: Edit
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("EditShiping")]
     public IActionResult Edit(Shiping shiping)
     {
         if (ModelState.IsValid)
@@ -69,6 +74,7 @@ public class ShipingController : BaseController
     }
 
     // GET: Delete
+    [HasPermission("DeleteShiping")]
     public IActionResult Delete(Guid id)
     {
         var shiping = _context.Shipings.Find(id);
@@ -77,6 +83,7 @@ public class ShipingController : BaseController
     }
 
     [HttpPost]
+    [HasPermission("DeleteShiping")]
     public IActionResult DeleteAjax(Guid id)
     {
         var ship = _context.Shipings.Find(id);
@@ -90,17 +97,4 @@ public class ShipingController : BaseController
 
         return Json(new { success = true });
     }
-
-
-    // // POST: Delete
-    // [HttpPost, ActionName("Delete")]
-    // [ValidateAntiForgeryToken]
-    // public IActionResult DeleteConfirmed(Guid id)
-    // {
-    //     var shiping = _context.Shipings.Find(id);
-    //     if (shiping == null) return NotFound();
-    //     _context.Shipings.Remove(shiping);
-    //     _context.SaveChanges();
-    //     return RedirectToAction(nameof(Index));
-    // }
 }

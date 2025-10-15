@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 using MyWebApp.Models;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
+[HasPermission("ManageDiscountCode")]
 public class DiscountCodesController : BaseController
 {
     public DiscountCodesController(DataContext context) : base(context) { }
@@ -16,6 +18,7 @@ public class DiscountCodesController : BaseController
         return View(codes);
     }
 
+    [HasPermission("CreateDiscountCode")]
     // GET: Admin/DiscountCodes/Create
     public IActionResult Create()
     {
@@ -25,6 +28,7 @@ public class DiscountCodesController : BaseController
     // POST: Admin/DiscountCodes/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("CreateDiscountCode")]
     public async Task<IActionResult> Create(DiscountCode discountCode)
     {
         if (ModelState.IsValid)
@@ -39,6 +43,7 @@ public class DiscountCodesController : BaseController
     }
 
     // GET: Admin/DiscountCodes/Edit/{id}
+    [HasPermission("EditDiscountCode")]
     public async Task<IActionResult> Edit(Guid id)
     {
         var discountCode = await _context.DiscountCodes.FindAsync(id);
@@ -49,6 +54,7 @@ public class DiscountCodesController : BaseController
     // POST: Admin/DiscountCodes/Edit/{id}
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HasPermission("EditDiscountCode")]   
     public async Task<IActionResult> Edit(Guid id, DiscountCode discountCode)
     {
         if (ModelState.IsValid)
@@ -74,6 +80,7 @@ public class DiscountCodesController : BaseController
     // POST: Admin/DiscountCodes/Delete/{id}
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
+    [HasPermission("DeleteDiscountCode")]  
     public async Task<IActionResult> DeleteConfirmed(Guid id)
     {
         var discountCode = await _context.DiscountCodes.FindAsync(id);

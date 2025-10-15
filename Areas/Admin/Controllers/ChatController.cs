@@ -1,10 +1,12 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyWebApp.Areas.Permission;
 using MyWebApp.Data;
 
 namespace MyWebApp.Areas.Admin.Controllers;
 
+[HasPermission(("ManageChat"))]
 public class ChatController : BaseController
 {
     public ChatController(DataContext context) : base(context) { }
@@ -25,7 +27,7 @@ public class ChatController : BaseController
             .Select(g => new
             {
                 Id = g.Key,
-                UserName = g.FirstOrDefault(x => x.SenderId != "admin").SenderName ?? "Khách", 
+                UserName = g.FirstOrDefault(x => x.SenderId != "admin").SenderName ?? "Khách",
                 LastMessage = g.OrderByDescending(x => x.SentAt).First().Message,
                 LastAt = g.OrderByDescending(x => x.SentAt).First().SentAt
             })
@@ -54,9 +56,10 @@ public class ChatController : BaseController
             .ToListAsync();
         return Ok(msgs);
     }
-    
+
     // API: Xóa toàn bộ chat của 1 room
     [HttpDelete]
+    [HasPermission(("DeleteChat"))]
     public async Task<IActionResult> DeleteRoom(string roomId)
     {
         if (string.IsNullOrEmpty(roomId)) return BadRequest();
@@ -72,5 +75,4 @@ public class ChatController : BaseController
 
         return Ok(new { message = "Đã xóa tất cả tin nhắn của room." });
     }
-
 }
